@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "test": "vitest run",
     "preview": "vite preview",
     "prebuild": "node -e \"const f=require('fs');for(const n of ['terminos.md','privacidad.md']){const s='../docs/'+n;if(f.existsSync(s))f.copyFileSync(s,'src/legal/'+n)}\""
   },
@@ -24,6 +25,7 @@
     "@vitejs/plugin-react": "^6.3.0",
     "oxlint": "^1.94.0",
     "typescript": "~7.0.2",
-    "vite": "^8.4.0"
+    "vite": "^8.4.0",
+    "vitest": "^5.1.2"
   }
 }

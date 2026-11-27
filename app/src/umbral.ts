@@ -103,7 +103,7 @@ const ERRORES: Record<number, string> = {
   14: "El precio cambió mientras decidías. Volvé a intentar para ver el precio nuevo.",
 };
 
-function enPalabras(e: unknown): Error {
+export function enPalabras(e: unknown): Error {
   const texto = e instanceof Error ? e.message : String(e);
   const m = texto.match(/Error\(Contract, #(\d+)\)/);
   if (m && ERRORES[Number(m[1])]) return new Error(ERRORES[Number(m[1])]);
