@@ -124,20 +124,44 @@ type Enviado = {
   getTransactionResponse?: { status: string };
 };
 
+/** La acción se mandó, pero la red todavía no dijo si salió bien. Puede haberse cobrado:
+ *  no hay que volver a pagar. Lleva el comprobante para seguir intentando publicar. */
+export class PagoSinConfirmar extends Error {
+  hash: string;
+  constructor(hash: string) {
+    super(
+      `No pudimos confirmar si el pago salió. No vuelvas a pagar todavía: fijate en un minuto en ${RED.explorador}/tx/${hash}. Si salió, tu huella se publica sola.`,
+    );
+    this.hash = hash;
+  }
+}
+
 /** Firma y manda. Solo devuelve comprobante si la red aceptó la acción. */
-async function enviar(armar: () => Promise<{ signAndSend: () => Promise<Enviado> }>): Promise<Comprobante> {
+type Vigia = { onSubmitted?: (r?: { hash?: string }) => void };
+
+async function enviar(armar: () => Promise<{ signAndSend: (o?: { watcher?: Vigia }) => Promise<Enviado> }>): Promise<Comprobante> {
   let enviado: Enviado;
+  // El comprobante se conoce apenas sale la acción, antes de saber si salió bien.
+  let mandada = "";
   try {
     const tx = await armar(); // acá se simula: si el contrato va a rechazar, falla antes de firmar
-    enviado = await tx.signAndSend();
+    enviado = await tx.signAndSend({ watcher: { onSubmitted: (r) => (mandada = r?.hash ?? "") } });
   } catch (e) {
+    // Si ya se mandó y la red no contestó a tiempo, no es un rechazo: puede haberse cobrado.
+    const texto = e instanceof Error ? e.message : String(e);
+    if (mandada && /Waited \d+ seconds|StillPending|timeout|timed out|failed to fetch|networkerror/i.test(texto)) {
+      throw new PagoSinConfirmar(mandada);
+    }
     throw enPalabras(e);
   }
   const hash = enviado.sendTransactionResponse?.hash;
   if (!hash) throw new Error("La red no devolvió un comprobante.");
-  if (enviado.getTransactionResponse?.status !== "SUCCESS") {
+  const estado = enviado.getTransactionResponse?.status;
+  // Solo FAILED es un rechazo seguro. Sin respuesta o NOT_FOUND, la red todavía no decidió.
+  if (estado === "FAILED") {
     throw new Error(`La red rechazó la acción. Podés ver el detalle en ${RED.explorador}/tx/${hash}`);
   }
+  if (estado !== "SUCCESS") throw new PagoSinConfirmar(hash);
   return comprobante(hash);
 }
 

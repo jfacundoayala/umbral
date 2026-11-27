@@ -27,6 +27,13 @@ export default function App() {
       .then((b) => b.cuentaGuardada())
       .then(setCuenta)
       .catch(() => setCuenta(null));
+    // Huellas que se pagaron y no llegaron a publicarse: se publican ahora, sin volver a pagar.
+    import("./pendientes")
+      .then((p) => p.reintentarPendientes())
+      .then((n) => {
+        if (n > 0) setAviso(n === 1 ? "Publicamos una huella tuya que había quedado pagada y sin publicar." : `Publicamos ${n} huellas tuyas que habían quedado pagadas y sin publicar.`);
+      })
+      .catch(() => {});
   }, []);
 
   async function alEntrar() {

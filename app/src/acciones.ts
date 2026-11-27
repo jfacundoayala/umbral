@@ -2,9 +2,33 @@
 import { Buffer } from "buffer";
 import { guardarBorrador, publicar, subirArchivo, type Huella } from "./base";
 import { firmar, firmarMensaje } from "./billetera";
-import { codigoDe, codigoDeArchivo, continuar, dejarHuella, idDe, type Documento } from "./umbral";
+import { codigoDe, codigoDeArchivo, continuar, dejarHuella, idDe, PagoSinConfirmar, type Comprobante, type Documento } from "./umbral";
+import { anotar, quitar } from "./pendientes";
 
 export type Avance = (texto: string) => void;
+
+/** Paga y publica. El comprobante se anota antes de publicar: si algo falla después del pago,
+ *  la huella se publica sola la próxima vez que se abra UMBRAL, sin volver a pagar. */
+async function pagarYPublicar<T extends Comprobante>(id: string, pagar: () => Promise<T>, avance: Avance): Promise<T> {
+  let recibo: T;
+  try {
+    recibo = await pagar();
+  } catch (e) {
+    if (e instanceof PagoSinConfirmar) anotar(id, e.hash);
+    throw e;
+  }
+  anotar(id, recibo.hash);
+  avance("Pago hecho. Publicando…");
+  try {
+    await publicar(id, recibo.hash);
+  } catch {
+    throw new Error(
+      `El pago quedó hecho y no se cobra de nuevo. Falta publicar: lo volvemos a intentar solo cada vez que abras UMBRAL. Comprobante: ${recibo.enlace}`,
+    );
+  }
+  quitar(id);
+  return recibo;
+}
 
 async function idYCodigo(cuenta: string, doc: Documento) {
   const digest = await codigoDe(doc);
@@ -19,9 +43,7 @@ export async function continuarHuella(cuenta: string, obra: Huella, padre: strin
   // La huella hereda la sala de la obra (si la obra llegó invitada por una sala, la base lo exige).
   await guardarBorrador({ id, digest, autor: cuenta, artista: obra.artista, moneda, padre, sala: obra.sala ?? null }, doc);
   avance("Firmá en tu billetera…");
-  const recibo = await continuar(cuenta, firmar, padre, doc, precio, moneda);
-  avance("Pago hecho. Publicando…");
-  await publicar(id, recibo.hash);
+  const recibo = await pagarYPublicar(id, () => continuar(cuenta, firmar, padre, doc, precio, moneda), avance);
   return { ...recibo, id };
 }
 
@@ -58,9 +80,7 @@ export async function abrirObra(
     await subirArchivo("audios", audio_ruta, audio);
   }
   avance("Firmá en tu billetera…");
-  const recibo = await dejarHuella(cuenta, firmar, completo, precio, moneda, sala);
-  avance("Pago hecho. Publicando…");
-  await publicar(id, recibo.hash);
+  const recibo = await pagarYPublicar(id, () => dejarHuella(cuenta, firmar, completo, precio, moneda, sala), avance);
   return { ...recibo, id };
 }
 
