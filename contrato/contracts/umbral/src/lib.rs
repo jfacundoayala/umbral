@@ -384,12 +384,14 @@ impl Umbral {
 
     /// El artista acepta, con su firma, el reparto de la muestra de una sala
     /// para sus obras de esa sala. Sin esta firma, sus obras siguen con el
-    /// reparto de siempre aunque la sala esté en muestra. `parte_sala_bps`
-    /// es el porcentaje que el artista vio: si no coincide, falla.
+    /// reparto de siempre aunque la sala esté en muestra. `desde`, `hasta` y
+    /// `parte_sala_bps` son la muestra que el artista vio: si no coinciden, falla.
     pub fn aceptar_muestra(
         env: Env,
         artista: Address,
         sala: BytesN<32>,
+        desde: u64,
+        hasta: u64,
         parte_sala_bps: u32,
     ) -> Result<(), Error> {
         artista.require_auth();
@@ -403,6 +405,9 @@ impl Umbral {
         }
         if m.parte_sala_bps != parte_sala_bps {
             return Err(Error::PorcentajeInvalido);
+        }
+        if m.desde != desde || m.hasta != hasta {
+            return Err(Error::MuestraInvalida);
         }
         let clave = Clave::Acuerdo(sala.clone(), artista.clone());
         env.storage().persistent().set(&clave, &m);

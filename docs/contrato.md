@@ -17,7 +17,7 @@ Contrato en Soroban (soroban-sdk 30), en `contrato/contracts/umbral/src/lib.rs`.
 | `retirar_fondo` | El museo de la sala | Retira lo que no se usó del fondo. Va al museo. |
 | `invitar` | El museo de la sala | Invita a una cuenta. La invitación se usa una sola vez. |
 | `abrir_muestra` | El administrador | Abre la muestra de una sala: fechas (hasta 90 días) y parte de la sala (0% a 40%). |
-| `aceptar_muestra` | El artista | Acepta el reparto de esa muestra (fechas y parte de la sala). Sin esta firma, su obra queda afuera. Si se abre otra muestra, aunque empiece el mismo día, tiene que firmar de nuevo. |
+| `aceptar_muestra` | El artista | Acepta el reparto de esa muestra: firma las fechas y la parte de la sala que vio. Sin esta firma, su obra queda afuera. Si se abre otra muestra, aunque empiece el mismo día, tiene que firmar de nuevo. |
 | `fijar_precios` | El administrador | Precios por moneda. Valen hacia adelante. |
 | `fijar_parte_autor` | El administrador | Parte del artista. Nunca menos del 30%. |
 | `moderar` | El administrador | Retira una huella por moderación. Queda dicho que fue por moderación. |
