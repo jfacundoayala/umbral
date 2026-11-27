@@ -1,6 +1,6 @@
 # El contrato
 
-Contrato en Soroban (soroban-sdk 30), en `contrato/contracts/umbral/src/lib.rs`. Desplegado en la red de pruebas: [`CCFQDRBG…W4N66`](https://stellar.expert/explorer/testnet/contract/CCFQDRBGXVE4EIXZMBKA4GXXJV3BV6IZNSNXLPJHTDKEGN3SYYIW4N66).
+Contrato en Soroban (soroban-sdk 30), en `contrato/contracts/umbral/src/lib.rs`. Desplegado en la red de pruebas: [`CBPXN2SA…V3TP`](https://stellar.expert/explorer/testnet/contract/CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP).
 
 ## Funciones y quién puede llamarlas
 
@@ -46,4 +46,4 @@ El servidor usa `HuellaDejada` para confirmar que un comprobante es el de esa hu
 
 ## Compilar igual que lo desplegado
 
-`contrato/rust-toolchain.toml` fija Rust 1.100.0. Con esa versión, `stellar contract build` da el mismo código que está en la red (`ccc8f647…c8773` para el contrato de hoy).
+`contrato/rust-toolchain.toml` fija Rust 1.100.0. Con esa versión, `stellar contract build` da el mismo código que está en la red: `276f4d85…0fc7` (26.205 bytes). El contrato anterior, `CCFQDRBG…W4N66`, daba `ccc8f647…c8773` con esa misma versión.

@@ -90,7 +90,11 @@ export const Errors = {
    * Las fechas de la muestra no sirven: ya pasó, dura más de 90 días o
    * la sala tiene otra muestra que todavía no terminó.
    */
-  15: {message:"MuestraInvalida"}
+  15: {message:"MuestraInvalida"},
+  /**
+   * El fondo de la sala no alcanza para ese retiro.
+   */
+  16: {message:"FondoInsuficiente"}
 }
 
 
@@ -148,6 +152,7 @@ export interface Precios {
   comentario: i128;
   huella: i128;
 }
+
 
 
 
@@ -273,6 +278,13 @@ export interface Client {
   abrir_sala: ({museo, sala}: {museo: string, sala: Buffer}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
+   * Construct and simulate a actualizar transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * Reemplaza el código del contrato por uno ya subido a la red, sin
+   * perder huellas, saldos ni fondos. Solo el administrador.
+   */
+  actualizar: ({wasm_hash}: {wasm_hash: Buffer}, options?: MethodOptions) => Promise<AssembledTransaction<null>>
+
+  /**
    * Construct and simulate a patrocinar transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    * Cualquiera (el museo o quien lo apoye) pone plata en el fondo de una
    * sala. Ese fondo paga una huella a cada visitante que el museo invitó.
@@ -312,6 +324,13 @@ export interface Client {
   fijar_precios: ({moneda, precios}: {moneda: string, precios: Precios}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
+   * Construct and simulate a retirar_fondo transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+   * El museo de la sala retira plata del fondo que no se usó. No vuelve a
+   * quien patrocinó: va al museo, que es quien decide a quién invita.
+   */
+  retirar_fondo: ({sala, moneda, monto}: {sala: Buffer, moneda: string, monto: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+
+  /**
    * Construct and simulate a acepto_muestra transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    * Si un artista aceptó la muestra que esa sala tiene cargada.
    */
@@ -321,10 +340,10 @@ export interface Client {
    * Construct and simulate a aceptar_muestra transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    * El artista acepta, con su firma, el reparto de la muestra de una sala
    * para sus obras de esa sala. Sin esta firma, sus obras siguen con el
-   * reparto de siempre aunque la sala esté en muestra. `parte_sala_bps`
-   * es el porcentaje que el artista vio: si no coincide, falla.
+   * reparto de siempre aunque la sala esté en muestra. `desde`, `hasta` y
+   * `parte_sala_bps` son la muestra que el artista vio: si no coinciden, falla.
    */
-  aceptar_muestra: ({artista, sala, parte_sala_bps}: {artista: string, sala: Buffer, parte_sala_bps: u32}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
+  aceptar_muestra: ({artista, sala, desde, hasta, parte_sala_bps}: {artista: string, sala: Buffer, desde: u64, hasta: u64, parte_sala_bps: u32}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
 
   /**
    * Construct and simulate a fijar_parte_autor transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
@@ -352,7 +371,7 @@ export class Client extends ContractClient {
   }
   constructor(public readonly options: ContractClientOptions) {
     super(
-      new ContractSpec([ "AAAABAAAAAAAAAAAAAAABUVycm9yAAAAAAAADwAAAChZYSBoYXkgdW5hIGh1ZWxsYSBjb24gZXNlIGlkZW50aWZpY2Fkb3IuAAAACFlhRXhpc3RlAAAAAQAAACxObyBoYXkgbmluZ3VuYSBodWVsbGEgY29uIGVzZSBpZGVudGlmaWNhZG9yLgAAAAhOb0V4aXN0ZQAAAAIAAAAXTGEgaHVlbGxhIGZ1ZSByZXRpcmFkYS4AAAAACFJldGlyYWRhAAAAAwAAADFFbCBhdXRvciBubyBwZXJtaXRlIGNvbWVudGFyaW9zIHNvYnJlIGVzYSBodWVsbGEuAAAAAAAAEk5vQWRtaXRlUmVzcHVlc3RhcwAAAAAABAAAACVFc2EgbW9uZWRhIG5vIHRpZW5lIHByZWNpb3MgY2FyZ2Fkb3MuAAAAAAAAEE1vbmVkYU5vQWNlcHRhZGEAAAAFAAAAMkVsIG1vbnRvIGRlIHVuIGFwb3lvIHRpZW5lIHF1ZSBzZXIgbWF5b3IgcXVlIGNlcm8uAAAAAAANTW9udG9JbnZhbGlkbwAAAAAAAAYAAAAZTm8gaGF5IHNhbGRvIHBhcmEgY29icmFyLgAAAAAAAA5OYWRhUGFyYUNvYnJhcgAAAAAABwAAAB9Tb2xvIGVsIGF1dG9yIHB1ZWRlIGhhY2VyIGVzdG8uAAAAAAtOb0VzRWxBdXRvcgAAAAAIAAAAQkVsIHBvcmNlbnRhamUgZGVsIGFydGlzdGEgdGllbmUgcXVlIGVzdGFyIGVudHJlIGVsIHBpc28geSBlbCAxMDAlLgAAAAAAElBvcmNlbnRhamVJbnZhbGlkbwAAAAAACQAAACdVbiBwcmVjaW8gdGllbmUgcXVlIHNlciBtYXlvciBxdWUgY2Vyby4AAAAADlByZWNpb0ludmFsaWRvAAAAAAAKAAAAHlVuYSBzdW1hIHNlIHBhc8OzIGRlbCBtw6F4aW1vLgAAAAAACERlc2JvcmRlAAAACwAAACpObyBoYXkgbmluZ3VuYSBzYWxhIGNvbiBlc2UgaWRlbnRpZmljYWRvci4AAAAAAAxTYWxhTm9FeGlzdGUAAAAMAAAAJkVzYSBjdWVudGEgeWEgZnVlIGludml0YWRhIGEgZXNhIHNhbGEuAAAAAAAKWWFJbnZpdGFkYQAAAAAADQAAAEFFbCBwcmVjaW8gdmlnZW50ZSBlcyBtYXlvciBxdWUgZWwgbcOheGltbyBxdWUgYWNlcHTDsyBxdWllbiBwYWdhLgAAAAAAAA5QcmVjaW9TdXBlcmFkbwAAAAAADgAAAHpMYXMgZmVjaGFzIGRlIGxhIG11ZXN0cmEgbm8gc2lydmVuOiB5YSBwYXPDsywgZHVyYSBtw6FzIGRlIDkwIGTDrWFzIG8KbGEgc2FsYSB0aWVuZSBvdHJhIG11ZXN0cmEgcXVlIHRvZGF2w61hIG5vIHRlcm1pbsOzLgAAAAAAD011ZXN0cmFJbnZhbGlkYQAAAAAP",
+      new ContractSpec([ "AAAABAAAAAAAAAAAAAAABUVycm9yAAAAAAAAEAAAAChZYSBoYXkgdW5hIGh1ZWxsYSBjb24gZXNlIGlkZW50aWZpY2Fkb3IuAAAACFlhRXhpc3RlAAAAAQAAACxObyBoYXkgbmluZ3VuYSBodWVsbGEgY29uIGVzZSBpZGVudGlmaWNhZG9yLgAAAAhOb0V4aXN0ZQAAAAIAAAAXTGEgaHVlbGxhIGZ1ZSByZXRpcmFkYS4AAAAACFJldGlyYWRhAAAAAwAAADFFbCBhdXRvciBubyBwZXJtaXRlIGNvbWVudGFyaW9zIHNvYnJlIGVzYSBodWVsbGEuAAAAAAAAEk5vQWRtaXRlUmVzcHVlc3RhcwAAAAAABAAAACVFc2EgbW9uZWRhIG5vIHRpZW5lIHByZWNpb3MgY2FyZ2Fkb3MuAAAAAAAAEE1vbmVkYU5vQWNlcHRhZGEAAAAFAAAAMkVsIG1vbnRvIGRlIHVuIGFwb3lvIHRpZW5lIHF1ZSBzZXIgbWF5b3IgcXVlIGNlcm8uAAAAAAANTW9udG9JbnZhbGlkbwAAAAAAAAYAAAAZTm8gaGF5IHNhbGRvIHBhcmEgY29icmFyLgAAAAAAAA5OYWRhUGFyYUNvYnJhcgAAAAAABwAAAB9Tb2xvIGVsIGF1dG9yIHB1ZWRlIGhhY2VyIGVzdG8uAAAAAAtOb0VzRWxBdXRvcgAAAAAIAAAAQkVsIHBvcmNlbnRhamUgZGVsIGFydGlzdGEgdGllbmUgcXVlIGVzdGFyIGVudHJlIGVsIHBpc28geSBlbCAxMDAlLgAAAAAAElBvcmNlbnRhamVJbnZhbGlkbwAAAAAACQAAACdVbiBwcmVjaW8gdGllbmUgcXVlIHNlciBtYXlvciBxdWUgY2Vyby4AAAAADlByZWNpb0ludmFsaWRvAAAAAAAKAAAAHlVuYSBzdW1hIHNlIHBhc8OzIGRlbCBtw6F4aW1vLgAAAAAACERlc2JvcmRlAAAACwAAACpObyBoYXkgbmluZ3VuYSBzYWxhIGNvbiBlc2UgaWRlbnRpZmljYWRvci4AAAAAAAxTYWxhTm9FeGlzdGUAAAAMAAAAJkVzYSBjdWVudGEgeWEgZnVlIGludml0YWRhIGEgZXNhIHNhbGEuAAAAAAAKWWFJbnZpdGFkYQAAAAAADQAAAEFFbCBwcmVjaW8gdmlnZW50ZSBlcyBtYXlvciBxdWUgZWwgbcOheGltbyBxdWUgYWNlcHTDsyBxdWllbiBwYWdhLgAAAAAAAA5QcmVjaW9TdXBlcmFkbwAAAAAADgAAAHpMYXMgZmVjaGFzIGRlIGxhIG11ZXN0cmEgbm8gc2lydmVuOiB5YSBwYXPDsywgZHVyYSBtw6FzIGRlIDkwIGTDrWFzIG8KbGEgc2FsYSB0aWVuZSBvdHJhIG11ZXN0cmEgcXVlIHRvZGF2w61hIG5vIHRlcm1pbsOzLgAAAAAAD011ZXN0cmFJbnZhbGlkYQAAAAAPAAAAL0VsIGZvbmRvIGRlIGxhIHNhbGEgbm8gYWxjYW56YSBwYXJhIGVzZSByZXRpcm8uAAAAABFGb25kb0luc3VmaWNpZW50ZQAAAAAAABA=",
         "AAAABQAAAAAAAAAAAAAABUNvYnJvAAAAAAAAAQAAAAVjb2JybwAAAAAAAAMAAAAAAAAABWF1dG9yAAAAAAAAEwAAAAEAAAAAAAAABm1vbmVkYQAAAAAAEwAAAAAAAAAAAAAABW1vbnRvAAAAAAAACwAAAAAAAAAC",
         "AAAAAQAAAAAAAAAAAAAABkh1ZWxsYQAAAAAACgAAAAAAAAAGYWN0aXZhAAAAAAABAAAAAAAAABFhZG1pdGVfcmVzcHVlc3RhcwAAAAAAAAEAAAApQ2FudGlkYWQgZGUgYXBveW9zIHZvbHVudGFyaW9zIHJlY2liaWRvcy4AAAAAAAAGYXBveW9zAAAAAAAEAAAAh1F1aWVuIGFicmnDsyBsYSBvYnJhIGRlIGxhIHF1ZSBkZXNjaWVuZGUgZXN0YSBodWVsbGEuIEVuIGxhIG9icmEKb3JpZ2luYWwgZXMgZWwgbWlzbW8gYXV0b3IuIEVzIGVsIMO6bmljbyBxdWUgY29icmEsIGVuIHRvZGEgbGEgY2FkZW5hLgAAAAAHYXJ0aXN0YQAAAAATAAAAAAAAAAVhdXRvcgAAAAAAABMAAAAlRmVjaGEgZGVsIGxlZGdlciBlbiBxdWUgc2UgcmVnaXN0csOzLgAAAAAAAAZjcmVhZGEAAAAAAAYAAABAU0hBLTI1NiBkZWwgZG9jdW1lbnRvIGV4YWN0by4gRWwgY29udGVuaWRvIHZpdmUgZnVlcmEgZGUgbGEgcmVkLgAAAAZkaWdlc3QAAAAAA+4AAAAgAAAALUh1ZWxsYSBkZSBsYSBxdWUgbmFjacOzLCBzaSBlcyB1biBjb21lbnRhcmlvLgAAAAAAAAVwYWRyZQAAAAAAA+gAAAPuAAAAIAAAAAAAAAAKcmVzcHVlc3RhcwAAAAAABAAAADhTYWxhIGRlIG11c2VvIGEgbGEgcXVlIHBlcnRlbmVjZSwgc2kgcGVydGVuZWNlIGEgYWxndW5hLgAAAARzYWxhAAAD6AAAA+4AAAAg",
         "AAAAAQAAAEJNdWVzdHJhIGNvbiBmZWNoYSBkZSB1bmEgc2FsYS4gTGFzIGZlY2hhcyBzb24gc2VndW5kb3MgZGVzZGUgMTk3MC4AAAAAAAAAAAAHTXVlc3RyYQAAAAADAAAAAAAAAAVkZXNkZQAAAAAAAAYAAAAAAAAABWhhc3RhAAAAAAAABgAAAENQYXJ0ZSBkZSBjYWRhIGNvbnRpbnVhY2nDs24gcXVlIHJlY2liZSBsYSBzYWxhLCBlbiBwdW50b3MgYsOhc2ljb3MuAAAAAA5wYXJ0ZV9zYWxhX2JwcwAAAAAABA==",
@@ -360,6 +379,7 @@ export class Client extends ContractClient {
         "AAAABQAAADxFbCBmb25kbyBkZSB1bmEgc2FsYSBwYWfDsyBsYSBodWVsbGEgZGUgdW5hIGN1ZW50YSBpbnZpdGFkYS4AAAAAAAAACkZvbmRvVXNhZG8AAAAAAAEAAAALZm9uZG9fdXNhZG8AAAAABAAAAAAAAAAEc2FsYQAAA+4AAAAgAAAAAQAAAAAAAAAGY3VlbnRhAAAAAAATAAAAAAAAAAAAAAAGbW9uZWRhAAAAAAATAAAAAAAAAAAAAAAFbW9udG8AAAAAAAALAAAAAAAAAAI=",
         "AAAABQAAAAAAAAAAAAAAC1NhbGFBYmllcnRhAAAAAAEAAAAMc2FsYV9hYmllcnRhAAAAAgAAAAAAAAAEc2FsYQAAA+4AAAAgAAAAAQAAAAAAAAAFbXVzZW8AAAAAAAATAAAAAAAAAAI=",
         "AAAABQAAAAAAAAAAAAAADEh1ZWxsYURlamFkYQAAAAEAAAANaHVlbGxhX2RlamFkYQAAAAAAAAYAAAAAAAAAAmlkAAAAAAPuAAAAIAAAAAEAAAAAAAAABWF1dG9yAAAAAAAAEwAAAAAAAAAAAAAAB2FydGlzdGEAAAAAEwAAAAAAAAAAAAAABmRpZ2VzdAAAAAAD7gAAACAAAAAAAAAAAAAAAAVwYWRyZQAAAAAAA+gAAAPuAAAAIAAAAAAAAAAAAAAABHNhbGEAAAPoAAAD7gAAACAAAAAAAAAAAg==",
+        "AAAABQAAAAAAAAAAAAAADUZvbmRvUmV0aXJhZG8AAAAAAAABAAAADmZvbmRvX3JldGlyYWRvAAAAAAAEAAAAAAAAAARzYWxhAAAD7gAAACAAAAABAAAAAAAAAAVtdXNlbwAAAAAAABMAAAAAAAAAAAAAAAZtb25lZGEAAAAAABMAAAAAAAAAAAAAAAVtb250bwAAAAAAAAsAAAAAAAAAAg==",
         "AAAABQAAAAAAAAAAAAAADUh1ZWxsYUFwb3lhZGEAAAAAAAABAAAADmh1ZWxsYV9hcG95YWRhAAAAAAAEAAAAAAAAAAJpZAAAAAAD7gAAACAAAAABAAAAAAAAAAVxdWllbgAAAAAAABMAAAAAAAAAAAAAAAZtb25lZGEAAAAAABMAAAAAAAAAAAAAAAVtb250bwAAAAAAAAsAAAAAAAAAAg==",
         "AAAABQAAAAAAAAAAAAAADkh1ZWxsYVJldGlyYWRhAAAAAAABAAAAD2h1ZWxsYV9yZXRpcmFkYQAAAAACAAAAAAAAAAJpZAAAAAAD7gAAACAAAAABAAAAR2B0cnVlYCBzaSBsYSByZXRpcsOzIGxhIG1vZGVyYWNpw7NuIGRlIFVtYnJhbCwgYGZhbHNlYCBzaSBmdWUgc3UgYXV0b3IuAAAAAA5wb3JfbW9kZXJhY2lvbgAAAAAAAQAAAAAAAAAC",
         "AAAABQAAAHJVbmEgc2FsYSB0aWVuZSB1bmEgbXVlc3RyYSBjb24gZmVjaGE6IG1pZW50cmFzIGR1cmEsIHJlY2liZSB1bmEgcGFydGUgZGUKY2FkYSBjb250aW51YWNpw7NuIGhlY2hhIHNvYnJlIHN1cyBvYnJhcy4AAAAAAAAAAAAOTXVlc3RyYUFiaWVydGEAAAAAAAEAAAAPbXVlc3RyYV9hYmllcnRhAAAAAAQAAAAAAAAABHNhbGEAAAPuAAAAIAAAAAEAAAAAAAAABWRlc2RlAAAAAAAABgAAAAAAAAAAAAAABWhhc3RhAAAAAAAABgAAAAAAAAAAAAAADnBhcnRlX3NhbGFfYnBzAAAAAAAEAAAAAAAAAAI=",
@@ -386,14 +406,16 @@ export class Client extends ContractClient {
         "AAAAAAAAADlTaSB1bmEgY3VlbnRhIHRpZW5lIHVuYSBpbnZpdGFjacOzbiBzaW4gdXNhciBlbiB1bmEgc2FsYS4AAAAAAAAIaW52aXRhZGEAAAACAAAAAAAAAARzYWxhAAAD7gAAACAAAAAAAAAABmN1ZW50YQAAAAAAEwAAAAEAAAAB",
         "AAAAAAAAABdRdWnDqW4gYWJyacOzIHVuYSBzYWxhLgAAAAAIbXVzZW9fZGUAAAABAAAAAAAAAARzYWxhAAAD7gAAACAAAAABAAAD6QAAABMAAAfQAAAABUVycm9yAAAA",
         "AAAAAAAAADZVbiBtdXNlbyBvIGluc3RpdHVjacOzbiBhYnJlIHN1IHNhbGEgZGVudHJvIGRlIFVtYnJhbC4AAAAAAAphYnJpcl9zYWxhAAAAAAACAAAAAAAAAAVtdXNlbwAAAAAAABMAAAAAAAAABHNhbGEAAAPuAAAAIAAAAAEAAAPpAAAAAgAAB9AAAAAFRXJyb3IAAAA=",
+        "AAAAAAAAAHpSZWVtcGxhemEgZWwgY8OzZGlnbyBkZWwgY29udHJhdG8gcG9yIHVubyB5YSBzdWJpZG8gYSBsYSByZWQsIHNpbgpwZXJkZXIgaHVlbGxhcywgc2FsZG9zIG5pIGZvbmRvcy4gU29sbyBlbCBhZG1pbmlzdHJhZG9yLgAAAAAACmFjdHVhbGl6YXIAAAAAAAEAAAAAAAAACXdhc21faGFzaAAAAAAAA+4AAAAgAAAAAA==",
         "AAAAAAAAAItDdWFscXVpZXJhIChlbCBtdXNlbyBvIHF1aWVuIGxvIGFwb3llKSBwb25lIHBsYXRhIGVuIGVsIGZvbmRvIGRlIHVuYQpzYWxhLiBFc2UgZm9uZG8gcGFnYSB1bmEgaHVlbGxhIGEgY2FkYSB2aXNpdGFudGUgcXVlIGVsIG11c2VvIGludml0w7MuAAAAAApwYXRyb2NpbmFyAAAAAAAEAAAAAAAAAAVxdWllbgAAAAAAABMAAAAAAAAABHNhbGEAAAPuAAAAIAAAAAAAAAAGbW9uZWRhAAAAAAATAAAAAAAAAAVtb250bwAAAAAAAAsAAAABAAAD6QAAAAIAAAfQAAAABUVycm9yAAAA",
         "AAAAAAAAAAAAAAALcGFydGVfYXV0b3IAAAAAAAAAAAEAAAAE",
         "AAAAAAAAAYBEZWphIHVuYSBodWVsbGEgbnVldmEuIEVsIHByZWNpbyBjb21wbGV0byB2YSBhbCBtdXNlbyBVbWJyYWwuClNpIGxhIGh1ZWxsYSB2YSBhIHVuYSBzYWxhIGNvbiBmb25kbyB5IGVsIG11c2VvIGludml0w7MgYSBlc2EgY3VlbnRhLApwYWdhIGVsIGZvbmRvIHkgbm8gZWwgYXV0b3IuIERldnVlbHZlIGB0cnVlYCBzaSBsYSBwYWfDsyBlbCBmb25kby4KRWwgaWRlbnRpZmljYWRvciBsbyBjYWxjdWxhIGVsIGNvbnRyYXRvICh2ZXIgYGlkX2RlYCkuCmBwcmVjaW9fbWF4YDogbG8gbcOheGltbyBxdWUgYWNlcHRhIHBhZ2FyIHF1aWVuIGZpcm1hLiBTaSBlbCBwcmVjaW8KY2FtYmnDsyB5IGVzIG1heW9yLCBsYSBhY2Npw7NuIGZhbGxhIGVuIHZleiBkZSBjb2JyYXIgZGUgbcOhcy4AAAAMZGVqYXJfaHVlbGxhAAAABgAAAAAAAAAFYXV0b3IAAAAAAAATAAAAAAAAAAZkaWdlc3QAAAAAA+4AAAAgAAAAAAAAABFhZG1pdGVfcmVzcHVlc3RhcwAAAAAAAAEAAAAAAAAABm1vbmVkYQAAAAAAEwAAAAAAAAAKcHJlY2lvX21heAAAAAAACwAAAAAAAAAEc2FsYQAAA+gAAAPuAAAAIAAAAAEAAAPpAAAAAQAAB9AAAAAFRXJyb3IAAAA=",
         "AAAAAAAAAItgcGFydGVfYXV0b3JfYnBzYDogcXXDqSBwYXJ0ZSBkZSB1bmEgY29udGludWFjacOzbiB2YSBhbCBhcnRpc3RhIHF1ZQphYnJpw7MgbGEgb2JyYSwgZW4gcHVudG9zIGLDoXNpY29zICg1MDAwID0gNTAlKS4gRWwgcmVzdG8gdmEgYSBVbWJyYWwuAAAAAA1fX2NvbnN0cnVjdG9yAAAAAAAAAwAAAAAAAAAFYWRtaW4AAAAAAAATAAAAAAAAAAZ0ZXNvcm8AAAAAABMAAAAAAAAAD3BhcnRlX2F1dG9yX2JwcwAAAAAEAAAAAA==",
         "AAAAAAAAAU9VbWJyYWwgYWJyZSBsYSBtdWVzdHJhIGNvbiBmZWNoYSBkZSB1bmEgc2FsYSwgYSBwZWRpZG8gZGUgc3UgbXVzZW8uCk1pZW50cmFzIGR1cmEsIGNhZGEgY29udGludWFjacOzbiBzb2JyZSB1bmEgb2JyYSBkZSBlc2Egc2FsYSBsZSBkZWphCmEgbGEgc2FsYSBgcGFydGVfc2FsYV9icHNgIChkZSAwIGEgNDAlKSwgcXVlIHNlIGFjdWVyZGEgcGFyYSBjYWRhCm11ZXN0cmEgeSBxdWVkYSBwdWJsaWNhZG8uIEVsIGFydGlzdGEgbnVuY2EgYmFqYSBkZWwgcGlzby4gRHVyYSBjb21vCm11Y2hvIDkwIGTDrWFzIHkgdW5hIHNhbGEgbm8gcHVlZGUgdGVuZXIgZG9zIG11ZXN0cmFzIGEgbGEgdmV6LgAAAAANYWJyaXJfbXVlc3RyYQAAAAAAAAQAAAAAAAAABHNhbGEAAAPuAAAAIAAAAAAAAAAFZGVzZGUAAAAAAAAGAAAAAAAAAAVoYXN0YQAAAAAAAAYAAAAAAAAADnBhcnRlX3NhbGFfYnBzAAAAAAAEAAAAAQAAA+kAAAACAAAH0AAAAAVFcnJvcgAAAA==",
         "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",
+        "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",
-        "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",
+        "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" ]),
       options
     )
@@ -416,11 +438,13 @@ export class Client extends ContractClient {
         invitada: this.txFromJSON<boolean>,
         museo_de: this.txFromJSON<Result<string>>,
         abrir_sala: this.txFromJSON<Result<void>>,
+        actualizar: this.txFromJSON<null>,
         patrocinar: this.txFromJSON<Result<void>>,
         parte_autor: this.txFromJSON<u32>,
         dejar_huella: this.txFromJSON<Result<boolean>>,
         abrir_muestra: this.txFromJSON<Result<void>>,
         fijar_precios: this.txFromJSON<Result<void>>,
+        retirar_fondo: this.txFromJSON<Result<void>>,
         acepto_muestra: this.txFromJSON<boolean>,
         aceptar_muestra: this.txFromJSON<Result<void>>,
         fijar_parte_autor: this.txFromJSON<Result<void>>

@@ -102,7 +102,7 @@ Los precios son una hipótesis: no están validados con gente real.
 
 | Parte | Estado |
 |---|---|
-| Contrato (Soroban, soroban-sdk 30) | Hecho. 55 pruebas pasan. Desplegado en la red de pruebas: `CCFQDRBGXVE4EIXZMBKA4GXXJV3BV6IZNSNXLPJHTDKEGN3SYYIW4N66`. |
+| Contrato (Soroban, soroban-sdk 30) | Hecho. 55 pruebas pasan. Desplegado en la red de pruebas: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`. |
 | App simulada (`web/app.html`) | Hecha, con dinero de mentira en el navegador. |
 | Portada (`web/index.html`) | Hecha con la identidad. |
 | App real (`app/`) | Hecha: portada, cielo de obras, constelación, ficha, exponer, continuar, apoyar, cobrar y favoritos. Probada de punta a punta en la red de pruebas el 27/11/2026 (abrir 20 XLM, continuar 10, apoyar 5, la artista cobró 10,5 y su saldo quedó en 0). Guion en `docs/demo-jurado.md`, guía para quienes prueban en `docs/guia-pruebas.md`. En curso: audio al exponer una obra y sello de presencia en pantalla. |
@@ -120,7 +120,7 @@ Los precios son una hipótesis: no están validados con gente real.
 - La identidad es la de `docs/identidad/identidad.jpg`. Está decidida.
 - Colores: Marfil #F2EFE6, Tinta #191919, Cobalto #2445C7, Niebla #A1ACCB, Mineral #C9C6BE. Letras: Bodoni Moda e Inter.
 - Nombre: gustan "UMBRAL" en mayúsculas y la cursiva azul. Falta que Lucía lo vea y confirme; nada de nombre ni logo está cerrado sin ella.
-- Logo: lo define Lucía. Sugerencias nuestras: el arco con estrella (A) y la estrella en su órbita con otra forma de estrella (B), para que no se parezca al de Gemini.
+- Logo: lo define Lucía. Sugerencias nuestras: el arco con estrella (A) y la estrella en su órbita con otra forma de estrella (B), para que no se parezca a otros logos con estrella de cuatro puntas.
 - Constelación: se puede arrastrar y girar, y muestra el nombre o la frase de cada huella al tocarla.
 
 ## 9. Reglas del contrato
@@ -178,3 +178,4 @@ Mainnet, dinero real, NFT, reventa, app de celular, menores de 18.
 - 27/11/2026 — Base de datos aplicada en Supabase y probada; funciones `publicar` y `favoritos` desplegadas y probadas. Proyecto del equipo publicado en Circli. Repositorio ordenado: fuera material ajeno al proyecto, los bocetos de logo y los restos de plantilla; README reescrito (el público no cobra en ningún caso).
 - 27/11/2026 — App: audio en las obras y sello "Estuve ahí" en pantalla, probados en la red. Quien expone una obra declara sus derechos (autoría, dominio público o autorización); la base lo exige y entra en el código del contenido. En Argentina no hay libertad de panorama: una escultura en la calle necesita permiso de su autor. Se suman `docs/terminos.md`, `docs/privacidad.md` (datos en San Pablo, Brasil) y `docs/contrato.md`. La marca "UMBRAL" sola está tomada en el INPI en las clases 41 y 35: se presenta con este nombre y la marca se decide antes de producción. Clientes que pagan: artistas independientes y salas. Video de 2 minutos con la voz de Facundo y sin música. Equipo: Facundo Ayala y Lucía Paz.
 - 27/11/2026 — Auditoría: la firma del artista vale solo para la muestra exacta que vio (fechas y parte de la sala); el museo puede retirar lo que no se usó del fondo; el administrador puede actualizar el código del contrato. Rust fijo en 1.100.0 para compilar igual que lo desplegado. 55 pruebas. Hace falta desplegar el contrato de nuevo para que valga.
+- 27/11/2026 — Con el OK de Facundo, segundo contrato desplegado en la red de pruebas con los arreglos de la auditoría: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`. Se rehicieron las transacciones del guion (19, con el retiro del fondo de la sala) en `docs/txs.md`. El primer contrato queda en la red y la app ya no lo usa. El fondo de una sala ya no queda trabado: el museo puede retirar lo que no se usó.

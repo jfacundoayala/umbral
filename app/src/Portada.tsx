@@ -226,7 +226,7 @@ export default function Portada() {
         <h1>UMBRAL</h1>
         <p className="lema">Más allá de lo tangible.</p>
         <div className="raya" />
-        <p className="bajada">Un museo vivo: los artistas abren obras y el público las continúa con palabras. Cada huella queda firmada en Stellar.</p>
+        <p className="bajada">Un museo vivo: los artistas exponen obras y el público las continúa con palabras. Cada huella queda firmada en Stellar.</p>
         <Verbos />
         <div className="acciones">
           <button className="entrar" onClick={() => ir("/cielo")}>
