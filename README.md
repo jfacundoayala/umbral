@@ -214,6 +214,7 @@ Detalle en [docs/cuidado.md](docs/cuidado.md), [términos de uso](docs/terminos.
 - Funciona en la red de pruebas: el dinero no es real.
 - El contenido vive en nuestra base de datos, así que su permanencia depende de nosotros.
 - El modelo con museos todavía no está validado con un museo real.
+- Los borradores (lo que se guarda antes de pagar) no exigen la firma de la cuenta: alguien podría crear 5 a nombre de otra y frenarla una hora. No se pierde dinero ni se publica nada falso, porque publicar exige el pago en la red. El arreglo previsto: contar el límite por origen o pedir una firma SEP-53 del borrador.
 
 ## Camino a producción
 
