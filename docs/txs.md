@@ -53,7 +53,19 @@ Después de la última transacción consultamos el contrato y las cuentas:
 
 El dinero guardado en el contrato coincide exactamente con lo que se debe: saldos a cobrar más fondos de sala (que ahora es 0).
 
+## Hechas desde la web
+
+La tabla de arriba se hizo con la línea de comandos de Stellar. Estas cuatro se hicieron desde la app, con la prueba de punta a punta (`npm run e2e`, ver [pruebas-e2e.md](pruebas-e2e.md)), el 27/11/2026 a las 22:52 UTC. En cada una la app simula, pide la firma, manda la transacción y espera la respuesta de la red: recién con "salió bien" publica y muestra el comprobante.
+
+Pagan en XLM, con dos cuentas de prueba nuevas: una artista y una persona del público. La obra y la huella de prueba se borraron de la base después; los comprobantes siguen en la red.
+
+| Acción | Quién firma | Qué mostró la app | Comprobante |
+|---|---|---|---|
+| Exponer una obra con foto | Artista | "Listo: tu obra ya está en el cielo." | [7a905a44…](https://stellar.expert/explorer/testnet/tx/7a905a442a3542e1adb2bf7741d92d209235896d540e4967dbf13085478818a9) |
+| Continuar la obra | Público | "Listo: tu huella ya está en la constelación." | [e5e682c8…](https://stellar.expert/explorer/testnet/tx/e5e682c858cb4f0a4d71758ed9dfd540072d9bb1978db313ae608f4f8d573449) |
+| Apoyar la obra | Público | "Gracias: tu apoyo llegó." | [a5323cea…](https://stellar.expert/explorer/testnet/tx/a5323cea9a0206c50a8027f07dfba116991974d7376fe8d6fa3c7dfcc219f2bb) |
+| La artista cobra | Artista | Saldo de 10,5 XLM a 0 | [6c09fa05…](https://stellar.expert/explorer/testnet/tx/6c09fa0516a570510a35f1c941924d55e2d4edeaba6723d8a193237165575a33) |
+
 ## Lo que no está en esta lista
 
 - Una acción rechazada (por ejemplo, continuar una huella retirada): está cubierta por las pruebas automáticas, no por una transacción.
-- Transacciones hechas desde la web: estas se hicieron con la línea de comandos de Stellar.
