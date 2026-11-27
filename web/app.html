@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UMBRAL — La constelación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --marfil:#F2EFE6; --tinta:#191919; --cobalto:#2445C7; --niebla:#A1ACCB; --mineral:#C9C6BE;
+    --serif:"Bodoni Moda","Didot",Georgia,serif; --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif; --margen:clamp(16px,3vw,40px); }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--marfil); color:var(--tinta); font-family:var(--sans); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+  button, input, textarea, select { font:inherit; color:inherit; }
+  button { cursor:pointer; }
+  :focus-visible { outline:2px solid var(--cobalto); outline-offset:2px; }
+  .aviso { background:var(--tinta); color:var(--marfil); font-size:12.5px; letter-spacing:.04em; padding:8px var(--margen); }
+  header { display:flex; flex-wrap:wrap; align-items:center; gap:14px 24px; padding:16px var(--margen); border-bottom:1px solid var(--mineral); }
+  .marca { font-weight:500; letter-spacing:.5em; font-size:15px; text-decoration:none; color:inherit; }
+  .hueco { flex:1; }
+  .quien { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; font-size:13px; }
+  .quien select { background:transparent; border:1px solid var(--tinta); padding:8px 10px; }
+  .dato b { color:var(--cobalto); font-weight:600; }
+  .btn { border:1px solid var(--cobalto); background:transparent; color:var(--cobalto); padding:9px 14px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+  .btn:hover:not(:disabled) { background:var(--cobalto); color:var(--marfil); }
+  .btn.lleno { background:var(--cobalto); color:var(--marfil); }
+  .btn.lleno:hover:not(:disabled) { background:#1b36a3; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  main { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr); min-height:calc(100vh - 110px); }
+  .cielo { position:relative; border-right:1px solid var(--mineral); padding:var(--margen); }
+  .cielo h1 { font-family:var(--serif); font-weight:400; font-size:clamp(26px,3vw,40px); line-height:1.1; margin:0 0 4px; letter-spacing:-.01em; }
+  .cielo .sub { font-size:13px; margin:0 0 8px; }
+  .obras { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .obras button { border:1px solid var(--mineral); background:transparent; padding:6px 12px; font-size:12.5px; }
+  .obras button[aria-pressed="true"] { border-color:var(--cobalto); color:var(--cobalto); }
+  svg#mapa { width:100%; height:min(68vh,640px); display:block; }
+  .linea { stroke:var(--niebla); stroke-width:1.2; }
+  .punto circle { fill:var(--marfil); stroke:var(--cobalto); stroke-width:1.4; cursor:pointer; transition:stroke-width .15s; }
+  .punto:hover circle, .punto.sel circle { stroke-width:3.5; }
+  .punto.raiz circle { fill:var(--cobalto); }
+  .punto.retirada circle { stroke:var(--mineral); stroke-dasharray:3 3; fill:var(--marfil); }
+  .punto text { font:500 10px var(--sans); letter-spacing:.12em; text-transform:uppercase; fill:var(--tinta); text-anchor:middle; pointer-events:none; }
+  aside { padding:var(--margen); display:flex; flex-direction:column; gap:22px; }
+  .rotulo { font-size:11.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--cobalto); margin:0 0 8px; }
+  .ficha blockquote { font-family:var(--serif); font-size:21px; line-height:1.3; margin:0 0 10px; }
+  .meta { font-size:12.5px; margin:0; word-break:break-all; }
+  .fila { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:12px; }
+  textarea { width:100%; min-height:84px; border:1px solid var(--tinta); background:transparent; padding:10px; resize:vertical; }
+  input[type=number] { width:90px; border:1px solid var(--tinta); background:transparent; padding:8px; }
+  label.check { display:flex; gap:8px; align-items:flex-start; font-size:12.5px; margin:8px 0; }
+  .caja { border-top:1px solid var(--tinta); padding-top:14px; }
+  ol#movs { list-style:none; margin:0; padding:0; font-size:12.5px; max-height:220px; overflow:auto; }
+  ol#movs li { padding:8px 0; border-bottom:1px solid var(--mineral); }
+  ol#movs b { font-weight:600; }
+  #msg { min-height:1.4em; font-size:13px; color:var(--cobalto); margin:0; }
+  #msg.error { color:#a3231b; }
+  @media (max-width:860px) { main { grid-template-columns:1fr; } .cielo { border-right:0; border-bottom:1px solid var(--mineral); } svg#mapa { height:56vh; } }
+</style>
+</head>
+<body>
+<div class="aviso">Modo simulado: las personas, el dinero y las obras de esta pantalla son de ejemplo y viven solo en este navegador. Los repartos siguen las mismas reglas que el contrato.</div>
+<header>
+  <a class="marca" href="index.html">UMBRAL</a>
+  <span class="hueco"></span>
+  <div class="quien">
+    <label for="persona">Estoy como</label>
+    <select id="persona"></select>
+    <span class="dato">Billetera <b id="billetera"></b></span>
+    <span class="dato">A cobrar <b id="acobrar"></b></span>
+    <button class="btn" id="cobrar">Cobrar</button>
+  </div>
+</header>
+<main>
+  <section class="cielo" aria-label="Constelación">
+    <h1 id="titulo">La constelación</h1>
+    <p class="sub">Cada punto es una huella. El punto lleno es la obra que abrió la constelación. Tocá uno para leerlo.</p>
+    <div class="obras" id="obras" role="group" aria-label="Obras"></div>
+    <svg id="mapa" viewBox="-320 -320 640 640" role="img" aria-label="Mapa de huellas de la obra"></svg>
+  </section>
+  <aside>
+    <div class="ficha" id="ficha"></div>
+    <div class="caja">
+      <p class="rotulo" id="rotulo-form">Continuar esta huella · 1 USDC</p>
+      <textarea id="texto" maxlength="600" placeholder="Lo que esta obra te despertó"></textarea>
+      <label class="check"><input type="checkbox" id="permiso"> <span>Doy permiso para publicar este texto. Sé que cualquiera lo puede leer y que no incluye datos sensibles míos ni de otras personas.</span></label>
+      <div class="fila">
+        <button class="btn lleno" id="continuar">Continuar · 1 USDC</button>
+        <button class="btn" id="nueva">Exponer una obra nueva · 2 USDC</button>
+      </div>
+      <p id="msg" role="status"></p>
+    </div>
+    <div class="caja">
+      <p class="rotulo">Comprobantes</p>
+      <ol id="movs"></ol>
+      <div class="fila"><button class="btn" id="reiniciar">Reiniciar el ejemplo</button></div>
+    </div>
+  </aside>
+</main>
+<script>
+"use strict";
+// ---- Reglas (las mismas del contrato; montos en centavos de USDC) ----
+const PRECIO_OBRA = 200, PRECIO_CONTINUAR = 100, PARTE_AUTORES = 0.7, APOYO_UMBRAL = 0.3;
+const CLAVE = "umbral-simulado-v2";
+const PERSONAS = { ana: "Ana (artista)", beto: "Beto", caro: "Caro", dani: "Dani" };
+
+function inicial() {
+  return { yo: "beto", sel: "obra1", billeteras: { ana: 2000, beto: 2000, caro: 2000, dani: 2000, umbral: 0 },
+    saldos: {}, movs: [],
+    huellas: { obra1: { id: "obra1", autor: "ana", artista: "ana", padre: null, texto: "Obra de ejemplo: una escultura en la vereda de una ciudad. ¿Qué te despierta?", digest: "ejemplo", creada: Date.now(), apoyos: 0, activa: true } } };
+}
+let E;
+try { E = JSON.parse(localStorage.getItem(CLAVE)) || inicial(); } catch { E = inicial(); }
+const guardar = () => localStorage.setItem(CLAVE, JSON.stringify(E));
+const plata = c => (c / 100).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " USDC";
+const $ = id => document.getElementById(id);
+
+async function huellaDigital(texto) {
+  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texto));
+  return [...new Uint8Array(bytes)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+function acreditar(quien, monto) { if (monto > 0) E.saldos[quien] = (E.saldos[quien] || 0) + monto; }
+function anotar(titulo, partes) { E.movs.unshift({ titulo, partes, hora: Date.now() }); E.movs = E.movs.slice(0, 40); }
+function exigirFondos(monto) { if (E.billeteras[E.yo] < monto) throw new Error("No te alcanza el dinero de la billetera."); }
+
+// ---- Acciones: mismas reglas que el contrato ----
+async function abrirObra(texto) {
+  exigirFondos(PRECIO_OBRA);
+  const id = "h" + Date.now();
+  E.billeteras[E.yo] -= PRECIO_OBRA; E.billeteras.umbral += PRECIO_OBRA;
+  E.huellas[id] = { id, autor: E.yo, artista: E.yo, padre: null, texto, digest: await huellaDigital(texto), creada: Date.now(), apoyos: 0, activa: true };
+  anotar("Obra nueva de " + PERSONAS[E.yo], [["UMBRAL", PRECIO_OBRA]]);
+  E.sel = id;
+}
+async function continuar(padreId, texto) {
+  const padre = E.huellas[padreId];
+  if (!padre) throw new Error("Esa huella no existe.");
+  if (!padre.activa) throw new Error("Esa huella fue retirada: no se puede continuar.");
+  exigirFondos(PRECIO_CONTINUAR);
+  const parte = Math.floor(PRECIO_CONTINUAR * PARTE_AUTORES);
+  const paraAutor = 0;
+  const paraArtista = parte - paraAutor, paraUmbral = PRECIO_CONTINUAR - parte;
+  E.billeteras[E.yo] -= PRECIO_CONTINUAR; E.billeteras.umbral += paraUmbral;
+  acreditar(padre.autor, paraAutor); acreditar(padre.artista, paraArtista);
+  const id = "h" + Date.now();
+  E.huellas[id] = { id, autor: E.yo, artista: padre.artista, padre: padreId, texto, digest: await huellaDigital(texto), creada: Date.now(), apoyos: 0, activa: true };
+  const partes = [["UMBRAL", paraUmbral], [PERSONAS[padre.artista] + " (expuso la obra)", paraArtista]];
+  if (paraAutor) partes.push([PERSONAS[padre.autor] + " (autor de la huella continuada)", paraAutor]);
+  anotar(PERSONAS[E.yo] + " continuó una huella", partes);
+  E.sel = id;
+}
+function apoyar(id, monto) {
+  const h = E.huellas[id];
+  if (!h || !h.activa) throw new Error("No se puede apoyar una huella retirada.");
+  if (!(monto > 0)) throw new Error("El apoyo tiene que ser mayor que cero.");
+  exigirFondos(monto);
+  const paraUmbral = Math.floor(monto * APOYO_UMBRAL), paraAutor = monto - paraUmbral;
+  E.billeteras[E.yo] -= monto; E.billeteras.umbral += paraUmbral; acreditar(h.artista, paraAutor); h.apoyos++;
+  anotar(PERSONAS[E.yo] + " apoyó una huella", [[PERSONAS[h.artista] + " (expuso la obra)", paraAutor], ["UMBRAL", paraUmbral]]);
+}
+function cobrar() {
+  const monto = E.saldos[E.yo] || 0;
+  if (!monto) throw new Error("No tenés nada para cobrar.");
+  E.saldos[E.yo] = 0; E.billeteras[E.yo] += monto;
+  anotar(PERSONAS[E.yo] + " cobró su saldo", [[PERSONAS[E.yo], monto]]);
+}
+function retirar(id) {
+  const h = E.huellas[id];
+  if (h.autor !== E.yo) throw new Error("Solo quien la dejó puede retirarla.");
+  h.activa = false; h.texto = "";
+  anotar(PERSONAS[E.yo] + " retiró una huella", []);
+}
+
+// ---- Constelación ----
+const raizDe = id => { let h = E.huellas[id]; while (h && h.padre) h = E.huellas[h.padre]; return h; };
+const hijosDe = id => Object.values(E.huellas).filter(h => h.padre === id).sort((a, b) => a.creada - b.creada);
+function hojas(id) { const hs = hijosDe(id); return hs.length ? hs.reduce((n, h) => n + hojas(h.id), 0) : 1; }
+function ubicar(id, desde, hasta, nivel, salida, padrePos) {
+  const ang = (desde + hasta) / 2, radio = nivel * 92;
+  const pos = { x: nivel ? Math.cos(ang) * radio : 0, y: nivel ? Math.sin(ang) * radio : 0 };
+  salida.push({ id, pos, padrePos, nivel });
+  let a = desde; const total = hojas(id);
+  for (const h of hijosDe(id)) { const ancho = (hasta - desde) * hojas(h.id) / total; ubicar(h.id, a, a + ancho, nivel + 1, salida, pos); a += ancho; }
+}
+function svg(nombre, attrs) { const e = document.createElementNS("http://www.w3.org/2000/svg", nombre); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function dibujarMapa() {
+  const mapa = $("mapa"); mapa.replaceChildren();
+  const raiz = raizDe(E.sel); if (!raiz) return;
+  const puntos = []; ubicar(raiz.id, -Math.PI / 2, Math.PI * 1.5, 0, puntos, null);
+  for (const p of puntos) if (p.padrePos) mapa.append(svg("line", { class: "linea", x1: p.padrePos.x, y1: p.padrePos.y, x2: p.pos.x, y2: p.pos.y }));
+  for (const p of puntos) {
+    const h = E.huellas[p.id];
+    const g = svg("g", { class: "punto" + (p.nivel ? "" : " raiz") + (h.activa ? "" : " retirada") + (p.id === E.sel ? " sel" : ""), transform: `translate(${p.pos.x} ${p.pos.y})`, tabindex: 0, role: "button", "aria-label": "Huella de " + PERSONAS[h.autor] });
+    g.append(svg("circle", { r: 13 }));
+    const t = svg("text", { y: 28 }); t.textContent = PERSONAS[h.autor].split(" ")[0]; g.append(t);
+    const elegir = () => { E.sel = p.id; guardar(); pintar(); };
+    g.addEventListener("click", elegir);
+    g.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); elegir(); } });
+    mapa.append(g);
+  }
+}
+
+// ---- Pantalla ----
+function el(tag, texto, clase) { const e = document.createElement(tag); if (texto != null) e.textContent = texto; if (clase) e.className = clase; return e; }
+function pintarFicha() {
+  const f = $("ficha"); f.replaceChildren();
+  const h = E.huellas[E.sel]; if (!h) return;
+  f.append(el("p", h.padre ? "Huella" : "Obra", "rotulo"));
+  f.append(el("blockquote", h.activa ? h.texto : "Huella retirada por su autor."));
+  f.append(el("p", "De " + PERSONAS[h.autor] + " · " + h.apoyos + " apoyos · " + hijosDe(h.id).length + " continuaciones", "meta"));
+  f.append(el("p", "Código en la red: " + (h.digest.length > 20 ? h.digest.slice(0, 16) + "…" : h.digest), "meta"));
+  const fila = el("div", null, "fila");
+  const monto = document.createElement("input"); monto.type = "number"; monto.min = "0.5"; monto.step = "0.5"; monto.value = "1"; monto.setAttribute("aria-label", "Monto del apoyo en USDC");
+  const bApoyar = el("button", "Apoyar", "btn"); bApoyar.disabled = !h.activa || h.artista === E.yo;
+  bApoyar.addEventListener("click", () => hacer(() => apoyar(h.id, Math.round(parseFloat(monto.value) * 100)), "Apoyo enviado: 70% para quien expuso la obra, 30% para UMBRAL."));
+  fila.append(monto, bApoyar);
+  if (h.autor === E.yo && h.activa) { const bRet = el("button", "Retirar mi huella", "btn"); bRet.addEventListener("click", () => hacer(() => retirar(h.id), "Huella retirada. El código en la red queda.")); fila.append(bRet); }
+  f.append(fila);
+}
+function pintar() {
+  const sel = $("persona"); sel.replaceChildren();
+  for (const k in PERSONAS) { const o = el("option", PERSONAS[k]); o.value = k; o.selected = k === E.yo; sel.append(o); }
+  $("billetera").textContent = plata(E.billeteras[E.yo]);
+  $("acobrar").textContent = plata(E.saldos[E.yo] || 0);
+  $("cobrar").disabled = !(E.saldos[E.yo] > 0);
+  const obras = $("obras"); obras.replaceChildren();
+  const raizSel = raizDe(E.sel);
+  Object.values(E.huellas).filter(h => !h.padre).forEach((h, i) => {
+    const b = el("button", "Obra " + (i + 1) + " · " + PERSONAS[h.autor].split(" ")[0]); b.setAttribute("aria-pressed", String(raizSel && raizSel.id === h.id));
+    b.addEventListener("click", () => { E.sel = h.id; guardar(); pintar(); }); obras.append(b);
+  });
+  const h = E.huellas[E.sel];
+  $("continuar").disabled = !h || !h.activa;
+  dibujarMapa(); pintarFicha();
+  const movs = $("movs"); movs.replaceChildren();
+  if (!E.movs.length) movs.append(el("li", "Todavía no hay movimientos."));
+  for (const m of E.movs) {
+    const li = document.createElement("li"); li.append(el("b", m.titulo));
+    if (m.partes.length) li.append(document.createTextNode(" — " + m.partes.map(p => p[0] + ": " + plata(p[1])).join(" · ")));
+    movs.append(li);
+  }
+}
+async function hacer(accion, ok) {
+  const msg = $("msg");
+  try { await accion(); guardar(); msg.className = ""; msg.textContent = ok; }
+  catch (e) { msg.className = "error"; msg.textContent = e.message; }
+  pintar();
+}
+function textoListo() {
+  const t = $("texto").value.trim();
+  if (t.length < 3) throw new Error("Escribí al menos unas palabras.");
+  if (!$("permiso").checked) throw new Error("Falta marcar el permiso para publicar.");
+  return t;
+}
+function limpiar() { $("texto").value = ""; $("permiso").checked = false; }
+$("persona").addEventListener("change", e => { E.yo = e.target.value; guardar(); $("msg").textContent = ""; pintar(); });
+$("cobrar").addEventListener("click", () => hacer(cobrar, "Listo: tu saldo pasó a tu billetera."));
+$("continuar").addEventListener("click", () => hacer(async () => { const t = textoListo(); await continuar(E.sel, t); limpiar(); }, "Huella dejada. Mirá el reparto en los comprobantes."));
+$("nueva").addEventListener("click", () => hacer(async () => { const t = textoListo(); await abrirObra(t); limpiar(); }, "Obra abierta."));
+$("reiniciar").addEventListener("click", () => { E = inicial(); guardar(); $("msg").textContent = ""; pintar(); });
+pintar();
+</script>
+</body>
+</html>

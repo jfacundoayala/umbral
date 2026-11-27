@@ -1,0 +1,29 @@
+{
+  "name": "umbral-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "prebuild": "node -e \"const f=require('fs');for(const n of ['terminos.md','privacidad.md']){const s='../docs/'+n;if(f.existsSync(s))f.copyFileSync(s,'src/legal/'+n)}\""
+  },
+  "dependencies": {
+    "@creit.tech/stellar-wallets-kit": "^2.8.0",
+    "@stellar/stellar-sdk": "^17.4.0",
+    "buffer": "^6.0.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "oxlint": "^1.94.0",
+    "typescript": "~7.0.2",
+    "vite": "^8.4.0"
+  }
+}

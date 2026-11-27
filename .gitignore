@@ -1,0 +1,28 @@
+# Secretos: nunca al repositorio
+.env
+.env.*
+!.env.example
+*.secret
+*.pem
+.stellar/
+
+# Material interno del equipo
+privado/
+
+# Dependencias y compilados
+node_modules/
+dist/
+target/
+supabase/.temp/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+*.antes*
+.vercel/
+
+# Configuración local de herramientas
+.claude/
