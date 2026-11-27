@@ -119,11 +119,11 @@ export function Cielo() {
         </div>
       )}
       <ul className="obras">
-        {lista?.map((o) => (
+        {lista?.map((o, i) => (
           <li key={o.id}>
             <a href={`#/obra/${o.id}`} className="tarjeta">
               {o.foto_ruta ? (
-                <img src={urlFoto(o.foto_ruta)} alt="" loading="lazy" />
+                <img src={urlFoto(o.foto_ruta)} alt="" loading={i < 2 ? "eager" : "lazy"} fetchPriority={i < 2 ? "high" : "auto"} />
               ) : (
                 <span className="sin-foto" aria-hidden="true">
                   <svg viewBox="-20 -20 40 40">
