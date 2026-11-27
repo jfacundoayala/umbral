@@ -4,7 +4,8 @@ import { audioValido, fotoValida } from "./archivos";
 import { borrarRetirada, cambiarFavorito, constelacion, favoritosDe, obras, urlAudio, urlFoto, urlTarjeta, type Huella, type Orden } from "./base";
 import { corta, enlaceTx, ir, mensajeError, MONEDAS, palabras, plata, type Moneda } from "./comun";
 import Constelacion from "./Constelacion";
-import { codigoCorto, placaFirmada } from "./placa-firma";
+import AvisoPlaca from "./AvisoPlaca";
+import { placaFirmada } from "./placa-firma";
 import { RED, UNIDAD } from "./config";
 import Reproductor from "./Reproductor";
 import "./Formularios.css";
@@ -231,17 +232,7 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
       <div className="cielo-obra">
         <button className="volver" onClick={() => ir("/cielo")}>← El cielo</button>
         <h2>{obra.estado === "retirada" ? "Obra retirada" : obra.titulo}</h2>
-        {desdePlaca && obra.estado !== "retirada" && placaOk !== null && (
-          placaOk ? (
-            <p className="aviso-placa" role="status">
-              ✓ Placa firmada por la cuenta que expuso esta obra ({corta(obra.autor)}). Fijate que el código <b>{codigoCorto(obra.id)}</b> y el título sean los de la placa y la obra que tenés enfrente. Contá qué te despierta.
-            </p>
-          ) : (
-            <p className="aviso-placa falsa" role="alert">
-              Esta placa no está firmada por la cuenta que expuso la obra. Puede ser falsa o de otra obra: no pagues si no confiás en ella.
-            </p>
-          )
-        )}
+        {desdePlaca && obra.estado !== "retirada" && <AvisoPlaca firmada={placaOk} obra={obra} />}
         <p className="sub">
           {huellas.length} {huellas.length === 1 ? "huella" : "huellas"}. La obra está en el centro y cada huella sale de la que continúa. Tocá cualquiera para leerla y continuarla.
         </p>
