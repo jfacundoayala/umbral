@@ -120,7 +120,7 @@ Los precios son una hipótesis: no están validados con gente real.
 - La identidad es la de `docs/identidad/identidad.jpg`. Está decidida.
 - Colores: Marfil #F2EFE6, Tinta #191919, Cobalto #2445C7, Niebla #A1ACCB, Mineral #C9C6BE. Letras: Bodoni Moda e Inter.
 - Nombre: gustan "UMBRAL" en mayúsculas y la cursiva azul. Falta que Lucía lo vea y confirme; nada de nombre ni logo está cerrado sin ella.
-- Logo: lo define Lucía. Sugerencias nuestras: el arco con estrella (A) y la estrella en su órbita con otra forma de estrella (B), para que no se parezca al de Gemini.
+- Logo: lo define Lucía. Sugerencias nuestras: el arco con estrella (A) y la estrella en su órbita con otra forma de estrella (B), para que no se parezca a otros logos con estrella de cuatro puntas.
 - Constelación: se puede arrastrar y girar, y muestra el nombre o la frase de cada huella al tocarla.
 
 ## 9. Reglas del contrato

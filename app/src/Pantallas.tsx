@@ -650,7 +650,7 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
     <section className="hoja angosta">
       <p className="rotulo">Cobrar</p>
       <h2>Lo que juntaron tus obras</h2>
-      <p className="sub">Solo cobran quienes abren obras: el 70% de cada continuación y de cada apoyo. Lo retirás cuando quieras.</p>
+      <p className="sub">Solo cobran quienes exponen obras: el 70% de cada continuación y de cada apoyo. Lo retirás cuando quieras.</p>
       {!cuenta ? (
         <BotonEntrar sesion={sesion} texto="Entrá con tu billetera para ver tu saldo." />
       ) : sinSaldo ? (

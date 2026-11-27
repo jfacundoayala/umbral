@@ -46,6 +46,15 @@ UMBRAL sirve para cualquier artista o museo. Para mostrarlo elegimos un caso que
 5. El artista **cobra** lo que juntó cuando quiere, sin pedir permiso.
 6. Quien tiene cuenta guarda **favoritos**, gratis.
 
+Así se ve en la red de pruebas, con una obra de prueba:
+
+| | |
+|---|---|
+| ![Exponer una obra: quien la sube declara de quién son los derechos antes de firmar](docs/capturas/01-exponer.png) | ![Continuar una obra: el aviso dice que el 70% va a quien la expuso](docs/capturas/02-continuar.png) |
+| **1. Exponer.** Antes de firmar, quien sube la obra declara de quién son los derechos. | **2. Continuar.** El aviso dice cuánto cuesta y que el 70% va a quien expuso la obra. |
+| ![La constelación: la obra en el centro y la huella unida con una línea](docs/capturas/03-constelacion.png) | ![Cobrar: el saldo que juntó la obra, listo para retirar](docs/capturas/04-cobrar.png) |
+| **3. La constelación.** La obra queda en el centro y cada huella sale de la que continúa. | **4. Cobrar.** La artista ve lo que juntó (7 de los 10 XLM) y lo retira cuando quiere. |
+
 ## Modelo de negocio
 
 UMBRAL no cobra suscripción ni vende publicidad. Vive de una parte de cada participación.
