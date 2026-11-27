@@ -231,15 +231,46 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
     <section className="ficha-obra">
       <div className="cielo-obra">
         <button className="volver" onClick={() => ir("/cielo")}>← El cielo</button>
-        <h2>{obra.estado === "retirada" ? "Obra retirada" : obra.titulo}</h2>
+        {/* En el celular, arriba van el título y una miniatura: quien escanea la placa ve enseguida que llegó a la obra. */}
+        <div className="obra-cabeza">
+          {obra.foto_ruta && obra.estado !== "retirada" && (
+            <button
+              type="button"
+              className="obra-mini"
+              aria-label="Ver la obra"
+              onClick={() => {
+                setElegida(obra.id);
+                document.querySelector(".ficha-obra aside")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              <img
+                src={urlTarjeta(obra.id, obra.foto_ruta)}
+                alt=""
+                width={76}
+                height={76}
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (obra.foto_ruta && !img.src.endsWith(obra.foto_ruta)) img.src = urlFoto(obra.foto_ruta);
+                }}
+              />
+            </button>
+          )}
+          <div>
+            <h2>{obra.estado === "retirada" ? "Obra retirada" : obra.titulo}</h2>
+            {obra.estado !== "retirada" && obra.nombre && <p className="obra-autoria">de {obra.nombre}</p>}
+          </div>
+        </div>
         {desdePlaca && obra.estado !== "retirada" && <AvisoPlaca firmada={placaOk} obra={obra} />}
         <p className="sub">
           {huellas.length} {huellas.length === 1 ? "huella" : "huellas"}. La obra está en el centro y cada huella sale de la que continúa. Tocá cualquiera para leerla y continuarla.
         </p>
         {obra.estado !== "retirada" && (
-          <a className="btn" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
+          <a className="btn solo-escritorio" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
         )}
         <Constelacion obra={obra} huellas={huellas} elegida={actual.id} elegir={setElegida} invitada={sello?.obra === obra.id} />
+        {obra.estado !== "retirada" && (
+          <a className="btn solo-celular" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
+        )}
       </div>
       <aside>
         {publicada !== null && (

@@ -260,3 +260,16 @@ main { min-height: calc(100svh - 160px); }
 
 /* Enlace dentro de un texto chico, con un área para el dedo de al menos 44 px de alto. */
 .enlace-tocable { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; margin: 0 -6px; }
+
+/* Ficha en el celular: título y miniatura arriba; la placa con QR (para quien expone) va debajo de la constelación.
+   En la compu no cambia nada. */
+.obra-mini, .obra-autoria, .solo-celular { display: none; }
+@media (max-width: 560px) {
+  .solo-escritorio { display: none; }
+  .solo-celular { display: inline-block; margin-top: 6px; }
+  .obra-cabeza { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+  .obra-cabeza h2 { margin: 0; }
+  .obra-mini { display: block; flex: none; width: 76px; height: 76px; padding: 0; border: 1px solid var(--mineral); background: transparent; cursor: pointer; }
+  .obra-mini img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .obra-autoria { display: block; margin: 4px 0 0; font-size: 13px; color: var(--tinta); }
+}
