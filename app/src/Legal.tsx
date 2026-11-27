@@ -60,7 +60,9 @@ function Markdown({ texto }: { texto: string }) {
       }
       const [cabeza, ...cuerpo] = filas;
       bloques.push(
-        <div className="tabla" key={i}>
+        <p className="tabla-pista" key={`p${i}`} aria-hidden="true">Deslizá la tabla hacia el costado para ver todo →</p>,
+        // Se puede enfocar para moverla con las flechas del teclado.
+        <div className="tabla" key={i} tabIndex={0} role="region" aria-label="Tabla (se desliza hacia el costado)">
           <table>
             <thead><tr>{cabeza.map((c, k) => <th key={k}>{enLinea(c)}</th>)}</tr></thead>
             <tbody>{cuerpo.map((f, k) => <tr key={k}>{f.map((c, j) => <td key={j}>{enLinea(c)}</td>)}</tr>)}</tbody>
