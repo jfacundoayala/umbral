@@ -2,7 +2,7 @@
 // El navegador deja un borrador invisible y, después de firmar, llama acá con el
 // comprobante. Esta función no le cree al navegador: lee el contrato y compara.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { Account, BASE_FEE, Contract, rpc, scValToNative, TransactionBuilder, xdr } from "npm:@stellar/stellar-sdk@17";
+import { Account, BASE_FEE, Contract, rpc, scValToNative, StrKey, TransactionBuilder, xdr } from "npm:@stellar/stellar-sdk@17";
 import { Buffer } from "node:buffer";
 
 const RPC = Deno.env.get("UMBRAL_RPC") ?? "https://soroban-testnet.stellar.org";
@@ -105,9 +105,13 @@ Deno.serve(async (req) => {
   try {
     const t = await red.getTransaction(tx_hash);
     if (t.status !== "SUCCESS") return responder(402, { error: "Ese comprobante no figura como exitoso en la red." });
-    const meta = (t as unknown as { resultMetaXdr: { toXDR: (f: string) => string } }).resultMetaXdr.toXDR("hex");
-    const evento = Buffer.from("huella_dejada").toString("hex");
-    if (!meta.includes(id) || !meta.includes(evento)) return responder(409, { error: "Ese comprobante no es el de esta huella." });
+    // Busca el evento HuellaDejada de este contrato con este id como tema.
+    const registrada = t.events.contractEventsXdr.flat().some((e) => {
+      if (!e.contractId || StrKey.encodeContract(Buffer.from(String(e.contractId), "hex")) !== CONTRATO) return false;
+      const [nombre, huella] = e.body.v0.topics.map((x) => scValToNative(x));
+      return nombre === "huella_dejada" && hexDe(huella) === id;
+    });
+    if (!registrada) return responder(409, { error: "Ese comprobante no es el de esta huella." });
   } catch {
     return responder(502, { error: "No se pudo leer el comprobante. Probá de nuevo." });
   }

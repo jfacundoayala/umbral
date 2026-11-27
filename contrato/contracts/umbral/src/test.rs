@@ -904,3 +904,50 @@ fn nadie_acepta_una_muestra_por_el_artista() {
     assert!(!m.c.acepto_muestra(&sala, &m.ana));
 }
 
+
+#[test]
+fn una_muestra_nueva_con_la_misma_fecha_de_inicio_pide_otra_firma() {
+    use soroban_sdk::testutils::Ledger as _;
+    let (m, museo, sala, obra) = sala_con_obra();
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000);
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + 100), &0);
+    m.c.aceptar_muestra(&m.ana, &sala, &0);
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000 + 200);
+    // Misma fecha de inicio, otro porcentaje: el acuerdo viejo no sirve.
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &4_000);
+    assert!(!m.c.acepto_muestra(&sala, &m.ana));
+    m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
+}
+
+#[test]
+fn el_museo_retira_lo_que_no_se_uso_del_fondo() {
+    let m = mundo();
+    let (museo, sala) = sala_con_fondo(&m, 3 * P_HUELLA);
+    let antes = m.tk.balance(&museo);
+    m.c.retirar_fondo(&sala, &m.moneda, &P_HUELLA);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 2 * P_HUELLA);
+    assert_eq!(m.tk.balance(&museo) - antes, P_HUELLA);
+    assert_eq!(m.c.try_retirar_fondo(&sala, &m.moneda, &(3 * P_HUELLA)), Err(Ok(Error::FondoInsuficiente)));
+    assert_eq!(m.c.try_retirar_fondo(&sala, &m.moneda, &0), Err(Ok(Error::MontoInvalido)));
+    m.c.retirar_fondo(&sala, &m.moneda, &(2 * P_HUELLA));
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 0);
+    assert_eq!(m.tk.balance(&m.c.address), 0);
+}
+
+#[test]
+fn solo_el_museo_retira_el_fondo_de_su_sala() {
+    let m = mundo();
+    let (_museo, sala) = sala_con_fondo(&m, P_HUELLA);
+    m.env.set_auths(&[]);
+    assert!(m.c.try_retirar_fondo(&sala, &m.moneda, &P_HUELLA).is_err());
+    assert_eq!(m.c.fondo(&sala, &m.moneda), P_HUELLA);
+}
+
+#[test]
+fn solo_el_administrador_actualiza_el_contrato() {
+    let m = mundo();
+    m.env.set_auths(&[]);
+    assert!(m.c.try_actualizar(&h(&m.env, 7)).is_err());
+}

@@ -22,6 +22,10 @@
         {
           "key": "Permissions-Policy",
           "value": "camera=(), geolocation=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://nznearthcpgbeyyeuhyy.supabase.co https://stellar.creit.tech; media-src 'self' blob: https://nznearthcpgbeyyeuhyy.supabase.co; connect-src 'self' https://nznearthcpgbeyyeuhyy.supabase.co wss://nznearthcpgbeyyeuhyy.supabase.co https://soroban-testnet.stellar.org https://horizon-testnet.stellar.org https://horizon.stellar.org https://friendbot.stellar.org; frame-src https://albedo.link; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
         }
       ]
     },

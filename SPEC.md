@@ -102,7 +102,7 @@ Los precios son una hipótesis: no están validados con gente real.
 
 | Parte | Estado |
 |---|---|
-| Contrato (Soroban, soroban-sdk 30) | Hecho. 51 pruebas pasan. Desplegado en la red de pruebas: `CCFQDRBGXVE4EIXZMBKA4GXXJV3BV6IZNSNXLPJHTDKEGN3SYYIW4N66`. |
+| Contrato (Soroban, soroban-sdk 30) | Hecho. 55 pruebas pasan. Desplegado en la red de pruebas: `CCFQDRBGXVE4EIXZMBKA4GXXJV3BV6IZNSNXLPJHTDKEGN3SYYIW4N66`. |
 | App simulada (`web/app.html`) | Hecha, con dinero de mentira en el navegador. |
 | Portada (`web/index.html`) | Hecha con la identidad. |
 | App real (`app/`) | Hecha: portada, cielo de obras, constelación, ficha, exponer, continuar, apoyar, cobrar y favoritos. Probada de punta a punta en la red de pruebas el 27/11/2026 (abrir 20 XLM, continuar 10, apoyar 5, la artista cobró 10,5 y su saldo quedó en 0). Guion en `docs/demo-jurado.md`, guía para quienes prueban en `docs/guia-pruebas.md`. En curso: audio al exponer una obra y sello de presencia en pantalla. |
@@ -177,3 +177,4 @@ Mainnet, dinero real, NFT, reventa, app de celular, menores de 18.
 - 27/11/2026 — Con el OK de Facundo, contrato desplegado en la red de pruebas (70% artista; 2 y 1 USDC; 20 y 10 XLM) y 18 transacciones del guion con sus comprobantes.
 - 27/11/2026 — Base de datos aplicada en Supabase y probada; funciones `publicar` y `favoritos` desplegadas y probadas. Proyecto del equipo publicado en Circli. Repositorio ordenado: fuera material ajeno al proyecto, los bocetos de logo y los restos de plantilla; README reescrito (el público no cobra en ningún caso).
 - 27/11/2026 — App: audio en las obras y sello "Estuve ahí" en pantalla, probados en la red. Quien expone una obra declara sus derechos (autoría, dominio público o autorización); la base lo exige y entra en el código del contenido. En Argentina no hay libertad de panorama: una escultura en la calle necesita permiso de su autor. Se suman `docs/terminos.md`, `docs/privacidad.md` (datos en San Pablo, Brasil) y `docs/contrato.md`. La marca "UMBRAL" sola está tomada en el INPI en las clases 41 y 35: se presenta con este nombre y la marca se decide antes de producción. Clientes que pagan: artistas independientes y salas. Video de 2 minutos con la voz de Facundo y sin música. Equipo: Facundo Ayala y Lucía Paz.
+- 27/11/2026 — Auditoría: la firma del artista vale solo para la muestra exacta que vio (fechas y parte de la sala); el museo puede retirar lo que no se usó del fondo; el administrador puede actualizar el código del contrato. Rust fijo en 1.100.0 para compilar igual que lo desplegado. 55 pruebas. Hace falta desplegar el contrato de nuevo para que valga.
