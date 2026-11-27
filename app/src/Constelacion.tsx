@@ -4,6 +4,7 @@
 // Sin librerías: las posiciones se rotan y se proyectan en perspectiva dentro del mismo SVG.
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { urlFoto, type Huella } from "./base";
+import { cajaDeNombre, etiquetasVisibles } from "./etiquetas";
 import "./Constelacion.css";
 
 type Punto = { id: string; x: number; y: number; z: number; padre: string | null; nivel: number; desc: number };
@@ -363,7 +364,8 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
     mover(cambio[e.key]);
   };
 
-  // Todo proyectado con el giro actual. Lo de atrás se dibuja primero; la obra siempre va al frente.
+  // Todo proyectado con el giro actual. Se dibuja de atrás hacia adelante: lo de atrás primero y más tenue,
+  // la obra (en el centro, z = 0) en su lugar, y las huellas que están más cerca que ella, encima.
   const vista = puntos.map((p) => ({ p, ...proyectar(p, giro, distancia) }));
   const enVista = new Map(vista.map((v) => [v.p.id, v]));
   const hondo = Math.max(rMax, 1);
@@ -375,10 +377,27 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
 
   const marcada = mirando ?? (elegida !== obra.id ? elegida : null);
 
+  const nombreDe = (h: Huella) => (h.estado === "retirada" ? "Retirada" : (h.nombre ?? "").split(" ")[0]);
+  // Nombres que se muestran: sin pisarse entre sí ni quedar debajo de un círculo que está más adelante.
+  const nombres = etiquetasVisibles(
+    vista.map(({ p, sx, sy, z, f }) => {
+      const s = (p.nivel ? f : 1) * k;
+      const abajo = p.nivel ? 28 + Math.min(8, p.desc * 2.5) : invitada ? 62 : 50;
+      const r = p.nivel ? 11 + Math.min(8, p.desc * 2.5) : 31;
+      return {
+        id: p.id,
+        z,
+        caja: cajaDeNombre(p.nivel ? nombreDe(porId.get(p.id)!) : "Obra", sx, sy + abajo * s, 10 * s),
+        circulo: { x: sx, y: sy, r: r * s },
+        prioridad: p.id === marcada ? 2 : p.nivel ? 0 : 1,
+      };
+    }),
+  );
+
   const dibujarPunto = ({ p, sx, sy, z, f }: (typeof vista)[number]) => {
     const h = porId.get(p.id)!;
     const retirada = h.estado === "retirada";
-    const nombre = retirada ? "Retirada" : (h.nombre ?? "").split(" ")[0];
+    const nombre = nombreDe(h);
     const sel = p.id === elegida;
     const clase = ["punto", p.nivel ? "" : "raiz", retirada ? "retirada" : "", sel ? "sel" : ""].join(" ");
     // Más cerca: más grande y más nítida. La obra queda siempre igual.
@@ -443,7 +462,7 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
             )}
           </>
         )}
-        <text y={p.nivel ? 28 + Math.min(8, p.desc * 2.5) : invitada ? 62 : 50} style={{ fontSize: 10 }}>{p.nivel ? nombre : "Obra"}</text>
+        {nombres.has(p.id) && <text y={p.nivel ? 28 + Math.min(8, p.desc * 2.5) : invitada ? 62 : 50} style={{ fontSize: 10 }}>{p.nivel ? nombre : "Obra"}</text>}
       </g>
     );
   };
@@ -515,10 +534,10 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
         if (!pa) return null;
         return <line key={`l${p.id}`} className="linea" x1={pa.sx} y1={pa.sy} x2={sx} y2={sy} opacity={0.3 + 0.6 * cercania((z + pa.z) / 2)} />;
       })}
-      {resto.filter((v) => v.z < 0).map(dibujarPunto)}
+      {resto.filter((v) => v.z < 0).map((v) => dibujarPunto(v))}
       <circle className="brillo" r={92 * k} fill={`url(#${uid}-brillo)`} aria-hidden="true" />
-      {resto.filter((v) => v.z >= 0).map(dibujarPunto)}
       {dibujarPunto(centro)}
+      {resto.filter((v) => v.z >= 0).map((v) => dibujarPunto(v))}
       {rotulo}
       <text className="pista" x={0} y={alcance - 10 * k} style={{ fontSize: 9.5 * k }} aria-hidden="true">
         Arrastrá para girar
