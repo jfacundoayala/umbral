@@ -162,15 +162,16 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
   const idObra = datos?.obra?.id ?? null;
 
   const autorObra = datos?.obra?.autor ?? null;
+  const digestObra = datos?.obra?.digest ?? null;
   const firmaPlaca = desdePlaca?.firma ?? null;
   useEffect(() => {
-    if (firmaPlaca === null || !idObra || !autorObra) return;
+    if (firmaPlaca === null || !idObra || !autorObra || !digestObra) return;
     let vivo = true;
-    placaFirmada(idObra, autorObra, firmaPlaca).then((ok) => vivo && setPlacaOk(ok));
+    placaFirmada({ id: idObra, autor: autorObra, digest: digestObra }, firmaPlaca).then((ok) => vivo && setPlacaOk(ok));
     return () => {
       vivo = false;
     };
-  }, [firmaPlaca, idObra, autorObra]);
+  }, [firmaPlaca, idObra, autorObra, digestObra]);
 
   // Sello de presencia: la obra se abrió por invitación de una sala y la pagó su fondo (se lee en la red).
   useEffect(() => {
@@ -215,11 +216,11 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
         {desdePlaca && obra.estado !== "retirada" && placaOk !== null && (
           placaOk ? (
             <p className="aviso-placa" role="status">
-              ✓ Placa firmada por quien hizo la obra (código <b>{codigoCorto(obra.id)}</b>: tiene que ser el mismo que dice la placa). Estás frente a la obra: contá qué te despierta tenerla enfrente.
+              ✓ Placa firmada por la cuenta que expuso esta obra ({corta(obra.autor)}). Fijate que el código <b>{codigoCorto(obra.id)}</b> y el título sean los de la placa y la obra que tenés enfrente. Contá qué te despierta.
             </p>
           ) : (
             <p className="aviso-placa falsa" role="alert">
-              Esta placa no está firmada por quien hizo la obra. Puede ser falsa: no pagues si no confiás en ella.
+              Esta placa no está firmada por la cuenta que expuso la obra. Puede ser falsa o de otra obra: no pagues si no confiás en ella.
             </p>
           )
         )}

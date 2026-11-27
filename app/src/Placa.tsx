@@ -44,7 +44,7 @@ export function Placa({ id, sesion }: { id: string; sesion: Sesion }) {
     setError("");
     setOcupado(true);
     try {
-      setFirma(firmaEnHex(await firmarMensaje(mensajePlaca(id), cuenta)));
+      setFirma(firmaEnHex(await firmarMensaje(mensajePlaca(obra!), cuenta)));
     } catch (e) {
       setError(/clos|cancel|reject|denied|dismiss/i.test(mensajeError(e)) ? "Cancelaste la firma." : `No se pudo firmar: ${mensajeError(e)}`);
     } finally {
@@ -72,7 +72,7 @@ export function Placa({ id, sesion }: { id: string; sesion: Sesion }) {
           La placa va al lado de la obra física: en la calle, en una plaza o en una sala. Quien la tiene enfrente escanea el código y deja su huella desde el celular.
         </p>
         <p className="sub">
-          Solo quien expuso la obra puede crear su placa, y la firma con su billetera (gratis, no es un pago). Así nadie puede hacer una placa falsa: al escanearla, UMBRAL muestra si la firmó quien hizo la obra. Igual, lo que se paga siempre va a la cuenta de la obra registrada en el contrato.
+          Solo la cuenta que expuso la obra puede crear su placa, y la firma con su billetera (gratis, no es un pago). La firma sirve solo para esta obra: al escanearla, UMBRAL muestra si la firmó esa cuenta y el código de la obra, que tiene que coincidir con el de la placa. Igual, lo que se paga siempre va a la cuenta de la obra registrada en el contrato.
         </p>
         {!sesion.cuenta ? (
           <button className="btn lleno" onClick={() => sesion.entrar()}>Entrar con la billetera de la obra</button>
