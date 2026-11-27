@@ -44,3 +44,6 @@
 @media (prefers-reduced-motion: reduce) {
   .mapa-3d .punto .nucleo { transition: none; }
 }
+
+/* Celular: los nombres en tinta plena (contraste AA sobre marfil); la distancia aclara solo el círculo. */
+.mapa-3d.angosta .punto > :not(text) { opacity: var(--velo, 1); }

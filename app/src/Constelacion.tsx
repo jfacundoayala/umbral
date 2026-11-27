@@ -2,7 +2,7 @@
 // más grande. Cada rama ocupa un ángulo según cuántas hojas tiene (como la maqueta, web/app.html) y además
 // sube o baja un poco, siempre igual para el mismo id. Se gira arrastrando, con las flechas o solo, despacio.
 // Sin librerías: las posiciones se rotan y se proyectan en perspectiva dentro del mismo SVG.
-import { useEffect, useId, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type FocusEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { urlFoto, type Huella } from "./base";
 import { cajaDeNombre, etiquetasVisibles } from "./etiquetas";
 import "./Constelacion.css";
@@ -21,6 +21,8 @@ const INCLINACION = 0.42;
 const VELOCIDAD_SOLA = 0.085;
 /** Cuánto espera quieta después de que alguien la tocó antes de volver a girar sola. */
 const ESPERA_MS = 7000;
+/** Tamaño de los nombres en pantalla en el celular, en píxeles. */
+const NOMBRE_CELULAR_PX = 12.5;
 /** Lo último que usó la persona fue el teclado (y no el mouse o el dedo): así se sabe de dónde vino un foco. */
 let ultimoFueTecla = false;
 if (typeof window !== "undefined") {
@@ -234,6 +236,8 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
   const conTeclado = useRef(false);
   /** El único punto al que se llega con Tab (foco itinerante); las flechas pasan de uno a otro. */
   const [foco, setFoco] = useState<string | null>(null);
+  /** Píxeles de pantalla por unidad del dibujo: en el celular los nombres se dibujan a un tamaño fijo en pantalla. */
+  const [pxPorUnidad, setPxPorUnidad] = useState(1);
 
   const mover = (g: Giro) => {
     const nuevo = { yaw: g.yaw, pitch: Math.max(-1.25, Math.min(1.25, g.pitch)) };
@@ -301,6 +305,16 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
       if (espera.current !== null) clearTimeout(espera.current);
     };
   }, [reducida]);
+
+  useEffect(() => {
+    const el = svg.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const medir = () => el.clientWidth && setPxPorUnidad(el.clientWidth / (alcance * 2));
+    const obs = new ResizeObserver(medir);
+    obs.observe(el);
+    medir();
+    return () => obs.disconnect();
+  }, [alcance]);
 
   /** Alguien tocó: se frena la vuelta sola y vuelve cuando pasa un rato sin que nadie toque. */
   const tocaron = () => {
@@ -441,7 +455,7 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
       return {
         id: p.id,
         z,
-        caja: cajaDeNombre(p.nivel ? nombreDe(porId.get(p.id)!) : "Obra", sx, sy + abajo * s, 10 * s),
+        caja: cajaDeNombre(p.nivel ? nombreDe(porId.get(p.id)!) : "Obra", sx, sy + abajo * s, angosta ? NOMBRE_CELULAR_PX / pxPorUnidad : 10 * s),
         circulo: { x: sx, y: sy, r: r * s },
         prioridad: p.id === marcada ? 2 : p.nivel ? 0 : 1,
       };
@@ -463,7 +477,9 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
         key={p.id}
         className={clase}
         transform={`translate(${sx.toFixed(2)} ${sy.toFixed(2)}) scale(${(esc * k).toFixed(3)})`}
-        opacity={opacidad}
+        // En el celular el nombre no se aclara con la distancia (se tiene que leer): se aclara solo el círculo.
+        opacity={angosta ? undefined : opacidad}
+        style={angosta ? ({ "--velo": opacidad } as CSSProperties) : undefined}
         data-id={p.id}
         tabIndex={p.id === activo ? 0 : -1}
         role="button"
@@ -516,7 +532,7 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
             )}
           </>
         )}
-        {nombres.has(p.id) && <text y={p.nivel ? 28 + Math.min(8, p.desc * 2.5) : invitada ? 62 : 50} style={{ fontSize: 10 }}>{p.nivel ? nombre : "Obra"}</text>}
+        {nombres.has(p.id) && <text y={p.nivel ? 28 + Math.min(8, p.desc * 2.5) : invitada ? 62 : 50} style={{ fontSize: angosta ? NOMBRE_CELULAR_PX / (pxPorUnidad * esc * k) : 10 }}>{p.nivel ? nombre : "Obra"}</text>}
       </g>
     );
   };
@@ -557,7 +573,7 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
   return (
     <svg
       ref={svg}
-      className={`mapa mapa-3d${agarrada ? " agarrada" : ""}`}
+      className={`mapa mapa-3d${agarrada ? " agarrada" : ""}${angosta ? " angosta" : ""}`}
       viewBox={`${-alcance} ${-alcance} ${alcance * 2} ${alcance * 2}`}
       role="group"
       aria-label="Constelación de huellas de la obra. Arrastrala o usá las flechas para girarla; con Tab entrás a las huellas y con las flechas pasás de una a otra."
