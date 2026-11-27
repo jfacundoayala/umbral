@@ -26,7 +26,7 @@ Proyecto para el Hackathon Sin Coordenada — FLAT 2026 (BAF × Stellar).
 
 Un artista sube su obra a una red social. Recibe algunos corazones y al otro día nadie la ve. No sabe qué provocó ni en quién, y casi nunca recibe dinero de quien la disfrutó. A un museo chico le pasa lo mismo: cuando la visita se va, no queda rastro de lo que sintió.
 
-En una encuesta mundial a 5.039 músicos independientes (Ditto Music, 2026), solo el 22% vive de la música y el 86% tiene que producir contenido para redes para promocionarse.
+En el autocenso de artistas visuales de Argentina (AVAA, 4.961 respuestas), al 58% no le alcanza lo que gana con su arte, solo el 33% vive del arte y casi el 70% tiene más de un trabajo ([Artishock, 2021](https://artishockrevista.com/2021/01/11/avaa-avances-y-proyectos-para-el-2021)). En la música pasa lo mismo: en una encuesta mundial a 5.039 músicos independientes (Ditto Music, 2026), solo el 22% vive de la música.
 
 ## El primer caso: las esculturas de Resistencia
 
@@ -58,7 +58,7 @@ Así se ve en la red de pruebas, con una obra de prueba:
 
 ## Qué nos diferencia
 
-UMBRAL no es un marketplace ni un museo virtual para mirar. **No vende obras: vende participación.**
+UMBRAL no es un marketplace ni un museo virtual para mirar. **No vende obras: vende participación.** Una huella no se compra para revenderla: no hay especulación, solo gente que dice algo sobre una obra y un pago que vuelve a quien la hizo.
 
 | | Marketplaces de arte y NFT | Museos virtuales | Propinas y membresías | UMBRAL |
 |---|---|---|---|---|
