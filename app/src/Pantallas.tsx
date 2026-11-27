@@ -42,7 +42,10 @@ function useAccion() {
   return { paso, error, hecho, ocupado, correr, setError };
 }
 
-function Estado({ a, listo }: { a: ReturnType<typeof useAccion>; listo: string }) {
+/** Después de dejar una huella: invitación chica a contar cómo fue. */
+const OPINAR = <a className="opinar" href="#/opinion?desde=huella">Contanos qué te pareció</a>;
+
+function Estado({ a, listo, opinar }: { a: ReturnType<typeof useAccion>; listo: string; opinar?: boolean }) {
   return (
     <div className="estado" role="status" aria-live="polite">
       {a.paso && <p>{a.paso}</p>}
@@ -55,6 +58,7 @@ function Estado({ a, listo }: { a: ReturnType<typeof useAccion>; listo: string }
               Ver el comprobante ↗
             </a>
           )}
+          {opinar && <> · {OPINAR}</>}
         </p>
       )}
     </div>
@@ -276,7 +280,7 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
         {publicada !== null && (
           <p className="estado publicada" role="status">
             Listo: tu huella ya está en la constelación.{" "}
-            {publicada && <a href={publicada} target="_blank" rel="noopener noreferrer">Ver el comprobante ↗</a>}
+            {publicada && <a href={publicada} target="_blank" rel="noopener noreferrer">Ver el comprobante ↗</a>} · {OPINAR}
           </p>
         )}
         <Lectura key={`l${actual.id}`} h={actual} esObra={actual.id === obra.id} sesion={sesion} alRetirar={() => setVuelta((v) => v + 1)} museo={sello?.obra === actual.id ? sello.museo : null} />
@@ -493,7 +497,7 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
       {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && (
         <p className="sub">Para firmar, escribí al menos 3 letras, poné tu nombre y marcá el permiso.</p>
       )}
-      <Estado a={a} listo="Listo: tu huella ya está en la constelación." />
+      <Estado a={a} listo="Listo: tu huella ya está en la constelación." opinar />
     </form>
   );
 }
@@ -858,7 +862,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
                   <p className="sub">Para firmar, completá el título, tu nombre, elegí los derechos y marcá el permiso.</p>
                 )}
               </div>
-              <Estado a={a} listo="Listo: tu obra ya está en el cielo." />
+              <Estado a={a} listo="Listo: tu obra ya está en el cielo." opinar />
               {nueva && (
                 <button type="button" className="btn" onClick={() => ir(`/obra/${nueva}`)}>
                   Ver mi obra

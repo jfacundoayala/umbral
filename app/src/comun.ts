@@ -28,7 +28,8 @@ export type Ruta =
   | { pantalla: "abrir"; sala?: string }
   | { pantalla: "cobrar" }
   | { pantalla: "terminos" }
-  | { pantalla: "privacidad" };
+  | { pantalla: "privacidad" }
+  | { pantalla: "opinion"; desde: "huella" | "pie" };
 
 /** Llegada desde la placa de una obra: #/obra/<id>?desde=placa&f=<firma>. */
 function placaDe(consulta: string) {
@@ -50,6 +51,7 @@ function leerRuta(): Ruta {
   if (partes[0] === "cobrar") return { pantalla: "cobrar" };
   if (partes[0] === "terminos") return { pantalla: "terminos" };
   if (partes[0] === "privacidad") return { pantalla: "privacidad" };
+  if (partes[0] === "opinion") return { pantalla: "opinion", desde: new URLSearchParams(consulta).get("desde") === "huella" ? "huella" : "pie" };
   return { pantalla: "portada" };
 }
 

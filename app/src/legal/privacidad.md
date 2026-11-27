@@ -14,6 +14,7 @@ Facundo Ayala y Lucía Paz, equipo umbral.
 | El nombre que elegís mostrar | Mostrarlo junto a tu huella |
 | Los textos, fotos y audios que publicás | Mostrarlos en umbral |
 | Tus favoritos | Mostrártelos cuando entrás con tu billetera |
+| Tu opinión, si completás "Contanos qué te pareció" (qué sos, cómo te fue, qué cambiarías y, si querés, un apodo) | Mejorar umbral. Solo si marcás la casilla, citarte en la entrega del hackatón. No se guarda tu cuenta |
 
 No pedimos correo, teléfono, documento ni contraseña. No usamos tus datos para publicidad ni los vendemos.
 

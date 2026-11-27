@@ -17,6 +17,7 @@ const Abrir = pantalla("Abrir");
 const Cobrar = pantalla("Cobrar");
 const Placa = lazy(() => import("./Placa").then((m) => ({ default: m.Placa })));
 const Legal = lazy(() => import("./Legal").then((m) => ({ default: m.Legal })));
+const Opinion = lazy(() => import("./Opinion").then((m) => ({ default: m.Opinion })));
 
 export default function App() {
   const ruta = useRuta();
@@ -107,12 +108,14 @@ export default function App() {
         {ruta.pantalla === "abrir" && <Abrir key={ruta.sala ?? ""} sesion={sesion} sala={ruta.sala} />}
         {ruta.pantalla === "cobrar" && <Cobrar sesion={sesion} />}
         {(ruta.pantalla === "terminos" || ruta.pantalla === "privacidad") && <Legal cual={ruta.pantalla} />}
+        {ruta.pantalla === "opinion" && <Opinion key={ruta.desde} desde={ruta.desde} />}
         </Suspense>
       </main>
       <footer className="pie">
         <span>UMBRAL · red de pruebas de Stellar</span>
         <a href="#/terminos">Términos</a>
         <a href="#/privacidad">Privacidad</a>
+        <a href="#/opinion">Contanos qué te pareció</a>
       </footer>
     </>
   );

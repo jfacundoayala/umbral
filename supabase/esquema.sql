@@ -523,3 +523,45 @@ create policy audios_subir_a_obra_pendiente
     and name ~ '^[0-9a-f]{64}/audio\.(mp3|m4a|webm|ogg)$'
     and privado.es_obra_pendiente((storage.foldername(name))[1])
   );
+
+-- ---------------------------------------------------------------------------
+-- Opiniones de quienes prueban UMBRAL (28/11/2026). SIN APLICAR TODAVÍA.
+-- Formulario corto y opcional, sin billetera ni cuenta. Sirve para mejorar la
+-- app y, solo si la persona marca la casilla, para citarla en la entrega.
+-- No pide datos personales. El navegador solo puede insertar: nadie la lee
+-- desde la app (se lee desde el panel de Supabase).
+-- ---------------------------------------------------------------------------
+create table if not exists public.opiniones (
+  id bigint generated always as identity primary key,
+  creada timestamptz not null default now(),
+  desde text not null default 'pie',
+  rol text not null,
+  pudo text not null,
+  costo text null,
+  cambiaria text null,
+  apodo text null,
+  citar boolean not null default false,
+  constraint opiniones_desde check (desde in ('huella', 'pie')),
+  constraint opiniones_rol check (rol in ('artista', 'sala', 'publico')),
+  constraint opiniones_pudo check (pudo in ('si', 'con_ayuda', 'no')),
+  constraint opiniones_costo_largo check (costo is null or char_length(costo) <= 500),
+  constraint opiniones_cambiaria_largo check (cambiaria is null or char_length(cambiaria) <= 500),
+  constraint opiniones_apodo_largo check (apodo is null or char_length(btrim(apodo)) between 1 and 40)
+);
+
+alter table public.opiniones enable row level security;
+
+-- Solo insertar, y solo estas columnas: id y fecha las pone la base.
+revoke all on public.opiniones from anon, authenticated;
+grant insert (desde, rol, pudo, costo, cambiaria, apodo, citar) on public.opiniones to anon, authenticated;
+
+drop policy if exists opiniones_insertar on public.opiniones;
+create policy opiniones_insertar
+  on public.opiniones
+  for insert
+  to anon, authenticated
+  with check (
+    privado.texto_permitido(costo)
+    and privado.texto_permitido(cambiaria)
+    and privado.texto_permitido(apodo)
+  );

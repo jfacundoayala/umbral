@@ -1,8 +1,9 @@
 // Lectura y escritura en la base (Supabase) con fetch, sin librería extra.
-// El navegador solo puede: leer lo publicado, dejar borradores "pendiente" y subir la foto de su borrador.
+// El navegador solo puede: leer lo publicado, dejar borradores "pendiente", subir la foto de su borrador y dejar una opinión.
 // Publicar lo hace el servidor (función `publicar`), después de ver el pago en la red.
 import { SUPABASE_CLAVE_PUBLICA, SUPABASE_URL } from "./config";
 import type { Documento } from "./umbral";
+import type { Opinion } from "./opiniones";
 
 const CABECERAS = { apikey: SUPABASE_CLAVE_PUBLICA, Authorization: `Bearer ${SUPABASE_CLAVE_PUBLICA}` };
 
@@ -67,6 +68,19 @@ export const urlTarjeta = (id: string, ruta: string) => (MINIATURAS.has(id) ? `/
 export const urlAudio = (ruta: string) => `${SUPABASE_URL}/storage/v1/object/public/audios/${ruta}`;
 
 /** Deja el borrador invisible. Si ya estaba (mismo id), sigue: es el mismo contenido. */
+/** Guarda una opinión. No pide la fila de vuelta: el navegador no puede leer las opiniones. */
+export async function enviarOpinion(o: Opinion): Promise<void> {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/opiniones`, {
+    method: "POST",
+    headers: { ...CABECERAS, "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: JSON.stringify(o),
+  });
+  if (r.ok) return;
+  const e = (await r.json().catch(() => ({}))) as { code?: string };
+  if (e.code === "42501") throw new Error("No pudimos guardarla: puede tener una palabra que no admitimos. Cambiá el texto y probá de nuevo.");
+  throw new Error("No pudimos guardar tu opinión. Probá de nuevo en un rato.");
+}
+
 export async function guardarBorrador(
   fila: { id: string; digest: string; autor: string; artista: string; moneda: string; padre: string | null; sala?: string | null; foto_ruta?: string | null; audio_ruta?: string | null },
   doc: Documento,

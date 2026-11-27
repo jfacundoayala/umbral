@@ -152,3 +152,11 @@ aside.previa { position: sticky; top: 24px; padding: 0; gap: 12px; min-width: 0;
   .cobro-pasos h3 { font-size: 19px; }
   .cobro-entrar .btn { width: 100%; }
 }
+
+/* ---------- Opinión ---------- */
+.hoja.opinion { max-width: 720px; margin: 0 auto; padding-top: clamp(28px, 5vw, 56px); padding-bottom: 56px; }
+.opinion-form { display: flex; flex-direction: column; gap: 24px; }
+.opinion-form .derechos { display: flex; flex-direction: column; margin: 0; }
+.opinion-form .opcion-derecho { min-height: 44px; align-items: center; }
+.opinion-form .opcion-derecho input { margin: 0; }
+.opinar { white-space: nowrap; }
