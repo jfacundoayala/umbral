@@ -28,7 +28,7 @@ En los servidores de Supabase, en San Pablo, Brasil. Al usar umbral aceptás que
 
 ## Cuánto tiempo
 
-Mientras tu huella esté publicada. Si la retirás, borramos el contenido y los archivos. Los borradores que no se pagaron se borran solos a las 24 horas.
+Mientras tu huella esté publicada. Si la retirás, borramos el contenido y los archivos. Los borradores que no se pagaron se borran solos a los 7 días.
 
 ## Tus derechos
 
