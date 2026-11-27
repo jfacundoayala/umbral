@@ -104,7 +104,10 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
   const puntos = ubicar(obra, huellas);
   const porId = new Map([obra, ...huellas].map((h) => [h.id, h]));
   const angosta = useAngosta();
-  const alcance = Math.max(angosta ? 190 : 300, ...puntos.map((p) => Math.hypot(p.x, p.y) + 50));
+  const base = angosta ? 190 : 300;
+  const alcance = Math.max(base, ...puntos.map((p) => Math.hypot(p.x, p.y) + 50));
+  // Si la constelación crece, el dibujo se achica: los puntos y los nombres crecen (hasta el doble) para que se lean y se puedan tocar.
+  const k = Math.min(2, alcance / base);
   return (
     <svg className="mapa" viewBox={`${-alcance} ${-alcance} ${alcance * 2} ${alcance * 2}`} role="group" aria-label="Constelación de huellas de la obra">
       <Fondo alcance={alcance} id={obra.id} />
@@ -130,11 +133,15 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
               }
             }}
           >
-            {!p.nivel && invitada && <circle className="sello-aro" r={42} />}
-            <circle className="toque" r={p.nivel ? 26 : 44} />
-            <circle className="nucleo" r={p.nivel ? 13 : 31} />
-            {!p.nivel && h.estado !== "retirada" && <Icono h={h} />}
-            <text y={p.nivel ? 28 : invitada ? 62 : 50}>{p.nivel ? nombre : "Obra"}</text>
+            {!p.nivel && invitada && <circle className="sello-aro" r={42 * k} />}
+            <circle className="toque" r={(p.nivel ? 26 : 44) * k} />
+            <circle className="nucleo" r={(p.nivel ? 13 : 31) * k} />
+            {!p.nivel && h.estado !== "retirada" && (
+              <g transform={`scale(${k})`}>
+                <Icono h={h} />
+              </g>
+            )}
+            <text y={(p.nivel ? 28 : invitada ? 62 : 50) * k} style={{ fontSize: 10 * k }}>{p.nivel ? nombre : "Obra"}</text>
           </g>
         );
       })}

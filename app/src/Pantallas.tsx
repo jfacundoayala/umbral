@@ -342,7 +342,7 @@ function Favorito({ huella, sesion }: { huella: string; sesion: Sesion }) {
   }
   return (
     <span className="favorito">
-      <button onClick={cambiar} disabled={ocupado} aria-pressed={esta} title={esta ? "Quitar de favoritos" : "Guardar en favoritos"}>
+      <button onClick={cambiar} disabled={ocupado} aria-pressed={esta} aria-label="Favorito" title={esta ? "Quitar de favoritos" : "Guardar en favoritos"}>
         {esta ? "★" : "☆"}
       </button>
       {error && <small className="error">{error}</small>}
@@ -403,7 +403,7 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
         <span>Doy permiso para publicar este texto. Sé que cualquiera lo puede leer y que no incluye datos sensibles míos ni de otras personas.</span>
       </label>
       <p className="precio">
-        Cuesta <b>{precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>. El 70% va a la artista o el artista de la obra y el 30% a UMBRAL. Vos no cobrás por continuar.
+        Cuesta <b>{precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>. El 70% va a quien hizo la obra y el 30% a UMBRAL. Vos no cobrás por continuar.
       </p>
       {sesion.cuenta ? (
         <button className="btn lleno" disabled={!listo}>
@@ -411,6 +411,9 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
         </button>
       ) : (
         <BotonEntrar sesion={sesion} texto="Para continuar, entrá con tu billetera." />
+      )}
+      {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && (
+        <p className="sub">Para firmar, escribí al menos 3 letras, poné tu nombre y marcá el permiso.</p>
       )}
       <Estado a={a} listo="Listo: tu huella ya está en la constelación." />
     </form>
@@ -452,6 +455,7 @@ function Apoyar({ obra, sesion }: { obra: Huella; sesion: Sesion }) {
           </button>
         )}
       </div>
+      {!valido && monto.trim() !== "" && <p className="error" role="status">Poné un monto entre 0,01 y 10.000 {sesion.moneda.codigo}.</p>}
       <Estado a={a} listo="Gracias: tu apoyo llegó." />
     </form>
   );
@@ -616,6 +620,9 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
         ) : (
           <BotonEntrar sesion={sesion} texto="Para exponer una obra, entrá con tu billetera." />
         )}
+        {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && (
+          <p className="sub">Para firmar, completá el título, tu nombre, elegí los derechos y marcá el permiso.</p>
+        )}
         <Estado a={a} listo="Listo: tu obra ya está en el cielo." />
         {nueva && (
           <button type="button" className="btn" onClick={() => ir(`/obra/${nueva}`)}>
@@ -683,6 +690,7 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
           })}
         </ul>
       )}
+      {saldos && MONEDAS.every((m) => (saldos[m.id] ?? 0) <= 0) && <p className="sub">Todavía no hay nada para retirar. Aparece acá cuando alguien continúe o apoye una obra tuya.</p>}
       <Estado a={a} listo="Listo: el dinero ya está en tu billetera." />
     </section>
   );
