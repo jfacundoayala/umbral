@@ -4,6 +4,8 @@ import { Buffer } from "buffer";
 import { Address, rpc, scValToNative, StrKey } from "@stellar/stellar-sdk";
 import { Client } from "./contrato/cliente";
 import { CONTRATO_ID, MONEDA_ID, RED, UNIDAD } from "./config";
+import { nuevaSal, PagoSinConfirmar } from "./sin-red";
+export { nuevaSal, PagoSinConfirmar };
 
 /** Función que firma un pedido con la billetera de la persona. */
 export type Firmar = (xdr: string) => Promise<{ signedTxXdr: string }>;
@@ -32,7 +34,6 @@ export type Documento = {
   sal: string;
 };
 
-export const nuevaSal = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, "0")).join("");
 
 /** Código de un archivo (foto o audio): SHA-256 de sus bytes, en hexadecimal. */
 export async function codigoDeArchivo(archivo: Blob): Promise<string> {
@@ -123,18 +124,6 @@ type Enviado = {
   sendTransactionResponse?: { hash: string };
   getTransactionResponse?: { status: string };
 };
-
-/** La acción se mandó, pero la red todavía no dijo si salió bien. Puede haberse cobrado:
- *  no hay que volver a pagar. Lleva el comprobante para seguir intentando publicar. */
-export class PagoSinConfirmar extends Error {
-  hash: string;
-  constructor(hash: string) {
-    super(
-      `La acción se mandó, pero no pudimos confirmar si salió. No la repitas todavía: fijate en un minuto en ${RED.explorador}/tx/${hash}. Si era una huella y salió, se publica sola.`,
-    );
-    this.hash = hash;
-  }
-}
 
 /** Firma y manda. Solo devuelve comprobante si la red aceptó la acción. */
 type Vigia = { onSubmitted?: (r?: { hash?: string }) => void };

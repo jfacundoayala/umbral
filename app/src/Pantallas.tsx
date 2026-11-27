@@ -1,15 +1,21 @@
 // Las pantallas, en el orden de la demo: portada → cielo → ficha (continuar, apoyar) → abrir → cobrar.
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
-import { abrirObra, audioValido, continuarHuella, firmaDeFavoritos, fotoValida } from "./acciones";
+import { audioValido, fotoValida } from "./archivos";
 import { borrarRetirada, cambiarFavorito, constelacion, favoritosDe, obras, urlAudio, urlFoto, urlTarjeta, type Huella, type Orden } from "./base";
-import { firmar } from "./billetera";
 import { corta, enlaceTx, ir, mensajeError, MONEDAS, palabras, plata, type Moneda } from "./comun";
 import Constelacion from "./Constelacion";
 import { codigoCorto, placaFirmada } from "./placa-firma";
 import { RED, UNIDAD } from "./config";
 import Reproductor from "./Reproductor";
 import "./Formularios.css";
-import { apoyar, cobrar, invitacion, museoDe, nuevaSal, PagoSinConfirmar, pagadaPorSala, preciosVigentes, retirar, saldoDe, type Derechos, type Documento } from "./umbral";
+import { nuevaSal, PagoSinConfirmar } from "./sin-red";
+import type { Derechos, Documento, Firmar } from "./umbral";
+
+// Lo que habla con la red (stellar-sdk y la billetera) se baja recién cuando hace falta:
+// el cielo y la ficha se dibujan sin esperarlo.
+const red = () => import("./umbral");
+const acciones = () => import("./acciones");
+const firmar: Firmar = async (xdr) => (await import("./billetera")).firmar(xdr);
 
 export type Sesion = { cuenta: string | null; moneda: Moneda; entrar: () => Promise<string | null> };
 
@@ -59,7 +65,8 @@ function usePrecios(moneda: string) {
   const [error, setError] = useState(false);
   useEffect(() => {
     let vivo = true;
-    preciosVigentes(moneda)
+    red()
+      .then((r) => r.preciosVigentes(moneda))
       .then((p) => vivo && (setPrecios(p), setError(false)))
       .catch(() => vivo && setError(true));
     return () => {
@@ -187,7 +194,8 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
   useEffect(() => {
     if (!salaObra || !txObra || !idObra) return;
     let vivo = true;
-    Promise.all([pagadaPorSala(txObra), museoDe(salaObra)])
+    red()
+      .then((r) => Promise.all([r.pagadaPorSala(txObra), r.museoDe(salaObra)]))
       .then(([pagada, museo]) => vivo && pagada && museo && setSello({ obra: idObra, museo }))
       .catch(() => undefined);
     return () => {
@@ -337,7 +345,7 @@ function Retirar({ h, cuenta, alRetirar }: { h: Huella; cuenta: string; alRetira
             a.correr(async (avance) => {
               avance("Firmá en tu billetera…");
               try {
-                await retirar(cuenta, firmar, h.id);
+                await (await red()).retirar(cuenta, firmar, h.id);
               } catch (e) {
                 // Si ya estaba retirada en la red (un intento anterior que se cortó) o la red no confirmó,
                 // igual se borra el contenido: borrarRetirada espera a que la red lo confirme.
@@ -376,7 +384,7 @@ function Favorito({ huella, sesion }: { huella: string; sesion: Sesion }) {
     setOcupado(true);
     setError("");
     try {
-      const { fecha, firma } = await firmaDeFavoritos(cuenta);
+      const { fecha, firma } = await (await acciones()).firmaDeFavoritos(cuenta);
       await cambiarFavorito({ cuenta, huella_id: huella, accion: esta ? "quitar" : "guardar", fecha, firma });
       const nuevas = new Set(guardadas);
       if (esta) nuevas.delete(huella);
@@ -428,7 +436,7 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
         if (!sesion.cuenta || precio === undefined) return;
         const cuenta = sesion.cuenta;
         a.correr(async (avance) => {
-          const r = await continuarHuella(cuenta, obra, padre.id, doc(), precio, sesion.moneda.id, avance);
+          const r = await (await acciones()).continuarHuella(cuenta, obra, padre.id, doc(), precio, sesion.moneda.id, avance);
           setTexto("");
           setPermiso(false);
           alPublicar(r.id, r.enlace);
@@ -482,7 +490,7 @@ function Apoyar({ obra, sesion }: { obra: Huella; sesion: Sesion }) {
         const cuenta = sesion.cuenta;
         a.correr(async (avance) => {
           avance("Firmá en tu billetera…");
-          return apoyar(cuenta, firmar, obra.id, n, sesion.moneda.id);
+          return (await red()).apoyar(cuenta, firmar, obra.id, n, sesion.moneda.id);
         });
       }}
     >
@@ -517,7 +525,8 @@ function useInvitacion(sala: string | undefined, cuenta: string | null, moneda: 
   useEffect(() => {
     if (!sala) return;
     let vivo = true;
-    Promise.all([museoDe(sala), cuenta ? invitacion(sala, cuenta, moneda) : Promise.resolve({ invitada: false, fondo: 0n })])
+    red()
+      .then((r) => Promise.all([r.museoDe(sala), cuenta ? r.invitacion(sala, cuenta, moneda) : Promise.resolve({ invitada: false, fondo: 0n })]))
       .then(([museo, inv]) => vivo && setDatos({ museo, ...inv }))
       .catch(() => vivo && setDatos({ museo: null, invitada: false, fondo: 0n }));
     return () => {
@@ -739,7 +748,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
             if (!sesion.cuenta || precio === undefined) return;
             const cuenta = sesion.cuenta;
             a.correr(async (avance) => {
-              const r = await abrirObra(cuenta, doc(), { foto, audio }, precio, sesion.moneda.id, avance, inv?.museo ? sala : undefined);
+              const r = await (await acciones()).abrirObra(cuenta, doc(), { foto, audio }, precio, sesion.moneda.id, avance, inv?.museo ? sala : undefined);
               setNueva(r.id);
               return r;
             });
@@ -922,7 +931,7 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
   useEffect(() => {
     if (!cuenta) return;
     let vivo = true;
-    Promise.all(MONEDAS.map(async (m) => [m.id, await saldoDe(cuenta, m.id)] as const))
+    Promise.all(MONEDAS.map(async (m) => [m.id, await (await red()).saldoDe(cuenta, m.id)] as const))
       .then((l) => vivo && (setSaldos(Object.fromEntries(l)), setSinSaldo(false)))
       .catch(() => vivo && setSinSaldo(true));
     return () => {
@@ -981,7 +990,7 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
                       onClick={() =>
                         a.correr(async (avance) => {
                           avance("Firmá en tu billetera…");
-                          const r = await cobrar(cuenta, firmar, m.id);
+                          const r = await (await red()).cobrar(cuenta, firmar, m.id);
                           setVuelta((v) => v + 1);
                           return r;
                         })

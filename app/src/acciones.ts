@@ -6,6 +6,8 @@ import { codigoDe, codigoDeArchivo, continuar, dejarHuella, idDe, PagoSinConfirm
 import { anotar, quitar } from "./pendientes";
 import { enlaceTx } from "./comun";
 import { achicarFoto } from "./achicar";
+import { EXTENSION, EXTENSION_AUDIO, PESO_MAX, tipoAudio } from "./archivos";
+export { audioValido, fotoValida, tipoAudio } from "./archivos";
 
 const YA_PAGADA = "Ya dejaste esta huella.";
 
@@ -59,7 +61,6 @@ export async function continuarHuella(cuenta: string, obra: Huella, padre: strin
   return { ...recibo, id };
 }
 
-const EXTENSION: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 
 /** Abrir una obra nueva, con foto y audio si hay. Con `sala`, la obra se abre por invitación de esa sala. */
 export async function abrirObra(
@@ -100,20 +101,6 @@ export async function abrirObra(
   return { ...recibo, id };
 }
 
-const PESO_MAX = 5 * 1024 * 1024;
-/** Al elegirla se acepta hasta 20 MB: antes de subirla se achica (ver achicar.ts) y lo que se sube no pasa de 5 MB. */
-export const fotoValida = (f: File) => f.size <= 20 * 1024 * 1024 && f.type in EXTENSION;
-
-const EXTENSION_AUDIO: Record<string, string> = {
-  "audio/mpeg": "mp3",
-  "audio/mp4": "m4a",
-  "audio/x-m4a": "m4a",
-  "audio/webm": "webm",
-  "audio/ogg": "ogg",
-};
-/** El navegador a veces agrega el códec ("audio/webm;codecs=opus"): se mira solo el tipo. */
-export const tipoAudio = (f: File) => f.type.split(";")[0];
-export const audioValido = (f: File) => f.size <= 5 * 1024 * 1024 && tipoAudio(f) in EXTENSION_AUDIO;
 
 /** Firma para favoritos: se pide una vez y sirve unas horas (el servidor acepta 12). */
 export async function firmaDeFavoritos(cuenta: string): Promise<{ fecha: string; firma: string }> {

@@ -25,10 +25,13 @@ export default function App() {
   const [aviso, setAviso] = useState("");
 
   useEffect(() => {
-    billetera()
-      .then((b) => b.cuentaGuardada())
-      .then(setCuenta)
-      .catch(() => setCuenta(null));
+    // La billetera (y stellar-sdk) se baja solo si alguien ya había entrado; si no, al tocar "Entrar".
+    // En desarrollo, con ?prueba, se carga igual: ahí vive el firmante de prueba.
+    if (localStorage.getItem("@StellarWalletsKit/activeAddress") || (import.meta.env.DEV && new URLSearchParams(location.search).has("prueba")))
+      billetera()
+        .then((b) => b.cuentaGuardada())
+        .then(setCuenta)
+        .catch(() => setCuenta(null));
     // Huellas que se pagaron y no llegaron a publicarse: se publican ahora, sin volver a pagar.
     import("./pendientes")
       .then((p) => p.reintentarPendientes())

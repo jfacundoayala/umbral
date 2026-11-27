@@ -2,7 +2,6 @@
 // Lo firmado lleva versión, sitio, id y código del contenido de la obra: una placa sirve solo para
 // esa obra en este sitio. La firma prueba qué cuenta firmó; no verifica la identidad civil del artista.
 import { Buffer } from "buffer";
-import { Keypair } from "@stellar/stellar-sdk";
 
 export type ObraFirmable = { id: string; digest: string; autor: string };
 
@@ -21,6 +20,8 @@ export async function placaFirmada(o: ObraFirmable, firmaHex: string, sitio = lo
     if (!/^[0-9a-f]{128}$/.test(firmaHex)) return false;
     const datos = new TextEncoder().encode("Stellar Signed Message:\n" + mensajePlaca(o, sitio));
     const hash = Buffer.from(await crypto.subtle.digest("SHA-256", datos));
+    // stellar-sdk se baja recién acá: la ficha se dibuja sin esperarlo.
+    const { Keypair } = await import("@stellar/stellar-sdk");
     return Keypair.fromPublicKey(o.autor).verify(hash, Buffer.from(firmaHex, "hex"));
   } catch {
     return false;
