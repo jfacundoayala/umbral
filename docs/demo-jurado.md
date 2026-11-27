@@ -52,8 +52,6 @@ Puede fijar los precios, ajustar la parte del artista y retirar una huella por m
 **¿Y el contenido ofensivo?**
 Tres capas. Antes de pagar, un filtro frena insultos de odio y amenazas en las respuestas del público: si el texto no pasa, no se llega a pagar. Después, el autor puede retirar su huella y el administrador puede moderar. Al retirar, el texto y las fotos se borran de la base; en la red queda solo un código que ya no se puede vincular con nada. El filtro es solo para el público: las obras de los artistas no se filtran, las revisa una persona.
 
-> Para el equipo: el filtro ya está en la base, pero la lista de palabras todavía no se cargó. Cargarla antes de grabar.
-
 **¿Por qué el museo se puede llevar hasta 40%?**
 Es un tope, no un precio fijo. Solo pasa cuando un museo hace una muestra con fecha (como máximo 90 días). La parte del museo sale de la del artista, y el artista tiene que aceptarla firmando, viendo el porcentaje. En la prueba que hicimos la sala se llevó 20%. Fuera de la muestra, vuelve el reparto de siempre: 70% artista, 30% UMBRAL.
 

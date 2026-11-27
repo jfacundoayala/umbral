@@ -3,6 +3,7 @@ import { corta, monedaDe, MONEDAS, useRuta, type Moneda } from "./comun";
 import type { Sesion } from "./Pantallas";
 import Fondos from "./Fondos";
 import Portada from "./Portada";
+import { XLM_ID } from "./config";
 import "./App.css";
 
 const CLAVE_MONEDA = "umbral-moneda";
@@ -19,7 +20,7 @@ const Legal = lazy(() => import("./Legal").then((m) => ({ default: m.Legal })));
 export default function App() {
   const ruta = useRuta();
   const [cuenta, setCuenta] = useState<string | null>(null);
-  const [moneda, setMoneda] = useState<Moneda>(() => monedaDe(localStorage.getItem(CLAVE_MONEDA) ?? ""));
+  const [moneda, setMoneda] = useState<Moneda>(() => monedaDe(localStorage.getItem(CLAVE_MONEDA) ?? XLM_ID));
   const [aviso, setAviso] = useState("");
 
   useEffect(() => {
