@@ -328,7 +328,7 @@ impl Umbral {
     pub fn actualizar(env: Env, wasm_hash: BytesN<32>) {
         Self::admin(&env).require_auth();
         env.deployer()
-            .update_current_contract(soroban_sdk::deploy::ContractExecutable::Wasm(wasm_hash));
+            .update_current_contract(soroban_sdk::ContractExecutable::Wasm(wasm_hash));
     }
 
     // ---------- Salas de museos y patrocinio ----------
