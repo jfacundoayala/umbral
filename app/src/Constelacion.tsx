@@ -2,7 +2,7 @@
 // más grande. Cada rama ocupa un ángulo según cuántas hojas tiene (como la maqueta, web/app.html) y además
 // sube o baja un poco, siempre igual para el mismo id. Se gira arrastrando, con las flechas o solo, despacio.
 // Sin librerías: las posiciones se rotan y se proyectan en perspectiva dentro del mismo SVG.
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { urlFoto, type Huella } from "./base";
 import { cajaDeNombre, etiquetasVisibles } from "./etiquetas";
 import "./Constelacion.css";
@@ -21,6 +21,12 @@ const INCLINACION = 0.42;
 const VELOCIDAD_SOLA = 0.085;
 /** Cuánto espera quieta después de que alguien la tocó antes de volver a girar sola. */
 const ESPERA_MS = 7000;
+/** Lo último que usó la persona fue el teclado (y no el mouse o el dedo): así se sabe de dónde vino un foco. */
+let ultimoFueTecla = false;
+if (typeof window !== "undefined") {
+  window.addEventListener("keydown", () => (ultimoFueTecla = true), true);
+  window.addEventListener("pointerdown", () => (ultimoFueTecla = false), true);
+}
 /** Cuánto gira por cada píxel arrastrado. */
 const POR_PIXEL = 0.0085;
 
@@ -224,6 +230,10 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
   const cuadro = useRef<number | null>(null);
   const espera = useRef<number | null>(null);
   const arrancar = useRef<() => void>(() => {});
+  /** Se está recorriendo con el teclado: la vuelta sola se pausa para que nada se mueva debajo del foco. */
+  const conTeclado = useRef(false);
+  /** El único punto al que se llega con Tab (foco itinerante); las flechas pasan de uno a otro. */
+  const [foco, setFoco] = useState<string | null>(null);
 
   const mover = (g: Giro) => {
     const nuevo = { yaw: g.yaw, pitch: Math.max(-1.25, Math.min(1.25, g.pitch)) };
@@ -235,7 +245,7 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
   useEffect(() => {
     quieta.current = reducida;
     let antes = 0;
-    const sola = () => !quieta.current && !arrastre.current && performance.now() - ultimoToque.current > ESPERA_MS;
+    const sola = () => !quieta.current && !arrastre.current && !conTeclado.current && performance.now() - ultimoToque.current > ESPERA_MS;
     const paso = (t: number) => {
       const dt = antes ? Math.min(0.05, (t - antes) / 1000) : 1 / 60;
       antes = t;
@@ -364,6 +374,50 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
     mover(cambio[e.key]);
   };
 
+  // Recorrido con teclado: siempre en el mismo orden (la obra y después cada rama), no en el de profundidad,
+  // que cambia al girar.
+  const orden = puntos.map((p) => p.id);
+  const activo = foco && porId.has(foco) ? foco : porId.has(elegida) ? elegida : obra.id;
+  const enfocar = (id: string) => {
+    setFoco(id);
+    svg.current?.querySelector<SVGGElement>(`[data-id="${id}"]`)?.focus();
+  };
+  const teclaEnPunto = (e: KeyboardEvent<SVGGElement>, id: string) => {
+    const i = orden.indexOf(id);
+    const destino: Record<string, string | undefined> = {
+      ArrowRight: orden[(i + 1) % orden.length],
+      ArrowDown: orden[(i + 1) % orden.length],
+      ArrowLeft: orden[(i - 1 + orden.length) % orden.length],
+      ArrowUp: orden[(i - 1 + orden.length) % orden.length],
+      Home: orden[0],
+      End: orden[orden.length - 1],
+    };
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      e.stopPropagation();
+      elegir(id);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      svg.current?.focus();
+    } else if (destino[e.key]) {
+      // Las flechas en un punto pasan a otro; para girar se vuelve al dibujo (Escape o Shift+Tab).
+      e.preventDefault();
+      e.stopPropagation();
+      enfocar(destino[e.key]!);
+    }
+  };
+  const alEnfocar = () => {
+    // Solo con teclado: un clic o un toque no frena la vuelta sola.
+    if (ultimoFueTecla) conTeclado.current = true;
+  };
+  const alDesenfocar = (e: FocusEvent<SVGSVGElement>) => {
+    if (svg.current?.contains(e.relatedTarget as Node | null)) return;
+    if (!conTeclado.current) return;
+    conTeclado.current = false;
+    tocaron();
+  };
+
   // Todo proyectado con el giro actual. Se dibuja de atrás hacia adelante: lo de atrás primero y más tenue,
   // la obra (en el centro, z = 0) en su lugar, y las huellas que están más cerca que ella, encima.
   const vista = puntos.map((p) => ({ p, ...proyectar(p, giro, distancia) }));
@@ -410,28 +464,28 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
         className={clase}
         transform={`translate(${sx.toFixed(2)} ${sy.toFixed(2)}) scale(${(esc * k).toFixed(3)})`}
         opacity={opacidad}
-        tabIndex={0}
+        data-id={p.id}
+        tabIndex={p.id === activo ? 0 : -1}
         role="button"
         aria-label={p.nivel ? `Huella de ${nombre}` : invitada ? "La obra, invitada por una sala" : "La obra"}
         aria-pressed={sel}
         onClick={() => {
           if (arrastro.current) return;
+          setFoco(p.id);
           elegir(p.id);
         }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            e.stopPropagation();
-            elegir(p.id);
-          }
-        }}
+        onKeyDown={(e) => teclaEnPunto(e, p.id)}
         onPointerEnter={() => setMirando(p.id)}
         onPointerLeave={() => setMirando((m) => (m === p.id ? null : m))}
-        onFocus={() => setMirando(p.id)}
+        onFocus={() => {
+          setFoco(p.id);
+          setMirando(p.id);
+        }}
         onBlur={() => setMirando((m) => (m === p.id ? null : m))}
       >
         {!p.nivel && invitada && <circle className="sello-aro" r={42} />}
         <circle className="toque" r={p.nivel ? 26 : 44} />
+        <circle className="aro-foco" r={(p.nivel ? rNucleo : 31) + 6} />
         {p.nivel ? (
           <>
             {/* Más grande y con centro azul cuanto más la continuaron. */}
@@ -506,8 +560,10 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
       className={`mapa mapa-3d${agarrada ? " agarrada" : ""}`}
       viewBox={`${-alcance} ${-alcance} ${alcance * 2} ${alcance * 2}`}
       role="group"
-      aria-label="Constelación de huellas de la obra. Arrastrala o usá las flechas para girarla."
+      aria-label="Constelación de huellas de la obra. Arrastrala o usá las flechas para girarla; con Tab entrás a las huellas y con las flechas pasás de una a otra."
       tabIndex={0}
+      onFocus={alEnfocar}
+      onBlur={alDesenfocar}
       onPointerDown={alApretar}
       onPointerMove={alMover}
       onPointerUp={alSoltar}

@@ -19,6 +19,10 @@
 .mapa-3d .punto.retirada .nucleo { stroke: var(--mineral); stroke-dasharray: 3 3; fill: var(--marfil); }
 .mapa-3d .punto.retirada text { fill: var(--mineral); }
 .mapa-3d .punto:focus-visible .nucleo { stroke: var(--tinta); stroke-width: 2.6; }
+/* Foco con teclado: un aro de tinta alrededor del punto, que se ve sobre cualquier fondo. */
+.mapa-3d .punto .aro-foco { fill: none; stroke: none; pointer-events: none; }
+.mapa-3d .punto:focus-visible .aro-foco { stroke: var(--tinta); stroke-width: 2; stroke-dasharray: 4 3; }
+.mapa-3d .punto:focus-visible { opacity: 1; }
 .mapa-3d .punto text { font-family: var(--sans); font-weight: 500; letter-spacing: .14em; }
 
 /* Fondo: anillos punteados finos y una esfera apenas sugerida. */
