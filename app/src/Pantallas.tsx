@@ -798,7 +798,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
                 ))}
                 <small>
                   Una foto tomada en la calle no alcanza: una escultura o un mural en la vía pública sigue teniendo autor. Si aparecen personas que se reconocen, tienen que haber dado su consentimiento.{" "}
-                  <a href="#/terminos" target="_blank" rel="noopener noreferrer">Leer los términos</a>
+                  <a className="enlace-tocable" href="#/terminos" target="_blank" rel="noopener noreferrer">Leer los términos</a>
                 </small>
               </fieldset>
             </Paso>
