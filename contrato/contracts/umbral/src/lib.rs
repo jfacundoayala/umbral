@@ -327,7 +327,8 @@ impl Umbral {
     /// perder huellas, saldos ni fondos. Solo el administrador.
     pub fn actualizar(env: Env, wasm_hash: BytesN<32>) {
         Self::admin(&env).require_auth();
-        env.deployer().update_current_contract_wasm(wasm_hash);
+        env.deployer()
+            .update_current_contract(soroban_sdk::deploy::ContractExecutable::Wasm(wasm_hash));
     }
 
     // ---------- Salas de museos y patrocinio ----------
