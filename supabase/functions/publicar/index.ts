@@ -7,7 +7,7 @@ import { Buffer } from "node:buffer";
 
 const RPC = Deno.env.get("UMBRAL_RPC") ?? "https://soroban-testnet.stellar.org";
 const FRASE = Deno.env.get("UMBRAL_FRASE") ?? "Test SDF Network ; September 2015";
-const CONTRATO = Deno.env.get("UMBRAL_CONTRATO") ?? "CCFQDRBGXVE4EIXZMBKA4GXXJV3BV6IZNSNXLPJHTDKEGN3SYYIW4N66";
+const CONTRATO = Deno.env.get("UMBRAL_CONTRATO") ?? "CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP";
 // Cuenta cualquiera que exista en la red: solo se usa para consultar, no firma nada.
 const CUENTA_LECTURA = "GCCYPGWDNHLQBJAGIPNX5DRBB4CKMCTEQT4IK64IRSNN2IGGBO4JAB5C";
 

@@ -11,7 +11,7 @@ Proyecto para el Hackathon Sin Coordenada — FLAT 2026 (BAF × Stellar).
 | | |
 |---|---|
 | Demo en vivo | [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app) |
-| Contrato (red de pruebas) | [`CCFQDRBG…W4N66`](https://stellar.expert/explorer/testnet/contract/CCFQDRBGXVE4EIXZMBKA4GXXJV3BV6IZNSNXLPJHTDKEGN3SYYIW4N66) |
+| Contrato (red de pruebas) | [`CBPXN2SA…V3TP`](https://stellar.expert/explorer/testnet/contract/CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP) |
 | Transacciones verificadas | [docs/txs.md](docs/txs.md) |
 | Fuente de la verdad | [SPEC.md](SPEC.md) |
 | Guion de la demo | [docs/demo-jurado.md](docs/demo-jurado.md) |
@@ -109,17 +109,18 @@ El navegador no puede publicar, cambiar ni borrar nada. Detalle en [docs/arquite
 
 ## Evidencia en la red de pruebas
 
-Desplegado el 27/11/2026. Las 18 transacciones y la comprobación de saldos están en [docs/txs.md](docs/txs.md).
+Desplegado el 27/11/2026. Las 19 transacciones y la comprobación de saldos están en [docs/txs.md](docs/txs.md).
 
 | Qué | Comprobante |
 |---|---|
-| Exponer una obra (2 USDC a UMBRAL) | [2d584c0d…](https://stellar.expert/explorer/testnet/tx/2d584c0d02173ca60df9a16fa8a90e1c88bb417cc14ea388d669b2ecd6b490a9) |
-| Continuar una obra (0,70 artista; 0,30 UMBRAL) | [85624606…](https://stellar.expert/explorer/testnet/tx/856246063cffeb5df33545f80d726710b2a2f4e75fc9a89d0cf778e3032cb889) |
-| Apoyar | [11b5481f…](https://stellar.expert/explorer/testnet/tx/11b5481fe872c172b2e445d605723a3483854bf3050ad9e8ff95e7e7b03a19fe) |
-| Continuar pagando en XLM | [a6e810bb…](https://stellar.expert/explorer/testnet/tx/a6e810bb975d953273b78f2d4451d72f9b5ed4e84aefde4762e2131fdaa06c91) |
-| La artista cobra 2,10 USDC | [fceedf09…](https://stellar.expert/explorer/testnet/tx/fceedf09b7b02d8a99fca73ee72f20d9ae3a4b8c99414cd95d27f3bd5a6d585a) |
-| Obra invitada, pagada por el fondo de una sala | [1e26b027…](https://stellar.expert/explorer/testnet/tx/1e26b0279fa682b6aab6e62c0c4941a9b723b69e4caccffb1fe849aa5ec589c6) |
-| Continuar durante una muestra (0,50 artista; 0,20 sala; 0,30 UMBRAL) | [80ee21f3…](https://stellar.expert/explorer/testnet/tx/80ee21f3b3f3f579d6e50835c8c69433da99afa16de9a730d03cec4e8f03cd94) |
+| Exponer una obra (2 USDC a UMBRAL) | [a5837533…](https://stellar.expert/explorer/testnet/tx/a58375336fb73c41f72e904125aaeacf9e408eb38e82e3bfee3512a0c3b11d43) |
+| Continuar una obra (0,70 artista; 0,30 UMBRAL) | [faae8bd6…](https://stellar.expert/explorer/testnet/tx/faae8bd6772af654545ee66a596b9103154bb6e3e0cdb810f58865885110df47) |
+| Apoyar | [f706696f…](https://stellar.expert/explorer/testnet/tx/f706696f07603ad710cfa971c4bfdd5db448e6c52f571b130bd22c2f65cceba5) |
+| Continuar pagando en XLM | [ab312b0c…](https://stellar.expert/explorer/testnet/tx/ab312b0c0605682d0ce42b37ff75e365311311ce05cd02fd89009933ba42247c) |
+| La artista cobra 2,10 USDC | [2569212d…](https://stellar.expert/explorer/testnet/tx/2569212d4047f4debfa49cdd8b5a596ee470c35861b8dfb1d84e7ae0ae8e1197) |
+| Obra invitada, pagada por el fondo de una sala | [1ea298c9…](https://stellar.expert/explorer/testnet/tx/1ea298c93897431fbf3087c7966c035b66b05685b6a2d1144b47abd376ae04e4) |
+| Continuar durante una muestra (0,50 artista; 0,20 sala; 0,30 UMBRAL) | [23500231…](https://stellar.expert/explorer/testnet/tx/23500231d9134deff73292741f6623859b910c84c44a489b25b30c5cdd43b9a2) |
+| El museo retira lo que no se usó del fondo | [0c2cc774…](https://stellar.expert/explorer/testnet/tx/0c2cc7747443d5a9b45e20008a6545ef52992f820eef7afbf17b768a8850b5f5) |
 
 ## Validación con personas de afuera
 
