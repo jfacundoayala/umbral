@@ -13,7 +13,6 @@ Proyecto para el Hackathon Sin Coordenada — FLAT 2026 (BAF × Stellar).
 | Demo en vivo | [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app) |
 | Contrato (red de pruebas) | [`CBPXN2SA…V3TP`](https://stellar.expert/explorer/testnet/contract/CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP) |
 | Transacciones verificadas | [docs/txs.md](docs/txs.md) |
-| Fuente de la verdad | [SPEC.md](SPEC.md) |
 | Guion de la demo | [docs/demo-jurado.md](docs/demo-jurado.md) |
 
 ---
@@ -70,7 +69,7 @@ UMBRAL no es un marketplace ni un museo virtual para mirar. **No vende obras: ve
 1. **El arte de la calle empieza a cobrar.** Una escultura en una plaza no tiene comprador. Con la **placa con QR** pegada al lado, quien la tiene enfrente escanea, deja su huella desde el celular y el 70% va a quien la hizo.
 2. **La placa no se puede falsificar.** La crea y la firma con su billetera quien expuso la obra. Al escanearla, UMBRAL comprueba la firma y muestra un código que tiene que coincidir con el de la placa. Si alguien pega una placa trucha, la ficha avisa que no está firmada. Y aunque copien el código, el contrato le paga siempre a la cuenta registrada de la obra.
 3. **La obra muestra lo que despierta.** Cada huella sale de la que continúa y la obra se vuelve una constelación en 3D que se puede girar. El artista ve qué generó su obra, no un número de "me gusta".
-4. **Presencia real.** Una sala invita a quien va en persona y esa huella lleva el sello "Estuve ahí", comprobable en la red.
+4. **Presencia real.** Una sala invita a una cuenta (la artista de su muestra o alguien que fue en persona) y su fondo le paga la obra que deja en la sala. Esa obra lleva el sello "Estuve ahí", comprobable en la red.
 
 ## Modelo de negocio
 
@@ -87,6 +86,15 @@ UMBRAL no cobra suscripción ni vende publicidad. Vive de una parte de cada part
 - **El público paga por ser parte y no cobra.** En toda la cadena de respuestas, cobra el artista que expuso la obra.
 - **Muestras de salas y museos:** UMBRAL abre la muestra a pedido de la sala, por hasta 90 días. La parte de la sala sale de la del artista y se fija por muestra, según lo que aporta (difusión, lugar, público). El artista firma viendo el porcentaje; sin su firma, su obra no entra en la muestra. El contrato nunca lo deja por debajo del 30%.
 - Los precios son una hipótesis de prueba, no un modelo validado.
+
+**Una cuenta de ejemplo.** Una sala con 30 obras que juntan 300 continuaciones en un mes: sus artistas reciben 210 USDC y UMBRAL 90 USDC, más 60 USDC por exponer las 30 obras. Hoy los costos fijos son casi cero (base de datos y web en planes gratuitos, y cada operación en Stellar cuesta una fracción de centavo). El primer cliente a buscar es una sala o un museo de Resistencia: el público pone el volumen, la sala sostiene el proyecto.
+
+**Riesgos que conocemos.**
+- Pagar 1 USD por dejar unas palabras puede frenar a la gente. Es una hipótesis que todavía no validamos.
+- Para participar hace falta una billetera de Stellar (el camino previsto es entrar con correo).
+- Hoy una sola llave puede actualizar el contrato; en la red principal pasa a varias firmas.
+- El contenido vive en nuestra base de datos.
+- Para usar dinero real a escala falta resolver lo legal: botón de arrepentimiento, activos virtuales e impuestos.
 
 ## Por qué blockchain y por qué Stellar
 
@@ -153,6 +161,7 @@ Las pruebas con personas de afuera del equipo se hacen el sábado 28/11 con la [
 |---|---|
 | Contrato | 55 pruebas automáticas: repartos, piso del artista, muestras, firmas, montos absurdos, precios que suben, unidades que no se pierden. |
 | Base de datos | 30 pruebas de las reglas de acceso: el navegador no publica sin pago, no cambia ni borra, no ve borradores ajenos, no sube archivos fuera de lugar. |
+| App | 63 pruebas automáticas (firma de la placa, fotos que se achican antes de firmarse, avisos) y una prueba de punta a punta en la red de pruebas: exponer, continuar, apoyar y cobrar. Lighthouse en celular: accesibilidad, buenas prácticas y SEO 100. |
 | Servidor | Publicar sin pago, con un comprobante ajeno o repetido: rechazado. Favoritos con firma ajena o vencida: rechazado. |
 | Almacenamiento en la red | Solo un código de 32 bytes por huella; los artistas acumulan saldo y lo retiran juntos. La vigencia se renueva en cada acción y cualquiera puede renovarla. |
 
@@ -163,7 +172,7 @@ Las pruebas con personas de afuera del equipo se hacen el sábado 28/11 con la [
 | Contrato en Soroban (soroban-sdk 30) | Registra huellas, cobra y reparte |
 | USDC y XLM (contratos de activo de Stellar) | Los pagos |
 | Stellar Wallets Kit | La persona elige su billetera |
-| Firma de mensajes (SEP-53) | Entrar a favoritos sin pagar ni crear contraseñas |
+| Firma de mensajes (SEP-53) | Entrar a favoritos sin pagar ni crear contraseñas, y firmar gratis la placa con QR de cada obra |
 | SDK de JavaScript y Stellar CLI | Cliente generado desde el contrato compilado |
 | Stellar Expert | Comprobante público de cada acción |
 
@@ -192,11 +201,11 @@ docs/         Arquitectura, transacciones, cuidado de las personas e identidad
 
 ## Cuidado de las personas
 
-Detalle en [docs/cuidado.md](docs/cuidado.md), [términos de uso](docs/terminos.md) y [política de privacidad](docs/privacidad.md).
+Detalle en los [términos de uso](docs/terminos.md) y la [política de privacidad](docs/privacidad.md).
 
 - Aviso de no contar datos sensibles antes de publicar.
 - Retirar una huella borra su contenido de la base. El comprobante en la red no se puede borrar, y lo avisamos antes.
-- Filtro de palabras para las respuestas del público, contra el racismo y la violencia contra personas. No censura el arte ni la expresión. La lista está armada y se activa antes de abrir umbral al público.
+- Filtro de palabras para las respuestas del público, contra el racismo y la violencia contra personas. No censura el arte ni la expresión. Ya está activo en la base, con una lista de 45 palabras.
 - Quien expone una obra declara que es suya, que es de dominio público o que tiene autorización de su autor.
 - Solo mayores de 18 en esta versión.
 

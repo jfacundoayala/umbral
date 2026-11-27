@@ -30,8 +30,8 @@ UMBRAL — "Más allá de lo tangible". Un museo vivo en internet: un artista o 
 ## 3. Cómo lo resolvemos
 
 1. Leer es gratis y sin cuenta.
-2. Dejar una obra (una "huella") cuesta 2 USDC.
-3. Continuar una huella cuesta 1 USDC. Una parte va al artista que expuso la obra, siempre.
+2. Dejar una obra (una "huella") cuesta 2 USDC o 20 XLM.
+3. Continuar una huella cuesta 1 USDC o 10 XLM. Una parte va al artista que expuso la obra, siempre.
 4. Quien quiera apoya con el monto que elija.
 5. El contrato anota a nombre del artista lo que le toca; el artista lo retira cuando quiere.
 6. La constelación muestra todo lo que una obra provocó.
@@ -59,9 +59,9 @@ No decimos que hay ni que no hay acuerdo con ninguna institución.
 | Acción | Precio | UMBRAL | Autores |
 |---|---|---|---|
 | Leer | Gratis | — | — |
-| Dejar una huella | 2 USDC | 100% | — |
-| Continuar la obra original | 1 USDC | 30% | 70% al artista |
-| Continuar una respuesta | 1 USDC | 30% | 70% al artista original. Quien respondió no cobra |
+| Dejar una huella | 2 USDC o 20 XLM | 100% | — |
+| Continuar la obra original | 1 USDC o 10 XLM | 30% | 70% al artista |
+| Continuar una respuesta | 1 USDC o 10 XLM | 30% | 70% al artista original. Quien respondió no cobra |
 | Apoyar cualquier huella | Libre | 30% | 70% al artista de esa obra |
 
 ### La muestra con fecha de una sala (programada en el contrato; nombre a confirmar)
@@ -73,7 +73,7 @@ Nombre provisorio: convocatoria, apertura o temporada. Lo elige Lucía.
 - Cualquiera puede sumar al fondo: un comercio, un vecino, una marca. Es un padrino: gana visibilidad (su nombre aparece en la muestra), no dinero.
 - Mientras dura, la sala recibe una parte de cada continuación hecha ahí. Esa parte se acuerda para cada muestra, entre 0% y 40%, según el peso del museo, su público y su alcance. Sale de la parte del artista, que nunca baja del 30%. Ejemplos: muestra común, 50% artista, 20% sala, 30% UMBRAL; museo de mucho peso, 30% artista, 40% sala, 30% UMBRAL.
 - Al cerrar, la constelación queda sellada como la obra colectiva de esa muestra, con su comprobante público.
-- El dinero que entra al fondo no sale de UMBRAL: lo que no se usó queda como huellas invitadas para la próxima muestra de esa sala.
+- Lo que no se usó del fondo lo puede retirar la sala que lo cargó (`retirar_fondo`).
 
 Programado en el contrato: UMBRAL abre la muestra a pedido de la sala, dura como mucho 90 días, una sala no tiene dos a la vez, y la parte de la sala (de 0% a 40%, publicada al abrir la muestra) sale de la parte del artista sin bajarlo nunca del 30%. El reparto de la muestra vale para las obras de un artista solo si ese artista lo aceptó con su firma, viendo el porcentaje; sin su firma, ese artista queda afuera de la muestra: su obra no aparece ahí, no lleva el sello y no recibe la difusión de la sala; sigue en UMBRAL con el reparto de siempre. Una obra entra a una muestra cuando la sala la eligió y el artista firmó. El acuerdo entre la sala y UMBRAL es anterior y no depende de cada artista. El cierre sellado y el fondo mínimo no están programados.
 
@@ -105,13 +105,13 @@ Los precios son una hipótesis: no están validados con gente real.
 | Contrato (Soroban, soroban-sdk 30) | Hecho. 55 pruebas pasan. Desplegado en la red de pruebas: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`. |
 | App simulada (`web/app.html`) | Hecha, con dinero de mentira en el navegador. |
 | Portada (`web/index.html`) | Hecha con la identidad. |
-| App real (`app/`) | Hecha: portada, cielo de obras, constelación, ficha, exponer, continuar, apoyar, cobrar y favoritos. Probada de punta a punta en la red de pruebas el 27/11/2026 (abrir 20 XLM, continuar 10, apoyar 5, la artista cobró 10,5 y su saldo quedó en 0). Guion en `docs/demo-jurado.md`, guía para quienes prueban en `docs/guia-pruebas.md`. En curso: audio al exponer una obra y sello de presencia en pantalla. |
+| App real (`app/`) | Hecha: portada, cielo de obras, constelación, ficha, exponer, continuar, apoyar, cobrar y favoritos. Probada de punta a punta en la red de pruebas el 27/11/2026 (abrir 20 XLM, continuar 10, apoyar 5, la artista cobró 10,5 y su saldo quedó en 0). Guion en `docs/demo-jurado.md`, guía para quienes prueban en `docs/guia-pruebas.md`. También: audio, sello "Estuve ahí", placa con QR firmada y constelación en 3D. 63 pruebas de la app. |
 | Servidor: retirar | Hecho: borra el contenido de una huella solo si en la red figura retirada. Probado. |
 | Base de datos (Supabase, proyecto `umbral`) | Hecha: `supabase/esquema.sql` aplicado. 30 pruebas de reglas de acceso pasan. |
 | Servidor: publicar | Hecho: publica una huella solo si el pago está en la red y el contenido coincide con el código. Probado con un pago real en la red de pruebas. |
 | Servidor: favoritos | Hecho: guarda o quita un favorito solo con la firma de la billetera (SEP-53). Probado. |
-| Comprobantes en la red de pruebas | Hechos: 18 transacciones en `docs/txs.md`. |
-| Web publicada | Hecha: [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app), publicada el 27/11/2026 con el OK de Facundo. Sin obras cargadas hasta decidirlas con Lucía. |
+| Comprobantes en la red de pruebas | Hechos: 19 transacciones en `docs/txs.md`. |
+| Web publicada | Hecha: [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app), publicada el 27/11/2026 con el OK de Facundo. Con 6 obras de muestra. |
 | Prueba con gente real | Falta. |
 | Video y entrega | Falta. Vence el sábado 28/11 a las 23:59. Revisar si además de Stellar Apex se entrega en Circli (evento Vértice, pestaña Hack, donde está el proyecto del equipo). |
 
@@ -137,7 +137,7 @@ Los precios son una hipótesis: no están validados con gente real.
 - El aviso de una huella retirada dice si la retiró su autor o la moderación.
 - Cada vez que el fondo de una sala paga una huella, queda un aviso público.
 - El fondo de una sala solo paga la huella de las cuentas que el museo de esa sala invitó, una vez por cuenta.
-- El código del contrato no se puede actualizar una vez desplegado, ni cambiar de administrador. Si hay un error, se despliega uno nuevo.
+- El administrador puede reemplazar el código del contrato (`actualizar`) sin perder huellas, saldos ni fondos. En la red principal esa llave pasa a varias firmas, con aviso previo de cada cambio.
 
 ## 10. Decisiones abiertas
 
