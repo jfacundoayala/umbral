@@ -68,6 +68,8 @@ pub enum Error {
     /// Las fechas de la muestra no sirven: ya pasó, dura más de 90 días o
     /// la sala tiene otra muestra que todavía no terminó.
     MuestraInvalida = 15,
+    /// El fondo de la sala no alcanza para ese retiro.
+    FondoInsuficiente = 16,
 }
 
 /// Precios en la unidad mínima de la moneda (7 decimales en XLM y USDC).
@@ -123,7 +125,7 @@ pub enum Clave {
     /// Muestra con fecha de una sala.
     Muestra(BytesN<32>),
     /// Acuerdo de un artista con la muestra de una sala: (sala, artista).
-    /// Guarda la fecha de inicio de la muestra que aceptó.
+    /// Guarda la muestra exacta que aceptó (fechas y parte de la sala).
     Acuerdo(BytesN<32>, Address),
     /// Fondo de patrocinio de una sala: (sala, moneda).
     Fondo(BytesN<32>, Address),
@@ -235,6 +237,16 @@ pub struct FondoUsado {
     pub monto: i128,
 }
 
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FondoRetirado {
+    #[topic]
+    pub sala: BytesN<32>,
+    pub museo: Address,
+    pub moneda: Address,
+    pub monto: i128,
+}
+
 /// Una parte de un pago quedó anotada a nombre de alguien.
 #[contractevent]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -311,6 +323,14 @@ impl Umbral {
         Self::desactivar(&env, id, true)
     }
 
+    /// Reemplaza el código del contrato por uno ya subido a la red, sin
+    /// perder huellas, saldos ni fondos. Solo el administrador.
+    pub fn actualizar(env: Env, wasm_hash: BytesN<32>) {
+        Self::admin(&env).require_auth();
+        env.deployer()
+            .update_current_contract(soroban_sdk::ContractExecutable::Wasm(wasm_hash));
+    }
+
     // ---------- Salas de museos y patrocinio ----------
 
     /// Un museo o institución abre su sala dentro de Umbral.
@@ -364,12 +384,14 @@ impl Umbral {
 
     /// El artista acepta, con su firma, el reparto de la muestra de una sala
     /// para sus obras de esa sala. Sin esta firma, sus obras siguen con el
-    /// reparto de siempre aunque la sala esté en muestra. `parte_sala_bps`
-    /// es el porcentaje que el artista vio: si no coincide, falla.
+    /// reparto de siempre aunque la sala esté en muestra. `desde`, `hasta` y
+    /// `parte_sala_bps` son la muestra que el artista vio: si no coinciden, falla.
     pub fn aceptar_muestra(
         env: Env,
         artista: Address,
         sala: BytesN<32>,
+        desde: u64,
+        hasta: u64,
         parte_sala_bps: u32,
     ) -> Result<(), Error> {
         artista.require_auth();
@@ -384,8 +406,11 @@ impl Umbral {
         if m.parte_sala_bps != parte_sala_bps {
             return Err(Error::PorcentajeInvalido);
         }
+        if m.desde != desde || m.hasta != hasta {
+            return Err(Error::MuestraInvalida);
+        }
         let clave = Clave::Acuerdo(sala.clone(), artista.clone());
-        env.storage().persistent().set(&clave, &m.desde);
+        env.storage().persistent().set(&clave, &m);
         env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
         Self::renovar_sala(&env, &sala);
         MuestraAceptada { sala, artista, desde: m.desde, parte_sala_bps }.publish(&env);
@@ -436,6 +461,40 @@ impl Umbral {
         env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
         Self::renovar_sala(&env, &sala);
         SalaPatrocinada { sala, quien, moneda, monto }.publish(&env);
+        Ok(())
+    }
+
+    /// El museo de la sala retira plata del fondo que no se usó. No vuelve a
+    /// quien patrocinó: va al museo, que es quien decide a quién invita.
+    pub fn retirar_fondo(
+        env: Env,
+        sala: BytesN<32>,
+        moneda: Address,
+        monto: i128,
+    ) -> Result<(), Error> {
+        let museo = Self::museo_de(env.clone(), sala.clone())?;
+        museo.require_auth();
+        if monto <= 0 {
+            return Err(Error::MontoInvalido);
+        }
+        let clave = Clave::Fondo(sala.clone(), moneda.clone());
+        let fondo: i128 = env.storage().persistent().get(&clave).unwrap_or(0);
+        if fondo < monto {
+            return Err(Error::FondoInsuficiente);
+        }
+        if fondo == monto {
+            env.storage().persistent().remove(&clave);
+        } else {
+            env.storage().persistent().set(&clave, &(fondo - monto));
+            env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
+        }
+        token::TokenClient::new(&env, &moneda).transfer(
+            &env.current_contract_address(),
+            &museo,
+            &monto,
+        );
+        Self::renovar_sala(&env, &sala);
+        FondoRetirado { sala, museo, moneda, monto }.publish(&env);
         Ok(())
     }
 
@@ -658,9 +717,9 @@ impl Umbral {
     /// Si un artista aceptó la muestra que esa sala tiene cargada.
     pub fn acepto_muestra(env: Env, sala: BytesN<32>, artista: Address) -> bool {
         let m: Option<Muestra> = env.storage().persistent().get(&Clave::Muestra(sala.clone()));
-        let aceptada: Option<u64> = env.storage().persistent().get(&Clave::Acuerdo(sala, artista));
+        let aceptada: Option<Muestra> = env.storage().persistent().get(&Clave::Acuerdo(sala, artista));
         match (m, aceptada) {
-            (Some(m), Some(desde)) => m.desde == desde,
+            (Some(m), Some(a)) => m == a,
             _ => false,
         }
     }
@@ -719,11 +778,11 @@ impl Umbral {
         if ahora < m.desde || ahora > m.hasta {
             return None;
         }
-        let aceptada: u64 = env
+        let aceptada: Muestra = env
             .storage()
             .persistent()
             .get(&Clave::Acuerdo(s.clone(), artista.clone()))?;
-        if aceptada != m.desde {
+        if aceptada != m {
             return None;
         }
         let museo: Address = env.storage().persistent().get(&Clave::Sala(s))?;

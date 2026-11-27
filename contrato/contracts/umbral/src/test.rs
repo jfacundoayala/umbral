@@ -710,7 +710,7 @@ fn durante_la_muestra_la_continuacion_reparte_50_20_30() {
     let (m, museo, sala, obra) = sala_con_obra();
     m.env.ledger().with_mut(|l| l.timestamp = 1_000);
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + 7 * DIA_S), &2_000);
-    m.c.aceptar_muestra(&m.ana, &sala, &2_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + 7 * DIA_S), &2_000);
     assert_eq!(m.c.muestra(&sala), Some(Muestra { desde: 1_000, hasta: 1_000 + 7 * DIA_S, parte_sala_bps: 2_000 }));
 
     let tesoro_antes = m.tk.balance(&m.tesoro);
@@ -733,7 +733,7 @@ fn antes_y_despues_de_la_muestra_el_reparto_es_el_de_siempre() {
     let (m, museo, sala, obra) = sala_con_obra();
     m.env.ledger().with_mut(|l| l.timestamp = 1_000);
     m.c.abrir_muestra(&sala, &(1_000 + DIA_S), &(1_000 + 2 * DIA_S), &2_000);
-    m.c.aceptar_muestra(&m.ana, &sala, &2_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &(1_000 + DIA_S), &(1_000 + 2 * DIA_S), &2_000);
 
     // Todavía no empezó.
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
@@ -753,7 +753,7 @@ fn la_muestra_no_cambia_las_obras_de_afuera_ni_el_apoyo() {
     let (m, museo, sala, obra) = sala_con_obra();
     m.env.ledger().with_mut(|l| l.timestamp = 1_000);
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &2_000);
-    m.c.aceptar_muestra(&m.ana, &sala, &2_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &2_000);
 
     // Una obra que no es de la sala: 70 y 30, como siempre.
     m.c.dejar_huella(&m.caro, &h(&m.env, 110), &true, &m.moneda, &MAX, &None);
@@ -774,7 +774,7 @@ fn en_una_muestra_el_artista_nunca_baja_del_piso() {
     m.c.fijar_parte_autor(&4_000);
     m.env.ledger().with_mut(|l| l.timestamp = 1_000);
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &2_000);
-    m.c.aceptar_muestra(&m.ana, &sala, &2_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &2_000);
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
     // 40% menos 20% daría 20%: se queda en el piso de 30%.
     assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 3 / 10);
@@ -824,7 +824,7 @@ fn la_parte_de_la_sala_se_elige_en_cada_muestra_con_tope_de_40() {
     );
     // Un museo de mucho peso: 40% sala, 30% artista, 30% Umbral.
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &4_000);
-    m.c.aceptar_muestra(&m.ana, &sala, &4_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &4_000);
     let tesoro_antes = m.tk.balance(&m.tesoro);
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
     assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 3 / 10);
@@ -838,7 +838,7 @@ fn una_muestra_puede_dejarle_todo_al_artista() {
     let (m, museo, sala, obra) = sala_con_obra();
     m.env.ledger().with_mut(|l| l.timestamp = 1_000);
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &0);
-    m.c.aceptar_muestra(&m.ana, &sala, &0);
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &0);
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
     assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
@@ -858,13 +858,13 @@ fn sin_la_firma_del_artista_la_muestra_no_le_cambia_el_reparto() {
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 
     // Que acepte otro artista no cambia nada para Ana.
-    m.c.aceptar_muestra(&m.caro, &sala, &4_000);
+    m.c.aceptar_muestra(&m.caro, &sala, &1_000, &(1_000 + DIA_S), &4_000);
     m.c.comentar(&m.beto, &h(&m.env, 103), &obra, &true, &m.moneda, &USDC);
     assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 7 / 10));
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 
     // Cuando Ana acepta, vale desde ahí en adelante.
-    m.c.aceptar_muestra(&m.ana, &sala, &4_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &4_000);
     assert!(m.c.acepto_muestra(&sala, &m.ana));
     m.c.comentar(&m.beto, &h(&m.env, 104), &obra, &true, &m.moneda, &USDC);
     assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 7 / 10) + USDC * 3 / 10);
@@ -877,15 +877,17 @@ fn el_artista_acepta_solo_el_porcentaje_que_vio_y_solo_esa_muestra() {
     let (m, museo, sala, obra) = sala_con_obra();
     m.env.ledger().with_mut(|l| l.timestamp = 1_000);
     // Todavía no hay muestra.
-    assert_eq!(m.c.try_aceptar_muestra(&m.ana, &sala, &2_000), Err(Ok(Error::MuestraInvalida)));
+    assert_eq!(m.c.try_aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &2_000), Err(Ok(Error::MuestraInvalida)));
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &2_000);
     // Vio 10% y la muestra dice 20%: no vale.
-    assert_eq!(m.c.try_aceptar_muestra(&m.ana, &sala, &1_000), Err(Ok(Error::PorcentajeInvalido)));
-    m.c.aceptar_muestra(&m.ana, &sala, &2_000);
+    assert_eq!(m.c.try_aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &1_000), Err(Ok(Error::PorcentajeInvalido)));
+    // Vio otras fechas: tampoco vale.
+    assert_eq!(m.c.try_aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + 7 * DIA_S), &2_000), Err(Ok(Error::MuestraInvalida)));
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &2_000);
 
     // Termina esa muestra y la sala abre otra con 40%: el acuerdo viejo no sirve.
     m.env.ledger().with_mut(|l| l.timestamp = 1_000 + 2 * DIA_S);
-    assert_eq!(m.c.try_aceptar_muestra(&m.ana, &sala, &2_000), Err(Ok(Error::MuestraInvalida)));
+    assert_eq!(m.c.try_aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &2_000), Err(Ok(Error::MuestraInvalida)));
     m.c.abrir_muestra(&sala, &(1_000 + 2 * DIA_S), &(1_000 + 3 * DIA_S), &4_000);
     assert!(!m.c.acepto_muestra(&sala, &m.ana));
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
@@ -900,7 +902,54 @@ fn nadie_acepta_una_muestra_por_el_artista() {
     m.env.ledger().with_mut(|l| l.timestamp = 1_000);
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &4_000);
     m.env.set_auths(&[]);
-    assert!(m.c.try_aceptar_muestra(&m.ana, &sala, &4_000).is_err());
+    assert!(m.c.try_aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &4_000).is_err());
     assert!(!m.c.acepto_muestra(&sala, &m.ana));
 }
 
+
+#[test]
+fn una_muestra_nueva_con_la_misma_fecha_de_inicio_pide_otra_firma() {
+    use soroban_sdk::testutils::Ledger as _;
+    let (m, museo, sala, obra) = sala_con_obra();
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000);
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + 100), &0);
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + 100), &0);
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000 + 200);
+    // Misma fecha de inicio, otro porcentaje: el acuerdo viejo no sirve.
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &4_000);
+    assert!(!m.c.acepto_muestra(&sala, &m.ana));
+    m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
+}
+
+#[test]
+fn el_museo_retira_lo_que_no_se_uso_del_fondo() {
+    let m = mundo();
+    let (museo, sala) = sala_con_fondo(&m, 3 * P_HUELLA);
+    let antes = m.tk.balance(&museo);
+    m.c.retirar_fondo(&sala, &m.moneda, &P_HUELLA);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 2 * P_HUELLA);
+    assert_eq!(m.tk.balance(&museo) - antes, P_HUELLA);
+    assert_eq!(m.c.try_retirar_fondo(&sala, &m.moneda, &(3 * P_HUELLA)), Err(Ok(Error::FondoInsuficiente)));
+    assert_eq!(m.c.try_retirar_fondo(&sala, &m.moneda, &0), Err(Ok(Error::MontoInvalido)));
+    m.c.retirar_fondo(&sala, &m.moneda, &(2 * P_HUELLA));
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 0);
+    assert_eq!(m.tk.balance(&m.c.address), 0);
+}
+
+#[test]
+fn solo_el_museo_retira_el_fondo_de_su_sala() {
+    let m = mundo();
+    let (_museo, sala) = sala_con_fondo(&m, P_HUELLA);
+    m.env.set_auths(&[]);
+    assert!(m.c.try_retirar_fondo(&sala, &m.moneda, &P_HUELLA).is_err());
+    assert_eq!(m.c.fondo(&sala, &m.moneda), P_HUELLA);
+}
+
+#[test]
+fn solo_el_administrador_actualiza_el_contrato() {
+    let m = mundo();
+    m.env.set_auths(&[]);
+    assert!(m.c.try_actualizar(&h(&m.env, 7)).is_err());
+}

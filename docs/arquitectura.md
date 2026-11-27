@@ -4,7 +4,7 @@
 
 | Pieza | Dónde está | Qué hace | Estado |
 |---|---|---|---|
-| Contrato | `contrato/` | Cobra, reparte y registra cada huella en Stellar | Hecho, 51 pruebas, desplegado en la red de pruebas |
+| Contrato | `contrato/` | Cobra, reparte y registra cada huella en Stellar | Hecho, 55 pruebas, desplegado en la red de pruebas |
 | App | `app/` | Las pantallas reales: entrar, ver la constelación, abrir, continuar, apoyar, cobrar | En construcción |
 | Maqueta | `web/` | Portada y app simulada, para decidir pantallas sin gastar nada | Hecha |
 | Base de datos | `supabase/esquema.sql` | Guarda textos, fotos, audios y favoritos. A la red solo va un código | Hecha y probada |

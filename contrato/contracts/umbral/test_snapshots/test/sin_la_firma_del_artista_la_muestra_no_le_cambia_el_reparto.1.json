@@ -411,6 +411,12 @@
                   "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
                 },
                 {
+                  "u64": "1000"
+                },
+                {
+                  "u64": "87400"
+                },
+                {
                   "u32": 4000
                 }
               ]
@@ -511,6 +517,12 @@
                 },
                 {
                   "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                },
+                {
+                  "u64": "1000"
+                },
+                {
+                  "u64": "87400"
                 },
                 {
                   "u32": 4000
@@ -954,7 +966,32 @@
               },
               "durability": "persistent",
               "val": {
-                "u64": "1000"
+                "map": [
+                  {
+                    "key": {
+                      "symbol": "desde"
+                    },
+                    "val": {
+                      "u64": "1000"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "hasta"
+                    },
+                    "val": {
+                      "u64": "87400"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "parte_sala_bps"
+                    },
+                    "val": {
+                      "u32": 4000
+                    }
+                  }
+                ]
               }
             }
           },
@@ -984,7 +1021,32 @@
               },
               "durability": "persistent",
               "val": {
-                "u64": "1000"
+                "map": [
+                  {
+                    "key": {
+                      "symbol": "desde"
+                    },
+                    "val": {
+                      "u64": "1000"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "hasta"
+                    },
+                    "val": {
+                      "u64": "87400"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "parte_sala_bps"
+                    },
+                    "val": {
+                      "u32": 4000
+                    }
+                  }
+                ]
               }
             }
           },
