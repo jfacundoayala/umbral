@@ -7,7 +7,7 @@ import { corta, enlaceTx, ir, mensajeError, MONEDAS, palabras, plata, type Moned
 import Constelacion from "./Constelacion";
 import { RED, UNIDAD } from "./config";
 import Reproductor from "./Reproductor";
-import { apoyar, cobrar, invitacion, museoDe, nuevaSal, pagadaPorSala, preciosVigentes, retirar, saldoDe, type Derechos, type Documento } from "./umbral";
+import { apoyar, cobrar, invitacion, museoDe, nuevaSal, PagoSinConfirmar, pagadaPorSala, preciosVigentes, retirar, saldoDe, type Derechos, type Documento } from "./umbral";
 
 export type Sesion = { cuenta: string | null; moneda: Moneda; entrar: () => Promise<string | null> };
 
@@ -41,9 +41,11 @@ function Estado({ a, listo }: { a: ReturnType<typeof useAccion>; listo: string }
       {a.hecho && (
         <p>
           {listo}{" "}
-          <a href={a.hecho.enlace} target="_blank" rel="noopener noreferrer">
-            Ver el comprobante ↗
-          </a>
+          {a.hecho.enlace && (
+            <a href={a.hecho.enlace} target="_blank" rel="noopener noreferrer">
+              Ver el comprobante ↗
+            </a>
+          )}
         </p>
       )}
     </div>
@@ -149,7 +151,7 @@ export function Ficha({ id, sesion }: { id: string; sesion: Sesion }) {
   const [error, setError] = useState("");
   const [elegida, setElegida] = useState(id);
   const [vuelta, setVuelta] = useState(0);
-  const [publicada, setPublicada] = useState<string | null>(null);
+  const [publicada, setPublicada] = useState<string | null>(null); // "" = publicada sin enlace al comprobante
   const [sello, setSello] = useState<{ obra: string; museo: string } | null>(null);
   const salaObra = datos?.obra?.sala ?? null;
   const txObra = datos?.obra?.tx_hash ?? null;
@@ -201,10 +203,10 @@ export function Ficha({ id, sesion }: { id: string; sesion: Sesion }) {
         <Constelacion obra={obra} huellas={huellas} elegida={actual.id} elegir={setElegida} invitada={sello?.obra === obra.id} />
       </div>
       <aside>
-        {publicada && (
+        {publicada !== null && (
           <p className="estado publicada" role="status">
             Listo: tu huella ya está en la constelación.{" "}
-            <a href={publicada} target="_blank" rel="noopener noreferrer">Ver el comprobante ↗</a>
+            {publicada && <a href={publicada} target="_blank" rel="noopener noreferrer">Ver el comprobante ↗</a>}
           </p>
         )}
         <Lectura key={`l${actual.id}`} h={actual} esObra={actual.id === obra.id} sesion={sesion} alRetirar={() => setVuelta((v) => v + 1)} museo={sello?.obra === actual.id ? sello.museo : null} />
@@ -294,7 +296,13 @@ function Retirar({ h, cuenta, alRetirar }: { h: Huella; cuenta: string; alRetira
           onClick={() =>
             a.correr(async (avance) => {
               avance("Firmá en tu billetera…");
-              await retirar(cuenta, firmar, h.id);
+              try {
+                await retirar(cuenta, firmar, h.id);
+              } catch (e) {
+                // Si ya estaba retirada en la red (un intento anterior que se cortó) o la red no confirmó,
+                // igual se borra el contenido: borrarRetirada espera a que la red lo confirme.
+                if (!(e instanceof PagoSinConfirmar) && mensajeError(e) !== "Esa huella fue retirada.") throw e;
+              }
               avance("Borrando el contenido…");
               await borrarRetirada(h.id);
               alRetirar();

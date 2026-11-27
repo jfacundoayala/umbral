@@ -6,8 +6,8 @@
 import { publicar } from "./base";
 
 const CLAVE = "umbral-pendientes";
-/** El borrador se borra solo a las 24 horas: después de eso ya no hay nada que publicar. */
-const VIDA_MS = 24 * 3_600_000;
+/** El borrador pagado se guarda 7 días (ver la limpieza en esquema.sql): después ya no hay nada que publicar. */
+const VIDA_MS = 7 * 24 * 3_600_000;
 
 type Pendiente = { id: string; hash: string; desde: number };
 

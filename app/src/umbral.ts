@@ -1,7 +1,7 @@
 // Puente entre las pantallas y el contrato de UMBRAL.
 // Cada acción: arma el pedido, lo simula, pide la firma a la billetera, lo manda y devuelve el comprobante.
 import { Buffer } from "buffer";
-import { Address, rpc } from "@stellar/stellar-sdk";
+import { Address, rpc, scValToNative, StrKey } from "@stellar/stellar-sdk";
 import { Client } from "./contrato/cliente";
 import { CONTRATO_ID, MONEDA_ID, RED, UNIDAD } from "./config";
 
@@ -130,7 +130,7 @@ export class PagoSinConfirmar extends Error {
   hash: string;
   constructor(hash: string) {
     super(
-      `No pudimos confirmar si el pago salió. No vuelvas a pagar todavía: fijate en un minuto en ${RED.explorador}/tx/${hash}. Si salió, tu huella se publica sola.`,
+      `La acción se mandó, pero no pudimos confirmar si salió. No la repitas todavía: fijate en un minuto en ${RED.explorador}/tx/${hash}. Si era una huella y salió, se publica sola.`,
     );
     this.hash = hash;
   }
@@ -147,11 +147,9 @@ async function enviar(armar: () => Promise<{ signAndSend: (o?: { watcher?: Vigia
     const tx = await armar(); // acá se simula: si el contrato va a rechazar, falla antes de firmar
     enviado = await tx.signAndSend({ watcher: { onSubmitted: (r) => (mandada = r?.hash ?? "") } });
   } catch (e) {
-    // Si ya se mandó y la red no contestó a tiempo, no es un rechazo: puede haberse cobrado.
-    const texto = e instanceof Error ? e.message : String(e);
-    if (mandada && /Waited \d+ seconds|StillPending|timeout|timed out|failed to fetch|networkerror/i.test(texto)) {
-      throw new PagoSinConfirmar(mandada);
-    }
+    // Si ya se mandó, cualquier error en la espera (red cortada, "Load failed" en Safari, 503…)
+    // no es un rechazo: puede haberse cobrado. Se anota para no perder la huella.
+    if (mandada) throw new PagoSinConfirmar(mandada);
     throw enPalabras(e);
   }
   const hash = enviado.sendTransactionResponse?.hash;
@@ -246,6 +244,11 @@ export async function invitacion(salaHex: string, cuenta: string, moneda: string
 export async function pagadaPorSala(txHash: string): Promise<boolean> {
   const t = await new rpc.Server(RED.rpcUrl).getTransaction(txHash);
   if (t.status !== "SUCCESS") return false;
-  const meta = t.resultMetaXdr.toXDR("hex");
-  return meta.includes(Buffer.from("fondo_usado").toString("hex"));
+  // Se busca el evento "fondo_usado" emitido por este contrato (no el texto suelto en el registro,
+  // que el dueño de una sala podría meter en el id de su sala).
+  return t.events.contractEventsXdr.flat().some((e) => {
+    if (!e.contractId || StrKey.encodeContract(Buffer.from(String(e.contractId), "hex")) !== CONTRATO_ID) return false;
+    const [nombre] = e.body.v0.topics.map((x) => scValToNative(x));
+    return nombre === "fondo_usado";
+  });
 }

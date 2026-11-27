@@ -112,7 +112,8 @@ export async function subirArchivo(deposito: "obras" | "audios", ruta: string, a
 
 /** Le pide al servidor que publique: el servidor mira la red y recién ahí la muestra.
  *  La red puede tardar unos segundos en mostrar el pago, por eso reintenta. */
-export async function publicar(id: string, tx_hash: string): Promise<void> {
+/** Publica un borrador pagado. Sin comprobante, el servidor lo busca en la red. Devuelve el comprobante si lo hay. */
+export async function publicar(id: string, tx_hash = ""): Promise<string | null> {
   let ultimo = "No pudimos publicar.";
   for (let intento = 0; intento < 4; intento++) {
     if (intento) await new Promise((r) => setTimeout(r, 2500 * intento));
@@ -121,8 +122,8 @@ export async function publicar(id: string, tx_hash: string): Promise<void> {
       headers: { ...CABECERAS, "Content-Type": "application/json" },
       body: JSON.stringify({ id, tx_hash }),
     });
-    const c = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string };
-    if (r.ok && c.ok) return;
+    const c = (await r.json().catch(() => ({}))) as { ok?: boolean; error?: string; tx_hash?: string | null };
+    if (r.ok && c.ok) return c.tx_hash ?? (tx_hash || null);
     ultimo = c.error ?? ultimo;
     if (r.status === 400 || r.status === 404 || r.status === 409) break; // no se arregla esperando
   }

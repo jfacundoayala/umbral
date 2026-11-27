@@ -477,3 +477,49 @@ alter table public.huellas add constraint huellas_derechos_solo_obras
     (padre is null and (derechos is not null or estado = 'retirada'))
     or (padre is not null and derechos is null)
   );
+
+-- ---------------------------------------------------------------------------
+-- Arreglos de la auditoría de código (27/11/2026).
+-- 1. El límite de 20 palabras del título: '\s+' (con standard_conforming_strings)
+--    es el patrón de espacios. Las versiones anteriores partían por "\s" literal o por "s".
+-- 2. Un borrador pagado que no llegó a publicarse se guarda 7 días, no 24 horas:
+--    `publicar` ya no necesita el comprobante, así que se puede publicar al volver.
+-- 3. Solo se aceptan los nombres de archivo que usa la app: un archivo por borrador.
+-- ---------------------------------------------------------------------------
+alter table public.huellas drop constraint huellas_titulo_obra;
+alter table public.huellas add constraint huellas_titulo_obra check (
+  estado = 'retirada'
+  or (padre is null
+      and titulo is not null
+      and char_length(btrim(titulo)) between 1 and 200
+      and array_length(regexp_split_to_array(btrim(titulo), '\s+'), 1) <= 20)
+  or (padre is not null and titulo is null)
+);
+
+select cron.schedule(
+  'umbral-borrar-borradores-viejos',
+  '17 * * * *',
+  $$delete from public.huellas where estado = 'pendiente' and tx_hash is null and recibido < now() - interval '7 days'$$
+);
+
+drop policy if exists obras_subir_a_obra_pendiente on storage.objects;
+create policy obras_subir_a_obra_pendiente
+  on storage.objects
+  for insert
+  to anon, authenticated
+  with check (
+    bucket_id = 'obras'
+    and name ~ '^[0-9a-f]{64}/foto\.(jpg|png|webp)$'
+    and privado.es_obra_pendiente((storage.foldername(name))[1])
+  );
+
+drop policy if exists audios_subir_a_obra_pendiente on storage.objects;
+create policy audios_subir_a_obra_pendiente
+  on storage.objects
+  for insert
+  to anon, authenticated
+  with check (
+    bucket_id = 'audios'
+    and name ~ '^[0-9a-f]{64}/audio\.(mp3|m4a|webm|ogg)$'
+    and privado.es_obra_pendiente((storage.foldername(name))[1])
+  );

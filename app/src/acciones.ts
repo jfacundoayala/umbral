@@ -4,6 +4,9 @@ import { guardarBorrador, publicar, subirArchivo, type Huella } from "./base";
 import { firmar, firmarMensaje } from "./billetera";
 import { codigoDe, codigoDeArchivo, continuar, dejarHuella, idDe, PagoSinConfirmar, type Comprobante, type Documento } from "./umbral";
 import { anotar, quitar } from "./pendientes";
+import { enlaceTx } from "./comun";
+
+const YA_PAGADA = "Ya dejaste esta huella.";
 
 export type Avance = (texto: string) => void;
 
@@ -15,6 +18,14 @@ async function pagarYPublicar<T extends Comprobante>(id: string, pagar: () => Pr
     recibo = await pagar();
   } catch (e) {
     if (e instanceof PagoSinConfirmar) anotar(id, e.hash);
+    // "Ya dejaste esta huella": se pagó en un intento anterior que no llegó a publicarse.
+    // El contrato ya la tiene, así que se publica sin volver a pagar.
+    if (e instanceof Error && e.message === YA_PAGADA) {
+      avance("Esta huella ya estaba pagada. Publicando…");
+      const hash = await publicar(id);
+      quitar(id);
+      return { hash: hash ?? "", enlace: hash ? enlaceTx(hash) : "" } as T;
+    }
     throw e;
   }
   anotar(id, recibo.hash);

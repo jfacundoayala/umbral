@@ -76,16 +76,16 @@ describe("pendientes", () => {
     expect(guardado().map((p) => p.id)).toEqual([ID1]);
   });
 
-  it("a las 24 h exactas todavía se reintenta", async () => {
+  it("a los 7 días exactos todavía se reintenta", async () => {
     anotar(ID1, H1);
-    vi.advanceTimersByTime(24 * HORA);
+    vi.advanceTimersByTime(7 * 24 * HORA);
     publicarMock.mockResolvedValue(undefined as never);
     expect(await reintentarPendientes()).toBe(1);
   });
 
-  it("pasadas las 24 h se descarta sin intentar publicar", async () => {
+  it("pasados los 7 días se descarta sin intentar publicar", async () => {
     anotar(ID1, H1);
-    vi.advanceTimersByTime(24 * HORA + 1);
+    vi.advanceTimersByTime(7 * 24 * HORA + 1);
     expect(await reintentarPendientes()).toBe(0);
     expect(publicarMock).not.toHaveBeenCalled();
     expect(guardado()).toEqual([]);
