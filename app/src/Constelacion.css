@@ -1,0 +1,42 @@
+/* Constelación en 3D. Lo básico (.punto, .nucleo, .linea, .sello-aro) sigue en App.css; acá va lo propio del giro. */
+
+/* Solo el dibujo toma el arrastre: afuera la página se desplaza como siempre. */
+.mapa.mapa-3d { touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+.mapa.mapa-3d.agarrada { cursor: grabbing; }
+.mapa.mapa-3d.agarrada .punto { cursor: grabbing; }
+.mapa.mapa-3d:focus { outline: none; }
+.mapa.mapa-3d:focus-visible { outline: 1px solid var(--cobalto); outline-offset: 4px; }
+
+/* Al escalar por cercanía, las líneas no engordan: el trazo queda fino y parejo. */
+.mapa-3d .punto circle,
+.mapa-3d .punto .icono * { vector-effect: non-scaling-stroke; }
+.mapa-3d .punto .nucleo { stroke-width: 1.2; }
+.mapa-3d .punto:hover .nucleo,
+.mapa-3d .punto.sel .nucleo { stroke-width: 2.6; }
+.mapa-3d .punto.raiz .nucleo { stroke-width: 1.2; }
+.mapa-3d .punto.raiz:hover .nucleo,
+.mapa-3d .punto.raiz.sel .nucleo { stroke-width: 2.2; }
+.mapa-3d .punto.retirada .nucleo { stroke: var(--mineral); stroke-dasharray: 3 3; fill: var(--marfil); }
+.mapa-3d .punto.retirada text { fill: var(--mineral); }
+.mapa-3d .punto:focus-visible .nucleo { stroke: var(--tinta); stroke-width: 2.6; }
+.mapa-3d .punto text { font-family: var(--sans); font-weight: 500; letter-spacing: .14em; }
+
+/* Fondo: anillos punteados finos y una esfera apenas sugerida. */
+.mapa-3d .fondo .orbita { fill: none; stroke: var(--cobalto); stroke-width: .7; stroke-dasharray: 1 5; }
+.mapa-3d .fondo .meridiano { fill: none; stroke: var(--niebla); stroke-width: .6; stroke-dasharray: 1 7; opacity: .45; }
+.mapa-3d .fondo .onda { opacity: .38; }
+.mapa-3d .linea { stroke: var(--niebla); stroke-width: 1; stroke-linecap: round; }
+.mapa-3d .brillo { pointer-events: none; }
+
+/* Rótulo al pasar o tocar: ficha de museo, Bodoni para el nombre e Inter para la frase. */
+.rotulo-huella { pointer-events: none; }
+.rotulo-huella rect { fill: var(--marfil); stroke: var(--mineral); stroke-width: .8; filter: drop-shadow(0 2px 6px rgb(25 25 25 / .08)); }
+.rotulo-huella .filete { stroke: var(--cobalto); stroke-width: 1.6; }
+.rotulo-huella .titulo { font-family: var(--serif); font-weight: 500; fill: var(--tinta); }
+.rotulo-huella .frase { font-family: var(--sans); fill: #4a4a4a; }
+
+.mapa-3d .pista { font-family: var(--sans); letter-spacing: .2em; text-transform: uppercase; fill: var(--niebla); text-anchor: middle; pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mapa-3d .punto .nucleo { transition: none; }
+}
