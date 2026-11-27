@@ -2,6 +2,7 @@
 // Huella de anillos cobalto en el centro de la constelación, cuatro verbos y nodos con íconos.
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { ir } from "./comun";
+import { PortadaMas } from "./PortadaMas";
 
 /** Un anillo de la huella: un óvalo irregular. Misma cuenta que la portada web. */
 function anillo(k: number, n: number, escala: number) {
@@ -209,6 +210,7 @@ export default function Portada() {
   }
 
   return (
+    <>
     <section className="portada" ref={portada}>
       <Iconos />
       <svg className="fondo" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -289,5 +291,7 @@ export default function Portada() {
         </svg>
       </div>
     </section>
+    <PortadaMas />
+    </>
   );
 }
