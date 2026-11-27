@@ -69,7 +69,7 @@ UMBRAL no es un marketplace ni un museo virtual para mirar. **No vende obras: ve
 1. **El arte de la calle empieza a cobrar.** Una escultura en una plaza no tiene comprador. Con la **placa con QR** pegada al lado, quien la tiene enfrente escanea, deja su huella desde el celular y el 70% va a quien la hizo.
 2. **La placa no se puede falsificar.** La crea y la firma con su billetera quien expuso la obra. Al escanearla, UMBRAL comprueba la firma y muestra un código que tiene que coincidir con el de la placa. Si alguien pega una placa trucha, la ficha avisa que no está firmada. Y aunque copien el código, el contrato le paga siempre a la cuenta registrada de la obra.
 3. **La obra muestra lo que despierta.** Cada huella sale de la que continúa y la obra se vuelve una constelación en 3D que se puede girar. El artista ve qué generó su obra, no un número de "me gusta".
-4. **Presencia real.** Una sala invita a una cuenta (la artista de su muestra o alguien que fue en persona) y su fondo le paga la obra que deja en la sala. Esa obra lleva el sello "Estuve ahí", comprobable en la red.
+4. **Presencia real.** La sala escanea en la puerta el código de quien está ahí: quien llega abre "Mi código para el encuentro" (un QR con su cuenta) y la sala, desde "Invitar en la puerta", lo escanea y firma la invitación. El fondo de la sala le paga la obra que deja y esa obra lleva el sello "Estuve ahí", comprobable en la red. Como la invitación se hace cara a cara, el sello no se consigue desde la casa.
 
 ## Modelo de negocio
 
@@ -229,6 +229,7 @@ Detalle en los [términos de uso](docs/terminos.md) y la [política de privacida
 
 - Entrar con correo: UMBRAL guía a quien nunca usó cripto a crear su billetera de Stellar. Suma usuarios nuevos a la red.
 - Panel para museos con los números de su muestra.
+- Encuentros virtuales: un código que cambia cada pocos segundos, mostrado en vivo durante la charla o la recorrida por videollamada, para que el sello pruebe que la persona estuvo en vivo.
 - Un museo piloto, empezando por las esculturas de Resistencia.
 - Pasar a la red principal de Stellar con USDC real, después de una revisión externa del contrato.
 

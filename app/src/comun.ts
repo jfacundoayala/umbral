@@ -29,7 +29,9 @@ export type Ruta =
   | { pantalla: "cobrar" }
   | { pantalla: "terminos" }
   | { pantalla: "privacidad" }
-  | { pantalla: "opinion"; desde: "huella" | "pie" };
+  | { pantalla: "opinion"; desde: "huella" | "pie" }
+  | { pantalla: "codigo"; sala?: string }
+  | { pantalla: "puerta"; sala: string };
 
 /** Llegada desde la placa de una obra: #/obra/<id>?desde=placa&f=<firma>. */
 function placaDe(consulta: string) {
@@ -49,6 +51,11 @@ function leerRuta(): Ruta {
     return { pantalla: "abrir", sala: sala && /^[0-9a-f]{64}$/.test(sala) ? sala : undefined };
   }
   if (partes[0] === "cobrar") return { pantalla: "cobrar" };
+  if (partes[0] === "codigo") {
+    const sala = new URLSearchParams(consulta).get("sala")?.toLowerCase();
+    return { pantalla: "codigo", sala: sala && /^[0-9a-f]{64}$/.test(sala) ? sala : undefined };
+  }
+  if (partes[0] === "puerta" && /^[0-9a-f]{64}$/i.test(partes[1] ?? "")) return { pantalla: "puerta", sala: partes[1].toLowerCase() };
   if (partes[0] === "terminos") return { pantalla: "terminos" };
   if (partes[0] === "privacidad") return { pantalla: "privacidad" };
   if (partes[0] === "opinion") return { pantalla: "opinion", desde: new URLSearchParams(consulta).get("desde") === "huella" ? "huella" : "pie" };

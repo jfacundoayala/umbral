@@ -222,6 +222,12 @@ export async function museoDe(salaHex: string): Promise<string | null> {
   return r.isOk() ? r.unwrap() : null;
 }
 
+/** La cuenta que abrió la sala invita a otra: su fondo le paga una huella, una vez. Firma la sala. */
+export async function invitar(museo: string, firmar: Firmar, salaHex: string, invitada: string) {
+  const c = cliente(museo, firmar);
+  return enviar(() => c.invitar({ sala: Buffer.from(salaHex, "hex"), cuenta: invitada }));
+}
+
 /** Si la sala invitó a esta cuenta (y la invitación no se usó) y cuánto le queda al fondo. No pide firma. */
 export async function invitacion(salaHex: string, cuenta: string, moneda: string = MONEDA_ID) {
   const sala = Buffer.from(salaHex, "hex");

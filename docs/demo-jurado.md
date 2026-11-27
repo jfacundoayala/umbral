@@ -19,7 +19,7 @@ Antes de grabar:
 | 0:50 a 1:15 | Otra persona escribe lo que la obra le despertó. Se ve el aviso del 70%. Firma y aparece un punto nuevo. Después apoya con 5 XLM | "Alguien del público deja su huella: paga 10 XLM y el 70% es para la artista. Quien escribe no cobra. También puede apoyar con lo que quiera: 5 XLM." |
 | 1:15 a 1:35 | La artista entra a "Cobrar": saldo **10,5 XLM**. Toca "Retirar XLM" y queda en 0 | "70% de 10 son 7, y 70% de 5 son 3,5. La artista cobra 10,5 XLM cuando quiere, sin pedirle permiso a nadie." |
 | 1:35 a 1:45 | "Ver el comprobante en Stellar Expert" abre la transacción | "No hace falta creernos: cada huella, cada apoyo y cada cobro tiene su comprobante público en Stellar." |
-| 1:45 a 1:52 | Una obra con el sello de presencia (el aro de puntos) | "Un museo también puede invitar a quien estuvo ahí: la huella la paga la sala y la obra queda con su sello." |
+| 1:45 a 1:52 | En la puerta de la sala: la visitante muestra "Mi código para el encuentro", la sala lo escanea en "Invitar en la puerta" y sale "Invitada". Corte a su obra con el sello (el aro de puntos) | "La sala escanea en la puerta el código de quien está ahí. Su fondo paga la obra y queda el sello Estuve ahí: no se consigue desde la casa." |
 | 1:52 a 2:00 | La constelación con las huellas de las pruebas | "Lo probaron [N] personas de afuera del equipo. [Lo que más dijeron.] umbral: lo que la obra despierta, la obra lo cobra." |
 
 Prueba hecha el 27/11/2026 con la app, en la red de pruebas, sobre el contrato actual (`CBPXN2SA…V3TP`), con estos mismos montos. La artista tenía 10,5 XLM para cobrar y después del retiro quedó en 0. Comprobantes:

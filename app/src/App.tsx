@@ -18,6 +18,8 @@ const Cobrar = pantalla("Cobrar");
 const Placa = lazy(() => import("./Placa").then((m) => ({ default: m.Placa })));
 const Legal = lazy(() => import("./Legal").then((m) => ({ default: m.Legal })));
 const Opinion = lazy(() => import("./Opinion").then((m) => ({ default: m.Opinion })));
+const MiCodigo = lazy(() => import("./Encuentro").then((m) => ({ default: m.MiCodigo })));
+const Puerta = lazy(() => import("./Encuentro").then((m) => ({ default: m.Puerta })));
 
 export default function App() {
   const ruta = useRuta();
@@ -109,6 +111,8 @@ export default function App() {
         {ruta.pantalla === "cobrar" && <Cobrar sesion={sesion} />}
         {(ruta.pantalla === "terminos" || ruta.pantalla === "privacidad") && <Legal cual={ruta.pantalla} />}
         {ruta.pantalla === "opinion" && <Opinion key={ruta.desde} desde={ruta.desde} />}
+        {ruta.pantalla === "codigo" && <MiCodigo sesion={sesion} sala={ruta.sala} />}
+        {ruta.pantalla === "puerta" && <Puerta key={ruta.sala} sesion={sesion} sala={ruta.sala} />}
         </Suspense>
       </main>
       <footer className="pie">

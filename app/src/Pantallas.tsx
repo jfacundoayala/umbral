@@ -764,6 +764,11 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
             : !inv.museo
               ? "Esa sala no existe. Podés exponer la obra igual, sin sala, desde \"Exponer una obra\"."
               : `Te invitó la sala de ${corta(inv.museo)}. ${pagaLaSala ? "Su fondo paga esta obra: vos no pagás nada." : sesion.cuenta ? "Tu cuenta no tiene una invitación disponible de esta sala (o se le acabó el fondo): la obra la pagás vos." : "Entrá con tu billetera para ver si la sala te paga la obra."}`}
+          {inv?.museo && sesion.cuenta && !pagaLaSala && (
+            <>
+              {" "}Si estás en la sala, <a href={`#/codigo?sala=${sala}`}>mostrá tu código para el encuentro</a> y te invitan en la puerta.
+            </>
+          )}
         </p>
       )}
       <div className="exponer-grilla">
