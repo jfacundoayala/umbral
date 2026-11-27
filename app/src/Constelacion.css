@@ -17,7 +17,7 @@
 .mapa-3d .punto.raiz:hover .nucleo,
 .mapa-3d .punto.raiz.sel .nucleo { stroke-width: 2.2; }
 .mapa-3d .punto.retirada .nucleo { stroke: var(--mineral); stroke-dasharray: 3 3; fill: var(--marfil); }
-.mapa-3d .punto.retirada text { fill: var(--mineral); }
+.mapa-3d .punto.retirada text { fill: var(--tenue); }
 .mapa-3d .punto:focus-visible .nucleo { stroke: var(--tinta); stroke-width: 2.6; }
 /* Foco con teclado: un aro de tinta alrededor del punto, que se ve sobre cualquier fondo. */
 .mapa-3d .punto .aro-foco { fill: none; stroke: none; pointer-events: none; }
@@ -39,7 +39,7 @@
 .rotulo-huella .titulo { font-family: var(--serif); font-weight: 500; fill: var(--tinta); }
 .rotulo-huella .frase { font-family: var(--sans); fill: #4a4a4a; }
 
-.mapa-3d .pista { font-family: var(--sans); letter-spacing: .2em; text-transform: uppercase; fill: var(--niebla); text-anchor: middle; pointer-events: none; }
+.mapa-3d .pista { font-family: var(--sans); letter-spacing: .2em; text-transform: uppercase; fill: var(--tenue); text-anchor: middle; pointer-events: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .mapa-3d .punto .nucleo { transition: none; }

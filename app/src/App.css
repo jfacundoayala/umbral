@@ -7,6 +7,8 @@
   --cobalto: #2445c7;
   --niebla: #a1accb;
   --mineral: #c9c6be;
+  /* Texto secundario: sale de tinta y marfil, y llega a AA (5,1:1) sobre el fondo. Usar en vez de niebla o mineral para letras. */
+  --tenue: color-mix(in srgb, var(--tinta) 65%, var(--marfil));
   --serif: "Bodoni Moda", "Didot", Georgia, serif;
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --margen: clamp(16px, 3vw, 40px);
