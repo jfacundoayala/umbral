@@ -1,5 +1,5 @@
 // Las pantallas, en el orden de la demo: portada → cielo → ficha (continuar, apoyar) → abrir → cobrar.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { abrirObra, audioValido, continuarHuella, firmaDeFavoritos, fotoValida } from "./acciones";
 import { borrarRetirada, cambiarFavorito, constelacion, favoritosDe, obras, urlAudio, urlFoto, type Huella, type Orden } from "./base";
 import { firmar } from "./billetera";
@@ -7,6 +7,7 @@ import { corta, enlaceTx, ir, mensajeError, MONEDAS, palabras, plata, type Moned
 import Constelacion from "./Constelacion";
 import { RED, UNIDAD } from "./config";
 import Reproductor from "./Reproductor";
+import "./Formularios.css";
 import { apoyar, cobrar, invitacion, museoDe, nuevaSal, PagoSinConfirmar, pagadaPorSala, preciosVigentes, retirar, saldoDe, type Derechos, type Documento } from "./umbral";
 
 export type Sesion = { cuenta: string | null; moneda: Moneda; entrar: () => Promise<string | null> };
@@ -492,6 +493,135 @@ const OPCIONES_DERECHOS: [Derechos, string][] = [
   ["dominio_publico", "Es de dominio público: su autor murió hace más de 70 años."],
   ["autorizacion", "Tengo autorización de su autor o de quien tiene sus derechos."],
 ];
+const NOMBRE_DERECHOS: Record<Derechos, string> = { autoria: "Obra propia", dominio_publico: "Dominio público", autorizacion: "Con autorización" };
+
+const peso = (b: number) => (b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1024 / 1024).toLocaleString("es-AR", { maximumFractionDigits: 1 })} MB`);
+const minutos = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+
+function Paso({ n, titulo, children }: { n: number; titulo: string; children: ReactNode }) {
+  return (
+    <li className="paso">
+      <div className="paso-cabeza">
+        <span className="paso-n" aria-hidden="true">{n}</span>
+        <h3>{titulo}</h3>
+      </div>
+      <div className="paso-cuerpo">{children}</div>
+    </li>
+  );
+}
+
+const IconoFoto = () => (
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <rect x="6" y="10" width="36" height="28" />
+    <circle cx="17" cy="20" r="3.5" className="acento" />
+    <path d="M6 33 18 24l8 6 6-4 10 7" />
+  </svg>
+);
+const IconoAudio = () => (
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M8 22v4M14 18v12M26 16v16M32 20v8M38 14v20M44 21v6" />
+    <path d="M20 10v28" className="acento" />
+  </svg>
+);
+
+/** Zona para tocar o soltar un archivo. El input queda oculto a la vista, pero se usa con teclado y lector. */
+function ZonaArchivo({ tipo, etiqueta, ayuda, accept, archivo, url, aviso, alElegir }: {
+  tipo: "foto" | "audio";
+  etiqueta: string;
+  ayuda: string;
+  accept: string;
+  archivo: File | null;
+  url: string | null;
+  aviso: string;
+  alElegir: (f: File | null) => boolean;
+}) {
+  const input = useRef<HTMLInputElement>(null);
+  const [encima, setEncima] = useState(false);
+  const [dura, setDura] = useState<{ url: string; seg: number } | null>(null);
+  const idAviso = useId();
+  const seg = url && dura?.url === url ? dura.seg : Number.NaN;
+  const limpiar = () => {
+    if (input.current) input.current.value = "";
+  };
+  return (
+    <div className="archivo">
+      <p className="archivo-rotulo">
+        {etiqueta} <span>(opcional)</span>
+      </p>
+      {archivo && (
+        <div className="archivo-elegido">
+          {tipo === "foto" && url ? (
+            <img className="archivo-mini" src={url} alt="" />
+          ) : (
+            <span className="archivo-mini icono">{tipo === "foto" ? <IconoFoto /> : <IconoAudio />}</span>
+          )}
+          <p className="archivo-datos">
+            <b>{archivo.name}</b>
+            <small>
+              {tipo === "audio" && Number.isFinite(seg) ? `${minutos(seg)} · ` : ""}
+              {peso(archivo.size)}
+            </small>
+          </p>
+          <div className="archivo-botones">
+            <button type="button" className="btn chico" onClick={() => input.current?.click()}>
+              Cambiar<span className="solo-lector"> {tipo === "foto" ? "la foto" : "el audio"}</span>
+            </button>
+            <button
+              type="button"
+              className="btn chico"
+              onClick={() => {
+                alElegir(null);
+                limpiar();
+              }}
+            >
+              Quitar<span className="solo-lector"> {tipo === "foto" ? "la foto" : "el audio"}</span>
+            </button>
+          </div>
+          {tipo === "audio" && url && (
+            <audio src={url} preload="metadata" hidden onLoadedMetadata={(e) => setDura({ url, seg: e.currentTarget.duration })} />
+          )}
+        </div>
+      )}
+      <label
+        className={`archivo-zona${encima ? " encima" : ""}${archivo ? " oculta" : ""}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setEncima(true);
+        }}
+        onDragLeave={() => setEncima(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setEncima(false);
+          const f = e.dataTransfer.files?.[0];
+          if (f) alElegir(f);
+          limpiar();
+        }}
+      >
+        <input
+          ref={input}
+          className="archivo-input"
+          type="file"
+          accept={accept}
+          aria-label={`${etiqueta} (opcional, ${ayuda})`}
+          aria-describedby={aviso ? idAviso : undefined}
+          onChange={(e) => {
+            if (!alElegir(e.target.files?.[0] ?? null)) e.target.value = "";
+          }}
+        />
+        <span className="archivo-icono">{tipo === "foto" ? <IconoFoto /> : <IconoAudio />}</span>
+        <span className="archivo-accion">
+          <b>Tocá para elegir</b> o soltá el archivo acá
+        </span>
+        <small>{ayuda}</small>
+      </label>
+      {aviso && (
+        <small id={idAviso} className="error archivo-aviso" role="alert">
+          {aviso}
+        </small>
+      )}
+    </div>
+  );
+}
 
 export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
   const [titulo, setTitulo] = useState("");
@@ -511,6 +641,10 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
   useEffect(() => () => {
     if (vista) URL.revokeObjectURL(vista);
   }, [vista]);
+  const oido = useMemo(() => (audio ? URL.createObjectURL(audio) : null), [audio]);
+  useEffect(() => () => {
+    if (oido) URL.revokeObjectURL(oido);
+  }, [oido]);
   const nPalabras = palabras(titulo);
   const precio = precios?.huella;
   const doc = useDocumento(
@@ -519,12 +653,36 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
   );
   const pagaLaSala = !!inv?.invitada && precio !== undefined && inv.fondo >= precio;
   const listo = (!sala || inv?.museo) && nPalabras >= 1 && nPalabras <= 20 && titulo.trim().length <= 200 && descripcion.length <= 400 && nombre.trim().length > 0 && derechos !== null && permiso && precio !== undefined && !a.ocupado;
+  const textoPrecio = precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)";
+
+  const elegirFoto = (f: File | null) => {
+    if (f && !fotoValida(f)) {
+      setAviso("Esa foto no sirve: tiene que ser JPG, PNG o WEBP y pesar hasta 5 MB.");
+      setFoto(null);
+      return false;
+    }
+    setAviso("");
+    setFoto(f);
+    return true;
+  };
+  const elegirAudio = (f: File | null) => {
+    if (f && !audioValido(f)) {
+      setAvisoAudio("Ese audio no sirve: tiene que ser MP3, M4A, WEBM u OGG y pesar hasta 5 MB.");
+      setAudio(null);
+      return false;
+    }
+    setAvisoAudio("");
+    setAudio(f);
+    return true;
+  };
 
   return (
-    <section className="hoja angosta">
-      <p className="rotulo">Exponer una obra</p>
-      <h2>Tu obra, en el cielo</h2>
-      <p className="sub">La obra queda firmada a tu nombre en la red. Cada vez que alguien la continúe o la apoye, te llega el 70%.</p>
+    <section className="hoja exponer">
+      <div className="form-cabeza">
+        <p className="rotulo">Exponer una obra</p>
+        <h2>Tu obra, en el cielo</h2>
+        <p className="sub">La obra queda firmada a tu nombre en la red. Cada vez que alguien la continúe o la apoye, te llega el 70%.</p>
+      </div>
       {sala && (
         <p className="invitacion">
           {!inv
@@ -534,115 +692,187 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
               : `Te invitó la sala de ${corta(inv.museo)}. ${pagaLaSala ? "Su fondo paga esta obra: vos no pagás nada." : sesion.cuenta ? "Tu cuenta no tiene una invitación disponible de esta sala (o se le acabó el fondo): la obra la pagás vos." : "Entrá con tu billetera para ver si la sala te paga la obra."}`}
         </p>
       )}
-      <form
-        className="caja"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!sesion.cuenta || precio === undefined) return;
-          const cuenta = sesion.cuenta;
-          a.correr(async (avance) => {
-            const r = await abrirObra(cuenta, doc(), { foto, audio }, precio, sesion.moneda.id, avance, inv?.museo ? sala : undefined);
-            setNueva(r.id);
-            return r;
-          });
-        }}
-      >
-        <label className="campo">
-          <span>Título</span>
-          <input value={titulo} maxLength={200} onChange={(e) => setTitulo(e.target.value)} />
-          <small className={nPalabras > 20 ? "error" : ""}>{nPalabras}/20 palabras</small>
-        </label>
-        <label className="campo">
-          <span>Descripción (opcional)</span>
-          <textarea value={descripcion} maxLength={400} onChange={(e) => setDescripcion(e.target.value)} />
-          <small>{descripcion.length}/400</small>
-        </label>
-        <label className="campo">
-          <span>Autor o autora</span>
-          <input value={nombre} maxLength={80} onChange={(e) => setNombre(e.target.value)} />
-        </label>
-        <label className="campo">
-          <span>Foto (opcional, JPG, PNG o WEBP, hasta 5 MB)</span>
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={(e) => {
-              const f = e.target.files?.[0] ?? null;
-              if (f && !fotoValida(f)) {
-                setAviso("Esa foto no sirve: tiene que ser JPG, PNG o WEBP y pesar hasta 5 MB.");
-                setFoto(null);
-                e.target.value = "";
-                return;
-              }
-              setAviso("");
-              setFoto(f);
-            }}
-          />
-          {aviso && <small className="error">{aviso}</small>}
-        </label>
-        {vista && <img className="foto" src={vista} alt="Vista previa de la foto" />}
-        <label className="campo">
-          <span>Audio (opcional, MP3, M4A, WEBM u OGG, hasta 5 MB)</span>
-          <input
-            type="file"
-            accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/webm,audio/ogg"
-            onChange={(e) => {
-              const f = e.target.files?.[0] ?? null;
-              if (f && !audioValido(f)) {
-                setAvisoAudio("Ese audio no sirve: tiene que ser MP3, M4A, WEBM u OGG y pesar hasta 5 MB.");
-                setAudio(null);
-                e.target.value = "";
-                return;
-              }
-              setAvisoAudio("");
-              setAudio(f);
-            }}
-          />
-          {avisoAudio && <small className="error">{avisoAudio}</small>}
-        </label>
-        <fieldset className="derechos">
-          <legend>Derechos de la obra (elegí una)</legend>
-          {OPCIONES_DERECHOS.map(([valor, texto]) => (
-            <label key={valor} className="check">
-              <input type="radio" name="derechos" value={valor} checked={derechos === valor} onChange={() => setDerechos(valor)} required />
-              <span>{texto}</span>
-            </label>
-          ))}
-          <small>
-            Una foto tomada en la calle no alcanza: una escultura o un mural en la vía pública sigue teniendo autor. Si aparecen personas que se reconocen, tienen que haber dado su consentimiento.{" "}
-            <a href="#/terminos" target="_blank" rel="noopener noreferrer">Leer los términos</a>
-          </small>
-        </fieldset>
-        <label className="check">
-          <input type="checkbox" checked={permiso} onChange={(e) => setPermiso(e.target.checked)} />
-          <span>Acepto que cualquiera vea la obra y la continúe.</span>
-        </label>
-        <p className="precio">
-          Exponer una obra cuesta <b>{precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>, que van a UMBRAL.
-          {pagaLaSala && " Esta vez los paga el fondo de la sala."}
-        </p>
-        {sesion.cuenta ? (
-          <button className="btn lleno" disabled={!listo}>
-            {pagaLaSala ? "Firmar (paga la sala)" : `Firmar y pagar ${precio !== undefined ? plata(precio, sesion.moneda.codigo) : ""}`}
-          </button>
-        ) : (
-          <BotonEntrar sesion={sesion} texto="Para exponer una obra, entrá con tu billetera." />
-        )}
-        {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && (
-          <p className="sub">Para firmar, completá el título, tu nombre, elegí los derechos y marcá el permiso.</p>
-        )}
-        <Estado a={a} listo="Listo: tu obra ya está en el cielo." />
-        {nueva && (
-          <button type="button" className="btn" onClick={() => ir(`/obra/${nueva}`)}>
-            Ver mi obra
-          </button>
-        )}
-      </form>
+      <div className="exponer-grilla">
+        <form
+          className="form-pasos"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!sesion.cuenta || precio === undefined) return;
+            const cuenta = sesion.cuenta;
+            a.correr(async (avance) => {
+              const r = await abrirObra(cuenta, doc(), { foto, audio }, precio, sesion.moneda.id, avance, inv?.museo ? sala : undefined);
+              setNueva(r.id);
+              return r;
+            });
+          }}
+        >
+          <ol className="pasos">
+            <Paso n={1} titulo="La obra">
+              <label className="campo">
+                <span>Título</span>
+                <input value={titulo} maxLength={200} onChange={(e) => setTitulo(e.target.value)} placeholder="Hasta 20 palabras" />
+                <small className={nPalabras > 20 ? "error" : ""}>{nPalabras}/20 palabras</small>
+              </label>
+              <label className="campo">
+                <span>Descripción (opcional)</span>
+                <textarea value={descripcion} maxLength={400} onChange={(e) => setDescripcion(e.target.value)} placeholder="Qué es, dónde está, qué te despierta" />
+                <small>{descripcion.length}/400</small>
+              </label>
+              <label className="campo">
+                <span>Autor o autora</span>
+                <input value={nombre} maxLength={80} onChange={(e) => setNombre(e.target.value)} />
+              </label>
+            </Paso>
+            <Paso n={2} titulo="Archivos">
+              <ZonaArchivo
+                tipo="foto"
+                etiqueta="Foto"
+                ayuda="JPG, PNG o WEBP, hasta 5 MB"
+                accept="image/jpeg,image/png,image/webp"
+                archivo={foto}
+                url={vista}
+                aviso={aviso}
+                alElegir={elegirFoto}
+              />
+              <ZonaArchivo
+                tipo="audio"
+                etiqueta="Audio"
+                ayuda="MP3, M4A, WEBM u OGG, hasta 5 MB"
+                accept="audio/mpeg,audio/mp4,audio/x-m4a,audio/webm,audio/ogg"
+                archivo={audio}
+                url={oido}
+                aviso={avisoAudio}
+                alElegir={elegirAudio}
+              />
+            </Paso>
+            <Paso n={3} titulo="Derechos">
+              <fieldset className="derechos tarjetas-derechos">
+                <legend>Derechos de la obra (elegí una)</legend>
+                {OPCIONES_DERECHOS.map(([valor, texto]) => (
+                  <label key={valor} className="opcion-derecho">
+                    <input type="radio" name="derechos" value={valor} checked={derechos === valor} onChange={() => setDerechos(valor)} required />
+                    <span>
+                      <b>{NOMBRE_DERECHOS[valor]}</b>
+                      {texto}
+                    </span>
+                  </label>
+                ))}
+                <small>
+                  Una foto tomada en la calle no alcanza: una escultura o un mural en la vía pública sigue teniendo autor. Si aparecen personas que se reconocen, tienen que haber dado su consentimiento.{" "}
+                  <a href="#/terminos" target="_blank" rel="noopener noreferrer">Leer los términos</a>
+                </small>
+              </fieldset>
+            </Paso>
+            <Paso n={4} titulo="Firmar">
+              <label className="check permiso">
+                <input type="checkbox" checked={permiso} onChange={(e) => setPermiso(e.target.checked)} />
+                <span>Acepto que cualquiera vea la obra y la continúe.</span>
+              </label>
+              <div className="resumen">
+                <div className="resumen-fila" aria-hidden="true">
+                  <span>Total</span>
+                  <b>{pagaLaSala ? "Paga la sala" : textoPrecio}</b>
+                </div>
+                <p className="precio">
+                  Exponer una obra cuesta <b>{textoPrecio}</b>, que van a UMBRAL.
+                  {pagaLaSala && " Esta vez los paga el fondo de la sala."}
+                </p>
+                {sesion.cuenta ? (
+                  <button className="btn lleno grande" disabled={!listo}>
+                    {pagaLaSala ? "Firmar (paga la sala)" : `Firmar y pagar ${precio !== undefined ? plata(precio, sesion.moneda.codigo) : ""}`}
+                  </button>
+                ) : (
+                  <BotonEntrar sesion={sesion} texto="Para exponer una obra, entrá con tu billetera." />
+                )}
+                {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && (
+                  <p className="sub">Para firmar, completá el título, tu nombre, elegí los derechos y marcá el permiso.</p>
+                )}
+              </div>
+              <Estado a={a} listo="Listo: tu obra ya está en el cielo." />
+              {nueva && (
+                <button type="button" className="btn" onClick={() => ir(`/obra/${nueva}`)}>
+                  Ver mi obra
+                </button>
+              )}
+            </Paso>
+          </ol>
+        </form>
+        <aside className="previa" aria-label="Vista previa de la ficha">
+          <p className="rotulo">Así se va a ver</p>
+          <article className="ficha-museo">
+            {vista ? (
+              <img className="ficha-foto" src={vista} alt="Vista previa de la foto" />
+            ) : (
+              <div className="ficha-foto vacia" aria-hidden="true">
+                <IconoFoto />
+                <span>Sin foto</span>
+              </div>
+            )}
+            <div className="ficha-texto">
+              <h3 className={titulo.trim() ? "" : "a-completar"}>{titulo.trim() || "Título de la obra"}</h3>
+              <p className={`ficha-autor${nombre.trim() ? "" : " a-completar"}`}>{nombre.trim() || "Autor o autora"}</p>
+              {descripcion.trim() && <p className="ficha-desc">{descripcion.trim()}</p>}
+              {oido && <Reproductor src={oido} />}
+              <dl className="ficha-datos">
+                <div>
+                  <dt>Derechos</dt>
+                  <dd>{derechos ? NOMBRE_DERECHOS[derechos] : "Sin elegir"}</dd>
+                </div>
+                <div>
+                  <dt>Exponer</dt>
+                  <dd>
+                    {pagaLaSala ? "Paga la sala" : textoPrecio}
+                    <small>va a UMBRAL</small>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+          <p className="previa-nota">Después, cada continuación y cada apoyo te deja el 70%.</p>
+        </aside>
+      </div>
     </section>
   );
 }
 
 // ---------------------------------------------------------------- Cobrar
+
+const PASOS_COBRO: { titulo: string; texto: string; dibujo: ReactNode }[] = [
+  {
+    titulo: "Alguien continúa o apoya tu obra",
+    texto: "Cada huella nueva y cada apoyo suman a tu saldo.",
+    dibujo: (
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M22 40 40 22M22 40l22 8" />
+        <circle cx="22" cy="40" r="7" />
+        <circle cx="42" cy="20" r="5" className="acento" />
+        <circle cx="47" cy="49" r="4" />
+      </svg>
+    ),
+  },
+  {
+    titulo: "El 70% queda a tu nombre",
+    texto: "El otro 30% va a UMBRAL. Ves tu saldo acá, por moneda.",
+    dibujo: (
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="20" className="suave" />
+        <circle cx="32" cy="32" r="20" className="acento" strokeDasharray="88 126" transform="rotate(-90 32 32)" />
+        <circle cx="32" cy="32" r="2.5" className="lleno" />
+      </svg>
+    ),
+  },
+  {
+    titulo: "Lo retirás cuando quieras",
+    texto: "Al retirar, el dinero va directo a tu billetera.",
+    dibujo: (
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="12" y="28" width="40" height="24" />
+        <path d="M12 34h40M42 43h4" />
+        <path d="M32 6v15M26 15l6 6 6-6" className="acento" />
+      </svg>
+    ),
+  },
+];
 
 export function Cobrar({ sesion }: { sesion: Sesion }) {
   const [saldos, setSaldos] = useState<Record<string, number> | null>(null);
@@ -661,45 +891,78 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
     };
   }, [cuenta, vuelta]);
 
+  const pasos = (
+    <ol className="cobro-pasos" aria-label="Cómo funciona">
+      {PASOS_COBRO.map((p, i) => (
+        <li key={p.titulo}>
+          <span className="cobro-dibujo">{p.dibujo}</span>
+          <span className="cobro-n" aria-hidden="true">0{i + 1}</span>
+          <h3>{p.titulo}</h3>
+          <p>{p.texto}</p>
+        </li>
+      ))}
+    </ol>
+  );
+
   return (
-    <section className="hoja angosta">
-      <p className="rotulo">Cobrar</p>
-      <h2>Lo que juntaron tus obras</h2>
-      <p className="sub">Solo cobran quienes exponen obras: el 70% de cada continuación y de cada apoyo. Lo retirás cuando quieras.</p>
+    <section className="hoja cobro">
+      <div className="form-cabeza">
+        <p className="rotulo">Cobrar</p>
+        <h2>Lo que juntaron tus obras</h2>
+        <p className="sub">Solo cobran quienes exponen obras: el 70% de cada continuación y de cada apoyo. Lo retirás cuando quieras.</p>
+      </div>
       {!cuenta ? (
-        <BotonEntrar sesion={sesion} texto="Entrá con tu billetera para ver tu saldo." />
-      ) : sinSaldo ? (
-        <p className="error">No pudimos leer tu saldo. Probá de nuevo en un rato.</p>
-      ) : !saldos ? (
-        <p>Leyendo tu saldo…</p>
+        <>
+          {pasos}
+          <div className="cobro-entrar">
+            <BotonEntrar sesion={sesion} texto="Entrá con tu billetera para ver tu saldo." />
+          </div>
+        </>
       ) : (
-        <ul className="saldos">
-          {MONEDAS.map((m) => {
-            const s = saldos[m.id] ?? 0;
-            return (
-              <li key={m.id}>
-                <span className="cifra">{plata(BigInt(Math.round(s * Number(UNIDAD))), m.codigo)}</span>
-                <button
-                  className="btn lleno"
-                  disabled={s <= 0 || a.ocupado}
-                  onClick={() =>
-                    a.correr(async (avance) => {
-                      avance("Firmá en tu billetera…");
-                      const r = await cobrar(cuenta, firmar, m.id);
-                      setVuelta((v) => v + 1);
-                      return r;
-                    })
-                  }
-                >
-                  Retirar {m.codigo}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        <>
+          <p className="cobro-destino">
+            Se retira a tu billetera <code>{corta(cuenta)}</code>. El dinero va directo ahí.
+          </p>
+          {sinSaldo ? (
+            <p className="error">No pudimos leer tu saldo. Probá de nuevo en un rato.</p>
+          ) : !saldos ? (
+            <p className="cobro-leyendo">Leyendo tu saldo…</p>
+          ) : (
+            <ul className="saldos-tarjetas">
+              {MONEDAS.map((m) => {
+                const s = saldos[m.id] ?? 0;
+                return (
+                  <li key={m.id} className={`saldo${s > 0 ? " con-saldo" : ""}`}>
+                    <p className="rotulo">Saldo en {m.codigo}</p>
+                    <p className="cifra">{plata(BigInt(Math.round(s * Number(UNIDAD))), m.codigo)}</p>
+                    <p className="saldo-nota">{s > 0 ? "Listo para retirar" : "Sin saldo por ahora"}</p>
+                    <button
+                      className="btn lleno"
+                      disabled={s <= 0 || a.ocupado}
+                      onClick={() =>
+                        a.correr(async (avance) => {
+                          avance("Firmá en tu billetera…");
+                          const r = await cobrar(cuenta, firmar, m.id);
+                          setVuelta((v) => v + 1);
+                          return r;
+                        })
+                      }
+                    >
+                      Retirar a mi billetera<span className="solo-lector"> ({m.codigo})</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {saldos && MONEDAS.every((m) => (saldos[m.id] ?? 0) <= 0) && <p className="sub">Todavía no hay nada para retirar. Aparece acá cuando alguien continúe o apoye una obra tuya.</p>}
+          <div className="cobro-resultado">
+            <Estado a={a} listo="Listo: el dinero ya está en tu billetera." />
+          </div>
+          <p className="rotulo cobro-como">Cómo funciona</p>
+          {pasos}
+        </>
       )}
-      {saldos && MONEDAS.every((m) => (saldos[m.id] ?? 0) <= 0) && <p className="sub">Todavía no hay nada para retirar. Aparece acá cuando alguien continúe o apoye una obra tuya.</p>}
-      <Estado a={a} listo="Listo: el dinero ya está en tu billetera." />
     </section>
   );
 }
