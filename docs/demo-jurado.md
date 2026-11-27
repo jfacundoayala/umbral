@@ -20,12 +20,12 @@ Antes de grabar:
 | 1:35 a 1:50 | "Ver el comprobante en Stellar Expert" abre la transacción | "No hace falta creernos: cada huella, cada apoyo y cada cobro tiene su comprobante público en Stellar." |
 | 1:50 a 2:00 | La constelación con las huellas de las pruebas | "Lo probaron [N] personas de afuera del equipo. [Lo que más dijeron.] umbral: lo que la obra despierta, la obra lo cobra." |
 
-Prueba hecha el 27/11/2026 con la app, en la red de pruebas, con estos mismos montos. La artista tenía 10,5 XLM para cobrar y después del retiro quedó en 0. Comprobantes:
+Prueba hecha el 27/11/2026 con la app, en la red de pruebas, sobre el contrato actual (`CBPXN2SA…V3TP`), con estos mismos montos. La artista tenía 10,5 XLM para cobrar y después del retiro quedó en 0. Comprobantes:
 
-- Exponer la obra: [33b9741b…](https://stellar.expert/explorer/testnet/tx/33b9741b3b0eef86859fd5d8310552a7f4cc2178c4f0b168beb5f275d6296792)
-- Continuar: [866a6d51…](https://stellar.expert/explorer/testnet/tx/866a6d51f51cf66528b82739745cd7d5699a935860f355bd610b7e593bb582d9)
-- Apoyar con 5 XLM: [460732b2…](https://stellar.expert/explorer/testnet/tx/460732b263c61c6c53f979b03afe8390f098e719b33fec85a3f2629c2c2f8dd1)
-- La artista cobra: [1c41f69e…](https://stellar.expert/explorer/testnet/tx/1c41f69ebd315df4c3e9558db92dee056659a4203ea9d09e72357d5456a20ff1)
+- Exponer la obra: [62cc4bbc…](https://stellar.expert/explorer/testnet/tx/62cc4bbcc5e52bfb53544c2991ab0cec1b79ec6f07805039a5cb5a1a586da460)
+- Continuar: [8e925f15…](https://stellar.expert/explorer/testnet/tx/8e925f15a5be66343e18cfa5b2a8a8d4fb713a3cbd788f5e9ffaadd49095eadc)
+- Apoyar con 5 XLM: [16c5e098…](https://stellar.expert/explorer/testnet/tx/16c5e098953a7d7bd21db7bc70142dc052cd7aa290c6609443b9086e64007da6)
+- La artista cobra: [a6400840…](https://stellar.expert/explorer/testnet/tx/a64008402fd261eb064b095d8d511f54c38c0fe361f58853bc1d93eba93ec497)
 
 ## Plan B: si la red falla en vivo
 
