@@ -51,10 +51,10 @@ Así se ve en la red de pruebas, con una obra de prueba:
 
 | | |
 |---|---|
-| ![Exponer una obra: quien la sube declara de quién son los derechos antes de firmar](docs/capturas/01-exponer.png) | ![Continuar una obra: el aviso dice que el 70% va a quien la expuso](docs/capturas/02-continuar.png) |
-| **1. Exponer.** Antes de firmar, quien sube la obra declara de quién son los derechos. | **2. Continuar.** El aviso dice cuánto cuesta y que el 70% va a quien expuso la obra. |
-| ![La constelación: la obra en el centro y la huella unida con una línea](docs/capturas/03-constelacion.png) | ![Ficha de una obra expuesta por invitación de una sala, con el sello Estuve ahí y su audio](docs/capturas/04-sello.png) |
-| **3. La constelación.** La obra queda en el centro y cada huella sale de la que continúa. | **4. Estuve ahí.** Una sala invitó a la artista y pagó su obra con su fondo. El sello sale del comprobante en la red: no se puede inventar. |
+| ![Exponer una obra: quien la sube elige de quién son los derechos y ve a la derecha cómo va a quedar la obra y cuánto cuesta](docs/capturas/01-exponer.png) | ![Continuar una obra: el formulario dice que cuesta 10 XLM y que el 70% va a quien hizo la obra](docs/capturas/02-continuar.png) |
+| **1. Exponer.** Antes de firmar, quien sube la obra elige de quién son los derechos y ve cómo va a quedar y cuánto cuesta. | **2. Continuar.** Antes de firmar dice cuánto cuesta y que el 70% va a quien hizo la obra. Quien continúa no cobra. |
+| ![La constelación en 3D: la obra en el centro, sus huellas unidas con líneas y el rótulo de la huella elegida](docs/capturas/03-constelacion.png) | ![Ficha de una obra expuesta por invitación de una sala, con el sello Estuve ahí y su audio](docs/capturas/04-sello.png) |
+| **3. La constelación.** Gira en 3D: la obra queda en el centro y cada huella sale de la que continúa. Al tocar una, se lee su texto. | **4. Estuve ahí.** Una sala invitó a la artista y pagó su obra con su fondo. El sello sale del comprobante en la red: no se puede inventar. |
 
 ## Qué nos diferencia
 
