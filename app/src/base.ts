@@ -53,6 +53,17 @@ export async function constelacion(idObra: string): Promise<{ obra: Huella | nul
 }
 
 export const urlFoto = (ruta: string) => `${SUPABASE_URL}/storage/v1/object/public/obras/${ruta}`;
+/** Miniaturas livianas (app/public/muestra) de las obras de muestra, solo para las tarjetas del cielo.
+ *  No entran en el código firmado: la ficha muestra siempre la foto firmada de Storage. */
+const MINIATURAS = new Set([
+  "c11a519bf2b3e15f9fd2a13be031614aadd105800bf7ae17c57e4315f1f150e7",
+  "cdad0d0288ee60a556ff861ef2b6baa64e9a5292e9e6785c2b156133a856259d",
+  "ce540f8556ab6c7d48e7174e662e04c58de2937071ff108122dc329503fcc71e",
+  "d387c0738f34fd75510735cd50a625fd657be543f17183ab7910743c2a4deab6",
+  "e0a1f2f25d102a447aea1947aed17ab655a89a43dc1c9e94ae8f72108567e6a3",
+]);
+/** Foto para una tarjeta del cielo: la miniatura si hay, si no la foto firmada. */
+export const urlTarjeta = (id: string, ruta: string) => (MINIATURAS.has(id) ? `/muestra/${id}.webp` : urlFoto(ruta));
 export const urlAudio = (ruta: string) => `${SUPABASE_URL}/storage/v1/object/public/audios/${ruta}`;
 
 /** Deja el borrador invisible. Si ya estaba (mismo id), sigue: es el mismo contenido. */

@@ -1,7 +1,7 @@
 // Las pantallas, en el orden de la demo: portada → cielo → ficha (continuar, apoyar) → abrir → cobrar.
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { abrirObra, audioValido, continuarHuella, firmaDeFavoritos, fotoValida } from "./acciones";
-import { borrarRetirada, cambiarFavorito, constelacion, favoritosDe, obras, urlAudio, urlFoto, type Huella, type Orden } from "./base";
+import { borrarRetirada, cambiarFavorito, constelacion, favoritosDe, obras, urlAudio, urlFoto, urlTarjeta, type Huella, type Orden } from "./base";
 import { firmar } from "./billetera";
 import { corta, enlaceTx, ir, mensajeError, MONEDAS, palabras, plata, type Moneda } from "./comun";
 import Constelacion from "./Constelacion";
@@ -125,7 +125,17 @@ export function Cielo() {
           <li key={o.id}>
             <a href={`#/obra/${o.id}`} className="tarjeta">
               {o.foto_ruta ? (
-                <img src={urlFoto(o.foto_ruta)} alt="" loading={i < 2 ? "eager" : "lazy"} fetchPriority={i < 2 ? "high" : "auto"} />
+                <img
+                  src={urlTarjeta(o.id, o.foto_ruta)}
+                  alt=""
+                  loading={i < 2 ? "eager" : "lazy"}
+                  fetchPriority={i < 2 ? "high" : "auto"}
+                  onError={(e) => {
+                    // Si la miniatura falla, vuelve a la foto firmada.
+                    const firmada = urlFoto(o.foto_ruta ?? "");
+                    if (e.currentTarget.src !== firmada) e.currentTarget.src = firmada;
+                  }}
+                />
               ) : (
                 <span className="sin-foto" aria-hidden="true">
                   <svg viewBox="-20 -20 40 40">
@@ -686,7 +696,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
 
   const elegirFoto = (f: File | null) => {
     if (f && !fotoValida(f)) {
-      setAviso("Esa foto no sirve: tiene que ser JPG, PNG o WEBP y pesar hasta 5 MB.");
+      setAviso("Esa foto no sirve: tiene que ser JPG, PNG o WEBP y pesar hasta 20 MB.");
       setFoto(null);
       return false;
     }
@@ -756,7 +766,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
               <ZonaArchivo
                 tipo="foto"
                 etiqueta="Foto"
-                ayuda="JPG, PNG o WEBP, hasta 5 MB"
+                ayuda="JPG, PNG o WEBP, hasta 20 MB"
                 accept="image/jpeg,image/png,image/webp"
                 archivo={foto}
                 url={vista}

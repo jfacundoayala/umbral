@@ -5,6 +5,7 @@ import { firmar, firmarMensaje } from "./billetera";
 import { codigoDe, codigoDeArchivo, continuar, dejarHuella, idDe, PagoSinConfirmar, type Comprobante, type Documento } from "./umbral";
 import { anotar, quitar } from "./pendientes";
 import { enlaceTx } from "./comun";
+import { achicarFoto } from "./achicar";
 
 const YA_PAGADA = "Ya dejaste esta huella.";
 
@@ -70,7 +71,11 @@ export async function abrirObra(
   avance: Avance,
   sala?: string,
 ) {
-  const { foto, audio } = archivos;
+  const { audio } = archivos;
+  // La foto se achica antes de calcular su código: lo que se hashea es exactamente lo que se sube.
+  if (archivos.foto) avance("Preparando la foto…");
+  const foto = archivos.foto ? await achicarFoto(archivos.foto) : null;
+  if (foto && foto.size > PESO_MAX) throw new Error("La foto pesa demasiado y no pudimos achicarla. Probá con otra de hasta 5 MB.");
   // El código de cada archivo entra en el documento: así no se pueden cambiar sin que se note.
   const completo: Documento = {
     ...doc,
@@ -95,7 +100,9 @@ export async function abrirObra(
   return { ...recibo, id };
 }
 
-export const fotoValida = (f: File) => f.size <= 5 * 1024 * 1024 && f.type in EXTENSION;
+const PESO_MAX = 5 * 1024 * 1024;
+/** Al elegirla se acepta hasta 20 MB: antes de subirla se achica (ver achicar.ts) y lo que se sube no pasa de 5 MB. */
+export const fotoValida = (f: File) => f.size <= 20 * 1024 * 1024 && f.type in EXTENSION;
 
 const EXTENSION_AUDIO: Record<string, string> = {
   "audio/mpeg": "mp3",
