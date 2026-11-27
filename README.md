@@ -43,8 +43,9 @@ UMBRAL sirve para cualquier artista o museo. Para mostrarlo elegimos un caso que
 2. Un artista conecta su billetera y **expone una obra**: título, descripción y una foto, un texto o un audio.
 3. Otra persona la **continúa** con un texto corto. Esa huella queda unida a la obra con una línea.
 4. Quien quiera **apoya** la obra con el monto que elija.
-5. El artista **cobra** lo que juntó cuando quiere, sin pedir permiso.
-6. Quien tiene cuenta guarda **favoritos**, gratis.
+5. El artista **cobra** lo que juntó cuando quiere, sin pedir permiso: va directo a su billetera.
+6. Para la obra física, el artista imprime una **placa con QR firmada**. Quien tiene la obra enfrente escanea y deja su huella ahí mismo.
+7. Quien tiene cuenta guarda **favoritos**, gratis.
 
 Así se ve en la red de pruebas, con una obra de prueba:
 
@@ -54,6 +55,22 @@ Así se ve en la red de pruebas, con una obra de prueba:
 | **1. Exponer.** Antes de firmar, quien sube la obra declara de quién son los derechos. | **2. Continuar.** El aviso dice cuánto cuesta y que el 70% va a quien expuso la obra. |
 | ![La constelación: la obra en el centro y la huella unida con una línea](docs/capturas/03-constelacion.png) | ![Ficha de una obra expuesta por invitación de una sala, con el sello Estuve ahí y su audio](docs/capturas/04-sello.png) |
 | **3. La constelación.** La obra queda en el centro y cada huella sale de la que continúa. | **4. Estuve ahí.** Una sala invitó a la artista y pagó su obra con su fondo. El sello sale del comprobante en la red: no se puede inventar. |
+
+## Qué nos diferencia
+
+UMBRAL no es un marketplace ni un museo virtual para mirar. **No vende obras: vende participación.**
+
+| | Marketplaces de arte y NFT | Museos virtuales | Propinas y membresías | UMBRAL |
+|---|---|---|---|---|
+| Qué se paga | La obra, una vez | Nada, o una entrada | Apoyo a la persona | Continuar una obra concreta |
+| Sirve para arte que no se vende (escultura en la calle, mural) | No | Solo para mirarlo | No queda ligado a la obra | **Sí: es el caso central** |
+| Qué recibe el artista | Una venta | Nada | Propinas | **70% de cada huella y cada apoyo, para siempre** |
+| Qué queda de quien participa | Un dueño | Una visita | Un pago | **Su palabra, firmada y unida a la obra** |
+
+1. **El arte de la calle empieza a cobrar.** Una escultura en una plaza no tiene comprador. Con la **placa con QR** pegada al lado, quien la tiene enfrente escanea, deja su huella desde el celular y el 70% va a quien la hizo.
+2. **La placa no se puede falsificar.** La crea y la firma con su billetera quien expuso la obra. Al escanearla, UMBRAL comprueba la firma y muestra un código que tiene que coincidir con el de la placa. Si alguien pega una placa trucha, la ficha avisa que no está firmada. Y aunque copien el código, el contrato le paga siempre a la cuenta registrada de la obra.
+3. **La obra muestra lo que despierta.** Cada huella sale de la que continúa y la obra se vuelve una constelación en 3D que se puede girar. El artista ve qué generó su obra, no un número de "me gusta".
+4. **Presencia real.** Una sala invita a quien va en persona y esa huella lleva el sello "Estuve ahí", comprobable en la red.
 
 ## Modelo de negocio
 
