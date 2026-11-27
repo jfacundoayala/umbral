@@ -253,3 +253,7 @@ textarea { min-height: 90px; resize: vertical; }
 
 /* El pie arranca abajo: no salta cuando llega el contenido. */
 main { min-height: calc(100svh - 160px); }
+
+/* Aviso de la ficha cuando se llega escaneando la placa de la obra. */
+.aviso-placa { border-left: 3px solid var(--cobalto); padding: 10px 14px; background: #E9E5DA; margin: 8px 0 14px; font-size: 15px; }
+.aviso-placa.falsa { border-left-color: #A3341F; }

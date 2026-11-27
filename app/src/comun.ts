@@ -23,17 +23,25 @@ export const mensajeError = (e: unknown) => (e instanceof Error ? e.message : "A
 export type Ruta =
   | { pantalla: "portada" }
   | { pantalla: "cielo" }
-  | { pantalla: "obra"; id: string }
+  | { pantalla: "obra"; id: string; placa?: { firma: string } }
+  | { pantalla: "placa"; id: string }
   | { pantalla: "abrir"; sala?: string }
   | { pantalla: "cobrar" }
   | { pantalla: "terminos" }
   | { pantalla: "privacidad" };
 
+/** Llegada desde la placa de una obra: #/obra/<id>?desde=placa&f=<firma>. */
+function placaDe(consulta: string) {
+  const q = new URLSearchParams(consulta);
+  return q.get("desde") === "placa" ? { firma: (q.get("f") ?? "").toLowerCase() } : undefined;
+}
+
 function leerRuta(): Ruta {
   const [camino, consulta = ""] = location.hash.replace(/^#\/?/, "").split("?");
   const partes = camino.split("/");
   if (partes[0] === "cielo") return { pantalla: "cielo" };
-  if (partes[0] === "obra" && partes[1]) return { pantalla: "obra", id: partes[1] };
+  if (partes[0] === "obra" && partes[1]) return { pantalla: "obra", id: partes[1], placa: placaDe(consulta) };
+  if (partes[0] === "placa" && partes[1]) return { pantalla: "placa", id: partes[1] };
   if (partes[0] === "abrir") {
     // Invitación de una sala: #/abrir?sala=<id de la sala>
     const sala = new URLSearchParams(consulta).get("sala")?.toLowerCase();

@@ -15,6 +15,7 @@ const Cielo = pantalla("Cielo");
 const Ficha = pantalla("Ficha");
 const Abrir = pantalla("Abrir");
 const Cobrar = pantalla("Cobrar");
+const Placa = lazy(() => import("./Placa").then((m) => ({ default: m.Placa })));
 const Legal = lazy(() => import("./Legal").then((m) => ({ default: m.Legal })));
 
 export default function App() {
@@ -98,7 +99,8 @@ export default function App() {
         <Suspense fallback={<section className="hoja"><p>Cargando…</p></section>}>
         {ruta.pantalla === "portada" && <Portada />}
         {ruta.pantalla === "cielo" && <Cielo />}
-        {ruta.pantalla === "obra" && <Ficha key={ruta.id} id={ruta.id} sesion={sesion} />}
+        {ruta.pantalla === "obra" && <Ficha key={ruta.id} id={ruta.id} sesion={sesion} desdePlaca={ruta.placa} />}
+        {ruta.pantalla === "placa" && <Placa key={ruta.id} id={ruta.id} sesion={sesion} />}
         {ruta.pantalla === "abrir" && <Abrir key={ruta.sala ?? ""} sesion={sesion} sala={ruta.sala} />}
         {ruta.pantalla === "cobrar" && <Cobrar sesion={sesion} />}
         {(ruta.pantalla === "terminos" || ruta.pantalla === "privacidad") && <Legal cual={ruta.pantalla} />}

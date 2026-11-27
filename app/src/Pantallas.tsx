@@ -5,6 +5,7 @@ import { borrarRetirada, cambiarFavorito, constelacion, favoritosDe, obras, urlA
 import { firmar } from "./billetera";
 import { corta, enlaceTx, ir, mensajeError, MONEDAS, palabras, plata, type Moneda } from "./comun";
 import Constelacion from "./Constelacion";
+import { codigoCorto, placaFirmada } from "./placa-firma";
 import { RED, UNIDAD } from "./config";
 import Reproductor from "./Reproductor";
 import "./Formularios.css";
@@ -147,7 +148,9 @@ export function Cielo() {
 
 // ---------------------------------------------------------------- Ficha de una obra
 
-export function Ficha({ id, sesion }: { id: string; sesion: Sesion }) {
+export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; desdePlaca?: { firma: string } }) {
+  // Llegada desde la placa: se comprueba que la haya firmado quien expuso la obra.
+  const [placaOk, setPlacaOk] = useState<boolean | null>(null);
   const [datos, setDatos] = useState<{ obra: Huella | null; huellas: Huella[] } | null>(null);
   const [error, setError] = useState("");
   const [elegida, setElegida] = useState(id);
@@ -157,6 +160,17 @@ export function Ficha({ id, sesion }: { id: string; sesion: Sesion }) {
   const salaObra = datos?.obra?.sala ?? null;
   const txObra = datos?.obra?.tx_hash ?? null;
   const idObra = datos?.obra?.id ?? null;
+
+  const autorObra = datos?.obra?.autor ?? null;
+  const firmaPlaca = desdePlaca?.firma ?? null;
+  useEffect(() => {
+    if (firmaPlaca === null || !idObra || !autorObra) return;
+    let vivo = true;
+    placaFirmada(idObra, autorObra, firmaPlaca).then((ok) => vivo && setPlacaOk(ok));
+    return () => {
+      vivo = false;
+    };
+  }, [firmaPlaca, idObra, autorObra]);
 
   // Sello de presencia: la obra se abrió por invitación de una sala y la pagó su fondo (se lee en la red).
   useEffect(() => {
@@ -198,9 +212,23 @@ export function Ficha({ id, sesion }: { id: string; sesion: Sesion }) {
       <div className="cielo-obra">
         <button className="volver" onClick={() => ir("/cielo")}>← El cielo</button>
         <h2>{obra.estado === "retirada" ? "Obra retirada" : obra.titulo}</h2>
+        {desdePlaca && obra.estado !== "retirada" && placaOk !== null && (
+          placaOk ? (
+            <p className="aviso-placa" role="status">
+              ✓ Placa firmada por quien hizo la obra (código <b>{codigoCorto(obra.id)}</b>: tiene que ser el mismo que dice la placa). Estás frente a la obra: contá qué te despierta tenerla enfrente.
+            </p>
+          ) : (
+            <p className="aviso-placa falsa" role="alert">
+              Esta placa no está firmada por quien hizo la obra. Puede ser falsa: no pagues si no confiás en ella.
+            </p>
+          )
+        )}
         <p className="sub">
           {huellas.length} {huellas.length === 1 ? "huella" : "huellas"}. La obra está en el centro y cada huella sale de la que continúa. Tocá cualquiera para leerla y continuarla.
         </p>
+        {obra.estado !== "retirada" && (
+          <a className="btn" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
+        )}
         <Constelacion obra={obra} huellas={huellas} elegida={actual.id} elegir={setElegida} invitada={sello?.obra === obra.id} />
       </div>
       <aside>
