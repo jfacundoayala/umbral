@@ -1,9 +1,20 @@
 // Dibujo de una obra y sus huellas: la obra en el centro, cada continuación sale de la huella que continúa.
 // Mismo armado que la maqueta (web/app.html): cada rama ocupa un ángulo según cuántas hojas tiene.
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import type { Huella } from "./base";
+import { urlFoto, type Huella } from "./base";
 
-type Punto = { id: string; x: number; y: number; px: number | null; py: number | null; nivel: number };
+type Punto = { id: string; x: number; y: number; px: number | null; py: number | null; nivel: number; desc: number };
+
+/** Radio de cada generación: la obra en el centro y cada continuación en la órbita siguiente. */
+const ORBITAS = [112, 204, 296, 388, 480, 572];
+const radioDe = (nivel: number) => (nivel ? ORBITAS[nivel - 1] ?? ORBITAS[ORBITAS.length - 1] + (nivel - ORBITAS.length) * 92 : 0);
+
+/** Número fijo entre 0 y 1 para cada id: el dibujo es siempre el mismo, pero no queda en línea recta. */
+function azarDe(id: string) {
+  let s = 0;
+  for (let i = 0; i < id.length; i++) s = (s * 31 + id.charCodeAt(i)) % 1_000_003;
+  return s / 1_000_003;
+}
 
 function ubicar(obra: Huella, huellas: Huella[]): Punto[] {
   const hijos = new Map<string, Huella[]>();
@@ -12,21 +23,31 @@ function ubicar(obra: Huella, huellas: Huella[]): Punto[] {
     const hs = hijos.get(id) ?? [];
     return hs.length ? hs.reduce((n, h) => n + hojas(h.id), 0) : 1;
   };
+  const descendientes = (id: string): number => (hijos.get(id) ?? []).reduce((n, h) => n + 1 + descendientes(h.id), 0);
   const salida: Punto[] = [];
+  // Cada rama ocupa un sector según cuántas hojas tiene. Dentro de su sector, cada huella se corre un poco
+  // (siempre igual para el mismo id): así una cadena de continuaciones dibuja una figura y no una línea.
   const paso = (id: string, desde: number, hasta: number, nivel: number, padre: { x: number; y: number } | null) => {
-    const ang = (desde + hasta) / 2;
-    const radio = nivel ? 112 + (nivel - 1) * 92 : 0;
+    const ancho = hasta - desde;
+    const corrimiento = nivel ? (azarDe(id) - 0.5) * Math.min(ancho * 0.7, 1.1) : 0;
+    const ang = (desde + hasta) / 2 + corrimiento;
+    const radio = radioDe(nivel);
     const pos = { x: nivel ? Math.cos(ang) * radio : 0, y: nivel ? Math.sin(ang) * radio : 0 };
-    salida.push({ id, ...pos, px: padre?.x ?? null, py: padre?.y ?? null, nivel });
-    let a = desde;
+    salida.push({ id, ...pos, px: padre?.x ?? null, py: padre?.y ?? null, nivel, desc: descendientes(id) });
+    // Los hijos se reparten alrededor de donde quedó el padre, no del centro del sector.
+    const centro = ang;
+    const mitad = nivel ? Math.min(ancho, Math.PI * 0.9) / 2 : Math.PI;
+    let a = centro - mitad;
     const total = hojas(id);
     for (const h of hijos.get(id) ?? []) {
-      const ancho = ((hasta - desde) * hojas(h.id)) / total;
-      paso(h.id, a, a + ancho, nivel + 1, pos);
-      a += ancho;
+      const parte = (2 * mitad * hojas(h.id)) / total;
+      paso(h.id, a, a + parte, nivel + 1, pos);
+      a += parte;
     }
   };
-  paso(obra.id, -Math.PI / 2, Math.PI * 1.5, 0, null);
+  // La primera rama arranca en un ángulo distinto para cada obra.
+  const inicio = -Math.PI / 2 + (azarDe(obra.id) - 0.5) * Math.PI;
+  paso(obra.id, inicio, inicio + Math.PI * 2, 0, null);
   return salida;
 }
 
@@ -51,7 +72,7 @@ function Fondo({ alcance, id }: { alcance: number; id: string }) {
       return d;
     });
     const puntos = Array.from({ length: 56 }, () => ({ x: (az() * 2 - 1) * alcance, y: (az() * 2 - 1) * alcance, r: az() < 0.15 ? 2.4 : 1.1, o: 0.25 + az() * 0.5 }));
-    const orbitas = [112, 204, 296, 388].filter((r) => r < alcance * 1.05);
+    const orbitas = ORBITAS.filter((r) => r < alcance * 1.05);
     return { ondas, puntos, orbitas };
   }, [alcance, id]);
   return (
@@ -135,13 +156,41 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
           >
             {!p.nivel && invitada && <circle className="sello-aro" r={42 * k} />}
             <circle className="toque" r={(p.nivel ? 26 : 44) * k} />
-            <circle className="nucleo" r={(p.nivel ? 13 : 31) * k} />
-            {!p.nivel && h.estado !== "retirada" && (
-              <g transform={`scale(${k})`}>
-                <Icono h={h} />
-              </g>
+            {p.nivel ? (
+              <>
+                {/* Más grande y con centro azul cuanto más la continuaron. */}
+                <circle className="nucleo" r={(11 + Math.min(8, p.desc * 2.5)) * k} />
+                {p.desc > 0 && <circle className="semilla" r={(3 + Math.min(4, p.desc)) * k} />}
+              </>
+            ) : (
+              <>
+                <circle className="nucleo" r={31 * k} />
+                {h.foto_ruta && h.estado !== "retirada" ? (
+                  <>
+                    <clipPath id={`recorte-${p.id}`}>
+                      <circle r={29 * k} />
+                    </clipPath>
+                    <image
+                      className="foto-obra"
+                      href={urlFoto(h.foto_ruta)}
+                      x={-29 * k}
+                      y={-29 * k}
+                      width={58 * k}
+                      height={58 * k}
+                      preserveAspectRatio="xMidYMid slice"
+                      clipPath={`url(#recorte-${p.id})`}
+                    />
+                  </>
+                ) : (
+                  h.estado !== "retirada" && (
+                    <g transform={`scale(${k})`}>
+                      <Icono h={h} />
+                    </g>
+                  )
+                )}
+              </>
             )}
-            <text y={(p.nivel ? 28 : invitada ? 62 : 50) * k} style={{ fontSize: 10 * k }}>{p.nivel ? nombre : "Obra"}</text>
+            <text y={(p.nivel ? 28 + Math.min(8, p.desc * 2.5) : invitada ? 62 : 50) * k} style={{ fontSize: 10 * k }}>{p.nivel ? nombre : "Obra"}</text>
           </g>
         );
       })}

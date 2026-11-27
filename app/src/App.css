@@ -111,6 +111,8 @@ h3 { font-family: var(--serif); font-weight: 500; font-size: 26px; line-height: 
 .punto:hover .nucleo, .punto.sel .nucleo { stroke-width: 3; }
 .punto.raiz .nucleo { stroke-width: 1.4; }
 .punto.raiz:hover .nucleo, .punto.raiz.sel .nucleo { stroke-width: 2.4; }
+.punto .semilla { fill: var(--cobalto); pointer-events: none; }
+.punto .foto-obra { pointer-events: none; }
 .punto .icono * { fill: none; stroke: var(--tinta); stroke-width: 1.4; stroke-linecap: round; pointer-events: none; }
 .punto .icono .acento { stroke: var(--cobalto); }
 .punto .icono .lleno { fill: var(--cobalto); stroke: none; }
