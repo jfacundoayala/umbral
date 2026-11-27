@@ -87,7 +87,7 @@ Lo mismo se podría hacer con una base de datos común, salvo dos cosas:
 
 Mover 1 USDC en Stellar cuesta una fracción de centavo y llega en segundos. Con comisiones altas, un pago de un dólar no tendría sentido.
 
-**Lo que depende de nosotros, y lo decimos:** el administrador puede cambiar precios y porcentajes (solo hacia adelante y nunca dejando al artista con menos del 30%), puede moderar una huella, y el contenido vive en nuestra base de datos. A la red va un código del contenido: prueba que no fue alterado, pero no lo conserva.
+**Lo que depende de nosotros, y lo decimos:** el administrador puede cambiar precios y porcentajes (solo hacia adelante y nunca dejando al artista con menos del 30%), puede moderar una huella, puede actualizar el código del contrato (en la red de pruebas, para corregir errores; antes de producción pasa a varias firmas con aviso previo, o se quita) y el contenido vive en nuestra base de datos. A la red va un código del contenido: prueba que no fue alterado, pero no lo conserva.
 
 ## Arquitectura
 
@@ -149,7 +149,6 @@ Las pruebas con personas de afuera del equipo se hacen el sábado 28/11 con la [
 | Firma de mensajes (SEP-53) | Entrar a favoritos sin pagar ni crear contraseñas |
 | SDK de JavaScript y Stellar CLI | Cliente generado desde el contrato compilado |
 | Stellar Expert | Comprobante público de cada acción |
-| Raven | Buscar proyectos parecidos entre entregas de hackathons y llegar a las guías oficiales |
 
 ## Cómo correrlo
 
@@ -208,7 +207,7 @@ Detalle en [docs/cuidado.md](docs/cuidado.md), [términos de uso](docs/terminos.
 
 ## Equipo
 
-- **Facundo** — contrato y desarrollo.
+- **Facundo Ayala** — contrato y desarrollo.
 - **Lucía Paz** — identidad, experiencia y pantallas.
 
 ## Derechos

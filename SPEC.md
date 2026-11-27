@@ -1,6 +1,6 @@
 # UMBRAL — Fuente de la verdad
 
-Este documento manda. Si otro archivo, una auditoría o una IA dice otra cosa, vale lo que dice acá.
+Este documento manda. Si otro archivo o una auditoría dice otra cosa, vale lo que dice acá.
 Solo se cambia si Facundo o Lucía lo deciden, y el cambio se anota al final con fecha y motivo.
 Una auditoría puede proponer cambios; no los decide.
 
@@ -146,7 +146,7 @@ Los precios son una hipótesis: no están validados con gente real.
 3. Nombre y logo finales (Lucía).
 4. Para quién lo contamos en el video (Lucía y Facundo). Opción en estudio: los escultores de Resistencia y la gente que pasa frente a sus obras. El caso de las esculturas nació para validar identidad cultural y territorio; falta decidir si es el centro o un ejemplo. La decisión se toma con investigación que la respalde.
 5. Qué obras usa la demo (Lucía y Facundo). Opciones: obras argentinas de dominio público abiertas por un "Museo de ejemplo" (lista con licencias verificadas), obras reales con permiso de su artista o museo (esculturas de Resistencia, Museo de Medios), u obras ficticias. Nada se carga hasta decidirlo.
-6. Mostrar "el 70% va a la artista" antes de pagar: solo si lo recomiendan los mentores y Raven. El precio se muestra siempre.
+6. Mostrar "el 70% va a la artista" antes de pagar: solo si lo recomiendan los mentores. El precio se muestra siempre.
 7. Si decimos "Museo vivo", "Más allá de lo tangible" o las dos (Lucía).
 8. Cómo funciona el encuentro presencial (pop-up) y qué ventaja tiene ir en persona (Lucía). Hoy el contrato permite que una sala invite huellas pagadas por su fondo.
 

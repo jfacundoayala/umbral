@@ -55,4 +55,3 @@ docs/              Transacciones, cuidado de las personas, arquitectura e identi
 | SDK de JavaScript de Stellar | Armar, simular y mandar cada pedido |
 | Stellar CLI | Compilar, generar el cliente y desplegar |
 | Stellar Expert | El comprobante público de cada acción |
-| Raven | Buscar proyectos parecidos y auditar la propuesta |
