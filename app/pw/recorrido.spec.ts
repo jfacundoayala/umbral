@@ -107,6 +107,21 @@ test("Cuentas claras lee el 80/20 del contrato", async ({ page }) => {
   expect(errores).toEqual([]);
 });
 
+test("Compartir la obra copia el link de su tarjeta", async ({ page, context }, info) => {
+  // En el celular abre el menú del sistema, que una prueba no puede tocar: se prueba en compu.
+  test.skip(info.project.name !== "escritorio", "el menú de compartir del celular no se puede probar");
+  const errores = vigilar(page);
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  // Sin menú de compartir, como la mayoría de las compus: tiene que copiar el link.
+  await page.addInitScript(() => Object.defineProperty(navigator, "share", { value: undefined }));
+  await page.goto(`/#/obra/${ENTRE_RAICES}`);
+  await page.getByRole("button", { name: "Compartir la obra" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Link copiado" })).toBeVisible();
+  const copiado = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copiado).toBe(new URL(`/o/${ENTRE_RAICES}`, page.url()).href);
+  expect(errores).toEqual([]);
+});
+
 test("la obra de un encuentro en persona lleva el sello Estuve ahí", async ({ page }) => {
   const errores = vigilar(page);
   await page.goto(`/#/obra/${CON_SELLO}`);

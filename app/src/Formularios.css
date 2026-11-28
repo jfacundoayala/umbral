@@ -174,3 +174,7 @@ aside.previa { position: sticky; top: 24px; padding: 0; gap: 12px; min-width: 0;
   .encuentro-puerta { grid-template-columns: 1fr; }
   .encuentro-sala { border-left: 0; padding-left: 0; border-top: 1px solid var(--mineral); padding-top: 18px; }
 }
+
+/* Compartir la obra */
+.compartir { margin: 10px 0 0; }
+.compartir-aviso { margin: 6px 0 0; min-height: 1.4em; font-size: 15px; color: var(--petroleo); overflow-wrap: anywhere; }

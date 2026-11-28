@@ -374,8 +374,42 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
           Ver el comprobante en Stellar Expert ↗
         </a>
       )}
+      {esObra && h.estado === "publicada" && <Compartir id={h.id} titulo={h.titulo} />}
       {esObra && h.estado !== "retirada" && <RepartoFicha nombre={h.nombre} />}
       {h.estado === "publicada" && sesion.cuenta === h.autor && <Retirar h={h} cuenta={sesion.cuenta} alRetirar={alRetirar} />}
+    </div>
+  );
+}
+
+/** Comparte el link /o/<id>: al pegarlo en WhatsApp o en una red se ve la foto y el título de la obra.
+ *  En el celular abre el menú de compartir; en la compu copia el link. */
+function Compartir({ id, titulo }: { id: string; titulo: string | null }) {
+  const [aviso, setAviso] = useState("");
+  const link = `${location.origin}/o/${id}`;
+  const compartir = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: titulo ?? "Una obra en UMBRAL", text: titulo ? `"${titulo}" en UMBRAL` : "Una obra en UMBRAL", url: link });
+      } catch {
+        // La persona cerró el menú: no hay nada que avisar.
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(link);
+      setAviso("Link copiado. Pegalo donde quieras.");
+    } catch {
+      setAviso(`Copiá este link: ${link}`);
+    }
+  };
+  return (
+    <div className="compartir">
+      <button type="button" className="btn" onClick={compartir}>
+        Compartir la obra
+      </button>
+      <p className="compartir-aviso" role="status">
+        {aviso}
+      </p>
     </div>
   );
 }
@@ -778,6 +812,13 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
   );
   const pagaLaSala = !!inv?.invitada && precio !== undefined && inv.fondo >= precio;
   const listo = (!sala || inv?.museo) && nPalabras >= 1 && nPalabras <= 20 && titulo.trim().length <= 200 && descripcion.length <= 400 && nombre.trim().length > 0 && derechos !== null && permiso && precio !== undefined && !a.ocupado;
+  const faltan = [
+    nPalabras < 1 && "el título",
+    !nombre.trim() && "quién la hizo",
+    derechos === null && "los derechos",
+    !permiso && "marcar el permiso",
+  ].filter((x): x is string => !!x);
+  const pista = faltan.length ? `Para firmar te falta: ${faltan.join(", ")}.` : nPalabras > 20 ? "Acortá el título: hasta 20 palabras." : "";
   const textoPrecio = precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)";
 
   const elegirFoto = (f: File | null) => {
@@ -806,7 +847,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
       <div className="form-cabeza">
         <p className="rotulo">Exponer una obra</p>
         <h1 className="titulo">Tu obra, en el cielo</h1>
-        <p className="sub">La obra queda firmada a tu nombre en la red. Cada vez que alguien la continúe o la apoye, te llega el 80%.</p>
+        <p className="sub">Subís una foto de tu obra, la firmás con tu billetera y queda en el cielo a tu nombre. Cada vez que alguien la continúe o la apoye, te llega el 80%.</p>
       </div>
       {sala && (
         <p className="invitacion">
@@ -853,7 +894,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
                 <input value={nombre} maxLength={80} onChange={(e) => setNombre(e.target.value)} />
               </label>
             </Paso>
-            <Paso n={2} titulo="Archivos">
+            <Paso n={2} titulo="Foto y audio">
               <ZonaArchivo
                 tipo="foto"
                 etiqueta="Foto"
@@ -893,7 +934,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
                 </small>
               </fieldset>
             </Paso>
-            <Paso n={4} titulo="Firmar">
+            <Paso n={4} titulo="Firmar y publicar">
               <label className="check permiso">
                 <input type="checkbox" checked={permiso} onChange={(e) => setPermiso(e.target.checked)} />
                 <span>Acepto que cualquiera vea la obra y la continúe.</span>
@@ -914,9 +955,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
                 ) : (
                   <BotonEntrar sesion={sesion} texto="Para exponer una obra, entrá con tu billetera." />
                 )}
-                {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && (
-                  <p className="sub">Para firmar, completá el título, tu nombre, elegí los derechos y marcá el permiso.</p>
-                )}
+                {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && pista && <p className="sub">{pista}</p>}
               </div>
               <Estado a={a} listo="Listo: tu obra ya está en el cielo." opinar />
               {nueva && (
@@ -1039,7 +1078,7 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
       <div className="form-cabeza">
         <p className="rotulo">Cobrar</p>
         <h1 className="titulo">Lo que juntaron tus obras</h1>
-        <p className="sub">Solo cobran quienes exponen obras: el 80% de cada continuación y de cada apoyo. Lo retirás cuando quieras.</p>
+        <p className="sub">Si expusiste una obra, acá ves lo que juntó: el 80% de cada continuación y de cada apoyo. Lo pasás a tu billetera cuando quieras.</p>
       </div>
       {!cuenta ? (
         <>

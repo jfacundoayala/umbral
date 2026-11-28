@@ -188,8 +188,8 @@ export interface Client {
 
   /**
    * Construct and simulate a apoyar transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
-   * Apoyo voluntario de monto libre sobre cualquier huella. El 70% queda a
-   * nombre del artista que abrió la obra (lo retira con `cobrar`) y el 30%
+   * Apoyo voluntario de monto libre sobre cualquier huella. El 80% queda a
+   * nombre del artista que abrió la obra (lo retira con `cobrar`) y el 20%
    * va a Umbral. Quien escribió una respuesta no cobra.
    */
   apoyar: ({quien, id, moneda, monto}: {quien: string, id: Buffer, moneda: string, monto: i128}, options?: MethodOptions) => Promise<AssembledTransaction<Result<void>>>
