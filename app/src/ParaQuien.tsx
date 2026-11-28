@@ -19,7 +19,7 @@ export const PARA = [
   },
   {
     quien: "Salas, galerías y encuentros",
-    texto: "Abrí tu espacio y organizá encuentros. Quien va en persona deja su huella gratis y se lleva el sello Estuve ahí.",
+    texto: "Abrí tu espacio y organizá encuentros. Quien va en persona deja su huella gratis y se lleva el sello \"ESTUVE AHÍ\".",
     accion: "Ver una obra con sello",
     destino: `/obra/${OBRA_CON_SELLO}`,
     obra: "",
