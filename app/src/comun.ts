@@ -41,7 +41,12 @@ function placaDe(consulta: string) {
 }
 
 function leerRuta(): Ruta {
-  const [camino, consulta = ""] = location.hash.replace(/^#\/?/, "").split("?");
+  return rutaDe(location.hash);
+}
+
+/** Lee una ruta de la parte del enlace que va después del #. Los datos que no son válidos se descartan. */
+export function rutaDe(hash: string): Ruta {
+  const [camino, consulta = ""] = hash.replace(/^#\/?/, "").split("?");
   const partes = camino.split("/");
   if (partes[0] === "cielo") return { pantalla: "cielo" };
   if (partes[0] === "obra" && partes[1]) return { pantalla: "obra", id: partes[1], placa: placaDe(consulta) };

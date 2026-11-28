@@ -26,3 +26,7 @@ Thumbs.db
 
 # Configuración local de herramientas
 .claude/
+
+# Playwright
+pw-informe/
+test-results/
