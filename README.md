@@ -143,7 +143,17 @@ El navegador no puede publicar, cambiar ni borrar nada. Detalle en [docs/arquite
 
 ## Evidencia en la red de pruebas
 
-Desplegado el 27/11/2026. Las 19 transacciones y la comprobación de saldos están en [docs/txs.md](docs/txs.md).
+**Contrato final, 28/11/2026.** Toda la colección que se ve en la web está en el contrato final, cada obra y cada huella con su pago. Algunos ejemplos.
+
+| Qué | Comprobante |
+|---|---|
+| Exponer "Entre raíces" | [9ccd61bd…](https://stellar.expert/explorer/testnet/tx/9ccd61bdfb2ca965202c59fe25570890a5e815f4a0f53abd0011a4d6925408bd) |
+| Dejar una huella sobre "Entre raíces" (80% a quien la hizo) | [3d5f7440…](https://stellar.expert/explorer/testnet/tx/3d5f74409bef45528dc5a40618fafbc708537e4f77a93187460414b3cbe8e141) |
+| Exponer "La sopa paraguaya de Mirta" | [dec14e22…](https://stellar.expert/explorer/testnet/tx/dec14e22f5892a078e569e91bc490d453ce087f07ea6508bdea6adcfd755353c) |
+| Una sala abre su fondo e invita | [d9856b0d…](https://stellar.expert/explorer/testnet/tx/d9856b0d51ed840e6a799c5d830a2977820f9b6d1a08eff634d57e63ecdde86d) |
+| Obra invitada por la sala, con el sello "Estuve ahí" | [8eaeda71…](https://stellar.expert/explorer/testnet/tx/8eaeda7130d705391cc0fa7241ae81b427231446d4dae947951a85f5e218a1f8) |
+
+Antes, el 27/11, el mismo recorrido completo en el segundo contrato, con cobro del artista y retiro del fondo. Las 19 transacciones y la comprobación de saldos están en [docs/txs.md](docs/txs.md).
 
 | Qué | Comprobante |
 |---|---|
