@@ -252,6 +252,7 @@ Detalle en los [términos de uso](docs/terminos.md) y la [política de privacida
 
 - Entrar con correo: UMBRAL guía a quien nunca usó cripto a crear su billetera de Stellar. Suma usuarios nuevos a la red.
 - Panel para museos con los números de su muestra.
+- Encuentros presenciales con el sello "Estuve ahí". Una sala, una galería o una juntada invita, quien va en persona deja su huella gratis y su obra queda sellada. Ya funciona en el contrato y hay una obra con el sello en la colección. Falta llevarlo a salas reales.
 - Encuentros virtuales: un código que cambia cada pocos segundos, mostrado en vivo durante la charla o la recorrida por videollamada, para que el sello pruebe que la persona estuvo en vivo.
 - Un museo piloto, empezando por las esculturas de Resistencia.
 - Pasar a la red principal de Stellar con USDC real, después de una revisión externa del contrato.

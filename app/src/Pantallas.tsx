@@ -1,7 +1,7 @@
 // Las pantallas, en el orden de la demo: portada → cielo → ficha (continuar, apoyar) → abrir → cobrar.
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { audioValido, fotoValida } from "./archivos";
-import { borrarRetirada, cambiarFavorito, favoritosDe, urlAudio, urlFoto, urlTarjeta, type Huella, type Orden } from "./base";
+import { borrarRetirada, cambiarFavorito, favoritosDe, urlAudio, urlFoto, urlTarjeta, type Huella, type Orden, enElCielo } from "./base";
 import { corta, enlaceTx, ir, mensajeError, monedaDe, MONEDAS, palabras, plata, type Moneda } from "./comun";
 import Constelacion from "./Constelacion";
 import AvisoPlaca from "./AvisoPlaca";
@@ -370,8 +370,19 @@ export function Ficha({ id, sesion, desdePlaca, dejar }: { id: string; sesion: S
           </p>
         )}
         <Lectura key={`l${actual.id}`} h={actual} esObra={actual.id === obra.id} sesion={sesion} alRetirar={() => setVuelta((v) => v + 1)} museo={sello?.obra === actual.id ? sello.museo : null} placa={conPlaca && actual.id === obra.id} />
-        <Continuar key={actual.id} obra={obra} padre={actual} sesion={sesion} alPublicar={(nueva, enlace) => { setElegida(nueva); setVuelta((v) => v + 1); setPublicada(enlace); }} />
-        <Apoyar obra={obra} sesion={sesion} />
+        {enElCielo(obra) ? (
+          <>
+            <Continuar key={actual.id} obra={obra} padre={actual} sesion={sesion} alPublicar={(nueva, enlace) => { setElegida(nueva); setVuelta((v) => v + 1); setPublicada(enlace); }} />
+            <Apoyar obra={obra} sesion={sesion} />
+          </>
+        ) : (
+          // Obra de un contrato anterior. Sigue en la red y se puede mirar, pero el contrato de hoy no la conoce.
+          <section className="caja aviso-anterior">
+            <h2 className="h3">Una obra de una versión anterior</h2>
+            <p>Esta obra quedó guardada de una versión anterior del museo. Se puede mirar, pero ya no recibe huellas.</p>
+            <p><a href="#/cielo">Ver las obras de hoy</a></p>
+          </section>
+        )}
       </aside>
     </section>
   );

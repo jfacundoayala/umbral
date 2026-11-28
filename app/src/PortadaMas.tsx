@@ -1,11 +1,12 @@
 // Lo que sigue a la portada: cómo funciona, obras del cielo con números en vivo, para quién es y los encuentros.
 // Solo lee la base con fetch: no baja billetera ni stellar-sdk.
 import { useEffect, useState } from "react";
-import { OBRA_CON_SELLO, obras, urlFoto, urlTarjeta, type Huella } from "./base";
-import { ir, OBRA_PORTADA } from "./comun";
-import { SelloVivo } from "./SelloVivo";
+import { obras, urlFoto, urlTarjeta, type Huella } from "./base";
+import { ir } from "./comun";
+import { CieloVivo } from "./CieloVivo";
 import { citables, OBRA_DE_EJEMPLO, OBRAS_DE_PORTADA, type EnVivo } from "./portadaObras";
-import { CierreCielo, ParaVivos } from "./ParaVivos";
+import { CierreCielo } from "./ParaVivos";
+import { PARA, ParaQuien } from "./ParaQuien";
 import type { PreciosVivos } from "./preciosVivos";
 
 const pasos = (p: PreciosVivos) =>
@@ -44,28 +45,6 @@ function Ejemplo({ vivo }: { vivo: EnVivo | undefined }) {
     </div>
   );
 }
-
-const PARA = [
-  {
-    quien: "Artistas",
-    texto: "Exponé tu obra, mirá qué siente la gente y cobrá cada vez que alguien le deja su huella. Con una placa con QR al lado, tu escultura de la calle también recibe huellas, como",
-    ejemplo: { texto: "la talla Entre raíces", destino: `/obra/${OBRA_PORTADA}` },
-    accion: "Exponer una obra",
-    destino: "/abrir",
-  },
-  {
-    quien: "Salas y museos",
-    texto: "Abrí tu sala, armá muestras con fecha y organizá encuentros. Quien va en persona deja su huella gratis, la paga tu fondo y se lleva el sello \"Estuve ahí\".",
-    accion: "Ver una obra con sello",
-    destino: `/obra/${OBRA_CON_SELLO}`,
-  },
-  {
-    quien: "Público",
-    texto: "Mirá todo gratis. Si una obra te toca, dejá tu huella o dale un aporte de lo que quieras. Lo que ponés es para quien la hizo.",
-    accion: "Ver las obras",
-    destino: "/cielo",
-  },
-] as const;
 
 function useCielo() {
   const [lista, setLista] = useState<Huella[] | null>(null);
@@ -112,7 +91,7 @@ function Regla({ precios }: { precios: PreciosVivos }) {
 export function PortadaMas({ vivas, precios }: { vivas: Map<string, EnVivo> | null; precios: PreciosVivos }) {
   const lista = useCielo();
   // Las de la tira de arriba no se repiten acá.
-  const enLaTira = new Set(OBRAS_DE_PORTADA.flatMap((o) => [o.id, o.titulo]).filter(Boolean));
+  const enLaTira = new Set([...OBRAS_DE_PORTADA.flatMap((o) => [o.id, o.titulo]), ...PARA.flatMap((p) => [p.obra, p.rotulo])].filter(Boolean));
   const destacadas = (lista ?? []).filter((o) => o.foto_ruta && !enLaTira.has(o.id) && !enLaTira.has(o.titulo ?? "")).slice(0, 6);
   const nObras = lista?.length ?? 0;
   const nHuellas = (lista ?? []).reduce((s, o) => s + o.respuestas_publicadas, 0);
@@ -193,28 +172,16 @@ export function PortadaMas({ vivas, precios }: { vivas: Map<string, EnVivo> | nu
       <section className="pmas-bloque" aria-labelledby="pmas-para">
         <p className="rotulo">Para quién es</p>
         <h2 id="pmas-para">Un museo que se arma entre todos</h2>
-        <ParaVivos items={PARA} />
+        <ParaQuien />
       </section>
 
-      <section className="pmas-bloque pmas-encuentro" aria-labelledby="pmas-enc">
-        <SelloVivo className="pmas-sello-vivo" />
-        <div>
-          <p className="rotulo">Encuentros</p>
-          <h2 id="pmas-enc">Estuve ahí</h2>
-          <p>
-            Una sala organiza un encuentro. En la puerta escanea tu código, tu huella la paga la sala y tu obra queda con el sello "Estuve ahí". Como se hace cara a cara, ese sello no se consigue desde tu casa.
-          </p>
-          <p>
-            <a href={`#/obra/${OBRA_CON_SELLO}`}>Mirá una obra con este sello</a>
-          </p>
-        </div>
-      </section>
-
-      <section className="pmas-cierre">
-        <CierreCielo />
-        <h2>Cada obra es una estrella. Cada huella, una línea.</h2>
-        <button className="entrar" onClick={() => ir("/cielo")}>
-          Ver las obras <span aria-hidden="true">→</span>
+      <section className="pmas-cierre" aria-label="El cielo en vivo">
+        {lista && lista.length ? <CieloVivo obras={lista} /> : <CierreCielo />}
+        <p className="cv-datos">
+          {nObras > 0 ? `${nObras} obras y ${nHuellas} huellas, ahora mismo. ` : ""}Tocá una estrella y entrá a verla.
+        </p>
+        <button className="cv-boton" onClick={() => ir("/cielo")}>
+          Entrar al cielo <span aria-hidden="true">→</span>
         </button>
       </section>
     </div>
