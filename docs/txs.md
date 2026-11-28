@@ -66,6 +66,32 @@ Pagan en XLM, con dos cuentas de prueba nuevas: una artista y una persona del p�
 | Apoyar la obra | Público | "Gracias: tu apoyo llegó." | [a5323cea…](https://stellar.expert/explorer/testnet/tx/a5323cea9a0206c50a8027f07dfba116991974d7376fe8d6fa3c7dfcc219f2bb) |
 | La artista cobra | Artista | Saldo de 10,5 XLM a 0 | [6c09fa05…](https://stellar.expert/explorer/testnet/tx/6c09fa0516a570510a35f1c941924d55e2d4edeaba6723d8a193237165575a33) |
 
+## Colección 001 · Una ciudad que resuena
+
+Curaduría de Lucía Paz. Seis obras expuestas desde la web el 28/11/2026, cada una con su foto y 20 XLM. Cinco son obras de muestra. "La sopa paraguaya de Mirta" es una historia familiar real: la expone Lucía P. y su constelación empieza vacía.
+
+| Obra | Expone | Comprobante |
+|---|---|---|
+| [Entre raíces](https://umbralmuseo.vercel.app/#/obra/e11edfb7b8f6b72e5f3f6cd7f48e85229cf3dd5eef60825f999586ffa6d0f607) | Colección 001 (obra de muestra) | [bbd3e861…](https://stellar.expert/explorer/testnet/tx/bbd3e861620772741f35ae2175ec6009f3572961fe21b84cd46d87e432fa151c) |
+| [Trama de algodón](https://umbralmuseo.vercel.app/#/obra/a785e3e70f00ab0f7670ca1d832455b987078b09798ccf7361d2fbdd905f64a9) | Colección 001 (obra de muestra) | [a243ab63…](https://stellar.expert/explorer/testnet/tx/a243ab636df45f5dc6822673978ef0cc4beb598310420b560038ff0fa3de06ba) |
+| [La sopa paraguaya de Mirta](https://umbralmuseo.vercel.app/#/obra/8d78f8c880d97a97b4cc6127719c086707843d79a933e3b1c59ec3e6753d551b) | Lucía P. | [814c8f44…](https://stellar.expert/explorer/testnet/tx/814c8f44a8792536cc2a830da3f2948ae6a4f7e54be04d159a343ba0a447c20a) |
+| [Las voces del Impenetrable](https://umbralmuseo.vercel.app/#/obra/9710b66b5cd43c637d5ea76c726c13fbfe0ab13abec925fb92cc66f2595bd26a) | Colección 001 (obra de muestra), audio en preparación | [1534384e…](https://stellar.expert/explorer/testnet/tx/1534384e1c85ee22071f93b77e1928d5dc05873e2e9432812e5e26d44c97729f) |
+| [Frida](https://umbralmuseo.vercel.app/#/obra/7f1d2afb74b440ee4ff3c07ee3af6e7643add9823601455936a5a6c99a5e27d5) | Colección 001 (obra de muestra) | [22887742…](https://stellar.expert/explorer/testnet/tx/22887742cc88ee17e0c6d8a3e4854cc69bde7faa0009c4c700572fb9d5e9c10c) |
+| [Cestería de palma](https://umbralmuseo.vercel.app/#/obra/6814681e44916030685330cde2bec8e03354a661130690b888ec9c3d43806095) | Colección 001 (obra de muestra) | [f9419898…](https://stellar.expert/explorer/testnet/tx/f9419898c03b3bda06c2996c319a609875ee4c25a3695903196ed9a21865d566) |
+
+### Primera tanda (reemplazada)
+
+Las mismas seis obras, expuestas primero con otro cierre en la descripción. Como la descripción entra en el código firmado, no se puede editar: se volvieron a exponer y estas quedan fuera de El cielo.
+
+| Obra | Expone | Comprobante |
+|---|---|---|
+| [Entre raíces](https://umbralmuseo.vercel.app/#/obra/9ee8bab1aef222423dba5e444dac6711e53710ebc06697f56acf1eb9d28164ab) | Colección 001 (obra de muestra) | [61f327ff…](https://stellar.expert/explorer/testnet/tx/61f327ff397dd402a9e2728f7fc514778a93566adf93dc03ce38c1d75bc5cedc) |
+| [Trama de algodón](https://umbralmuseo.vercel.app/#/obra/457b0aaddfdb36c9c288b760bc240282d74bab68443220467dc5d1c15fa975a4) | Colección 001 (obra de muestra) | [46cf2800…](https://stellar.expert/explorer/testnet/tx/46cf280097c3082d8c09b4f1a1c50ad4106bbda33fe0e820564f5ca0a1d3cb69) |
+| [La sopa paraguaya de Mirta](https://umbralmuseo.vercel.app/#/obra/fc3d85853f491e1f4aacd69afbf9a590ecfc52c50d86bd1af1b5c3ee5bf65070) | Lucía P. | [36ddd3e0…](https://stellar.expert/explorer/testnet/tx/36ddd3e0ae2831908429be08f259ffefe2077d668d2dc351871dc95a497779b3) |
+| [Las voces del Impenetrable](https://umbralmuseo.vercel.app/#/obra/eaf896193daf133b4eab573a41b76d7162b2f5b18cd2030804e82879b6d4bb35) | Colección 001 (obra de muestra), sin audio todavía | [72a07f31…](https://stellar.expert/explorer/testnet/tx/72a07f312d125d92d018e5d346664c80c6744bc1ec3d28e317871d071840dd27) |
+| [Frida](https://umbralmuseo.vercel.app/#/obra/f64ef3f9c42005a7ead7efbe2c1421ca50bb6572851338da6e5d7daad2a554dd) | Colección 001 (obra de muestra) | [f80a8e9e…](https://stellar.expert/explorer/testnet/tx/f80a8e9efd2b60d7f97b99439a2e4bdfafa52b3199a5888f2c819a300172ff06) |
+| [Cestería de palma](https://umbralmuseo.vercel.app/#/obra/6ba5e56940b74c80c20dfde1df1091e0cb25b9d723afede8f28782641eaa269e) | Colección 001 (obra de muestra) | [10e16b04…](https://stellar.expert/explorer/testnet/tx/10e16b04cbf345c552302fe9ea7cdf98250602927e768fb46dc5c40ad3c5b96e) |
+
 ## Lo que no está en esta lista
 
 - Una acción rechazada (por ejemplo, continuar una huella retirada): está cubierta por las pruebas automáticas, no por una transacción.
