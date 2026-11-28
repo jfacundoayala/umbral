@@ -1,0 +1,23 @@
+/* Fuentes servidas desde el propio sitio (antes venían de Google Fonts y frenaban la primera pintura).
+   Solo el juego latino, que incluye tildes y ñ. Las dos son de licencia libre (SIL Open Font License 1.1). */
+@font-face {
+  font-family: "Cormorant Garamond";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fuentes/cormorant.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fuentes/cormorant-italica.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fuentes/manrope.woff2") format("woff2");
+}

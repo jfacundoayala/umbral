@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './fuentes.css'
 import App from './App.tsx'
 
 // Si publicamos una versión nueva con la página abierta, los pedazos viejos ya no existen:

@@ -1,0 +1,15 @@
+{
+  "name": "UMBRAL — Más allá de lo tangible",
+  "short_name": "UMBRAL",
+  "description": "Un museo online donde le respondés al arte. Cada huella queda sellada en Stellar y el 80% va a quien hizo la obra.",
+  "lang": "es-AR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F2EDE3",
+  "theme_color": "#314B49",
+  "icons": [
+    { "src": "/icono-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

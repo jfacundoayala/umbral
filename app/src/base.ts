@@ -73,10 +73,29 @@ export async function constelacion(idObra: string): Promise<{ obra: Huella | nul
 }
 
 export const urlFoto = (ruta: string) => `${SUPABASE_URL}/storage/v1/object/public/obras/${ruta}`;
-/** Miniaturas livianas (app/public/muestra) de las obras de muestra, solo para las tarjetas del cielo.
+/** Miniaturas livianas (app/public/muestra, 480 px de ancho) de las obras, solo para las tarjetas.
  *  No entran en el código firmado: la ficha muestra siempre la foto firmada de Storage. */
 const MINIATURAS = new Set([
+  "004c75547fd4f26a7525eccc1cdde7f809cfda2153fdea6616d2ec5be3b7e266",
+  "12175dffb8a0af6949af4a4abd0823e8f016b86ffc555e7dc713014211de5532",
+  "1b6a7197a9cd3f4d5f0d27d39cdfe37d042f3344650dd562b54939cac02a5bc6",
+  "3659f7c92201365481b7156ed5a298383a87e1252b75b52af741ed25370cd7e6",
+  "467bc2e4bade846e1f903792c86758080b10abb0d0297b0b8e7990b79cb0f589",
+  "554e2cd3ff41b6cf65da785d0242dd1075d9f280e248ebd4ca59b1c9dc4e301f",
+  "58d19220750df68029b6bc94cc4450f1d1201d20fa8cf0632824d1ebf6431504",
+  "609a3c9382621db501214c9174d340a540f48eb50dbf9cc84c853b7258781811",
+  "697b592a36591b0c58130e2641aa547193d916b7ff806032dd329cf6c36ff6a2",
+  "6d081996f7d5df387359302e297f232b3ace442173b000f36b7137cf2bd396a3",
+  "73be8241b594c38d7ca9eed03fa2dde34c0563181810c9dad7b9c2973b63bafa",
+  "81a25c9fcaf2eea0093df4c63e3262b19c595745a6b14a3e5777df5f5e2e579a",
+  "84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5",
+  "8d78f8c880d97a97b4cc6127719c086707843d79a933e3b1c59ec3e6753d551b",
+  "a02fc7a515f3743d7c34c7da2b98c8ea4875672f726ff87f5be25160e3fa2b57",
+  "a3ea7865bc61ab8657234ed0aaed8de2e39c3d5f43596085c9f808d072016550",
+  "b763135027f7e38cc8df4d812f6eb1571e968b618e792b5cb8341978b6813710",
+  "ba3226387ce391d99cc63acc9f902596e936bb4543f37e556cb41ebe05e119cb",
   "c11a519bf2b3e15f9fd2a13be031614aadd105800bf7ae17c57e4315f1f150e7",
+  "c8986e17ee839fb2dcd914b3f3573e344d724abbf6e8ecfce7d0ae646f3a09df",
   "cdad0d0288ee60a556ff861ef2b6baa64e9a5292e9e6785c2b156133a856259d",
   "ce540f8556ab6c7d48e7174e662e04c58de2937071ff108122dc329503fcc71e",
   "d387c0738f34fd75510735cd50a625fd657be543f17183ab7910743c2a4deab6",

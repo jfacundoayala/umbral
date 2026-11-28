@@ -1,5 +1,5 @@
 // Dibujo de una obra y sus huellas en 3D: la obra en el centro y cada generación en una cáscara esférica
-// más grande. Cada rama ocupa un ángulo según cuántas hojas tiene (como la maqueta, web/app.html) y además
+// más grande. Cada rama ocupa un ángulo según cuántas hojas tiene (como la maqueta, docs/diseno/prototipo/app.html) y además
 // sube o baja un poco, siempre igual para el mismo id. Se gira arrastrando, con las flechas o solo, despacio.
 // Sin librerías: las posiciones se rotan y se proyectan en perspectiva dentro del mismo SVG.
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type FocusEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
