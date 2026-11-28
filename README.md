@@ -93,6 +93,7 @@ UMBRAL no cobra suscripción ni vende publicidad. Vive de una parte de cada part
 - Pagar 1 USD por dejar unas palabras puede frenar a la gente. Es una hipótesis que todavía no validamos.
 - Para participar hace falta una billetera de Stellar (el camino previsto es entrar con correo).
 - Hoy una sola llave puede actualizar el contrato; en la red principal pasa a varias firmas.
+- Hoy el administrador puede cambiar el porcentaje del artista para las huellas nuevas, sin bajarlo nunca del 30%. En la red principal ese cambio va a pedir varias firmas y un aviso previo.
 - El contenido vive en nuestra base de datos.
 - Para usar dinero real a escala falta resolver lo legal: botón de arrepentimiento, activos virtuales e impuestos.
 

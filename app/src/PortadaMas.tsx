@@ -7,7 +7,7 @@ import { ir } from "./comun";
 const PASOS = [
   ["Mirá gratis", "Recorré el cielo y abrí cualquier obra. No hace falta cuenta."],
   ["Dejá tu huella", "Escribí lo que la obra te despertó. Tu huella se suma a su constelación."],
-  ["El 70% es para quien la hizo", "Cada huella le deja al artista el 70%, al momento. Lo cobra cuando quiere."],
+  ["El 70% es para quien la hizo", "Cada huella le deja al artista el 70%, al momento. Solo baja si firma una muestra con una sala, y nunca de 30%."],
 ] as const;
 
 const PARA = [

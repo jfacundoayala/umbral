@@ -485,7 +485,7 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
         <span>Doy permiso para publicar este texto. Sé que cualquiera lo puede leer y que no incluye datos sensibles míos ni de otras personas.</span>
       </label>
       <p className="precio">
-        Cuesta <b>{precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>. El 70% va a quien hizo la obra y el 30% a UMBRAL. Vos no cobrás por continuar.
+        Cuesta <b>{precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>. El 70% va a quien hizo la obra y el 30% a UMBRAL. Solo baja si el artista firma una muestra con una sala, y nunca de 30%. Vos no cobrás por continuar.
       </p>
       {sesion.cuenta ? (
         <button className="btn lleno" disabled={!listo}>
