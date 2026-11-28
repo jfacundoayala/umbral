@@ -68,7 +68,7 @@ export function Cuentas() {
       <ul>
         <li><b>El público</b> mira gratis. Si una obra lo toca, deja su huella o la apoya.</li>
         <li><b>Las salas y los padrinos</b> ponen un fondo para los encuentros en persona: quien va deja su obra sin pagar y se lleva el sello Estuve ahí.</li>
-        <li><b>Cada sala</b> recibe una placa con QR para poner al lado de la pieza: conecta el objeto con su registro en la red.</li>
+        <li><b>Cada obra</b> puede tener su placa con QR, firmada por quien la expuso, para poner al lado de la pieza: conecta el objeto con su registro en la red.</li>
       </ul>
 
       <h3>Reglas que el contrato cumple</h3>
