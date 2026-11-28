@@ -21,7 +21,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "camera=(self), geolocation=()"
+          "value": "camera=(self), microphone=(), geolocation=(), payment=(), usb=()"
         },
         {
           "key": "Content-Security-Policy",
@@ -43,6 +43,14 @@
     },
     {
       "source": "/icono-(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
+    },
+    {
+      "source": "/favicon.(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
+    },
+    {
+      "source": "/manifest.webmanifest",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
     },
     {
