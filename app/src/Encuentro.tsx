@@ -31,10 +31,10 @@ function useQr(texto: string | null) {
 
 function Entrar({ sesion, para }: { sesion: Sesion; para: string }) {
   return (
-    <p>
-      <button className="btn lleno" onClick={sesion.entrar}>Entrar con billetera</button>{" "}
-      <span className="sub">para {para}</span>
-    </p>
+    <div className="entrar-para">
+      <p className="sub">Para {para.replace(/\.$/, "")}, entrá con tu billetera.</p>
+      <button className="btn lleno" onClick={sesion.entrar}>Entrar con billetera</button>
+    </div>
   );
 }
 

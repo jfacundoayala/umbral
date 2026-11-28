@@ -15,7 +15,8 @@ export function plata(minimas: bigint, codigo: string) {
   return `${n.toLocaleString("es-AR", { maximumFractionDigits: 2 })} ${codigo}`;
 }
 
-export const corta = (cuenta: string) => `${cuenta.slice(0, 4)}…${cuenta.slice(-4)}`;
+// Las uniones invisibles (U+2060) evitan que la cuenta se parta en dos renglones en el "…".
+export const corta = (cuenta: string) => `${cuenta.slice(0, 4)}⁠…⁠${cuenta.slice(-4)}`;
 export const enlaceTx = (hash: string) => `${RED.explorador}/tx/${hash}`;
 export const mensajeError = (e: unknown) => (e instanceof Error ? e.message : "Algo salió mal. Probá de nuevo.");
 

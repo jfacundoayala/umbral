@@ -1,7 +1,7 @@
 // Las pantallas, en el orden de la demo: portada → cielo → ficha (continuar, apoyar) → abrir → cobrar.
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { audioValido, fotoValida } from "./archivos";
-import { borrarRetirada, cambiarFavorito, constelacion, favoritosDe, obras, urlAudio, urlFoto, urlTarjeta, type Huella, type Orden } from "./base";
+import { borrarRetirada, cambiarFavorito, favoritosDe, urlAudio, urlFoto, urlTarjeta, type Huella, type Orden } from "./base";
 import { corta, enlaceTx, ir, mensajeError, MONEDAS, palabras, plata, type Moneda } from "./comun";
 import Constelacion from "./Constelacion";
 import AvisoPlaca from "./AvisoPlaca";
@@ -14,6 +14,7 @@ import type { Derechos, Documento, Firmar } from "./umbral";
 import { Movible } from "./Movible";
 import { SelloVivo } from "./SelloVivo";
 import { esObraFisica } from "./fisica";
+import { constelacionPrimero, obrasPrimero, ORDEN_INICIAL } from "./adelanto";
 
 // Lo que habla con la red (stellar-sdk y la billetera) se baja recién cuando hace falta:
 // el cielo y la ficha se dibujan sin esperarlo.
@@ -109,12 +110,12 @@ function BotonEntrar({ sesion, texto }: { sesion: Sesion; texto: string }) {
 // ---------------------------------------------------------------- Cielo
 
 export function Cielo() {
-  const [orden, setOrden] = useState<Orden>("huellas");
+  const [orden, setOrden] = useState<Orden>(ORDEN_INICIAL);
   const [lista, setLista] = useState<Huella[] | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
     let vivo = true;
-    obras(orden)
+    obrasPrimero(orden)
       .then((l) => vivo && (setLista(l), setError("")))
       .catch((e) => vivo && setError(mensajeError(e)));
     return () => {
@@ -225,7 +226,7 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
 
   useEffect(() => {
     let vivo = true;
-    constelacion(id)
+    constelacionPrimero(id)
       .then((d) => vivo && (setDatos(d), setError("")))
       .catch((e) => vivo && setError(mensajeError(e)));
     return () => {
@@ -283,7 +284,9 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
         </div>
         {desdePlaca && obra.estado !== "retirada" && <AvisoPlaca firmada={placaOk} obra={obra} />}
         <p className="sub">
-          {huellas.length} {huellas.length === 1 ? "huella" : "huellas"}. La obra está en el centro y cada huella sale de la que continúa. Tocá cualquiera para leerla y continuarla.
+          {huellas.length === 0
+            ? "Todavía no tiene huellas. Dejá la primera: escribí lo que te despertó la obra."
+            : `${huellas.length} ${huellas.length === 1 ? "huella" : "huellas"}. La obra está en el centro y cada huella sale de la que continúa. Tocá cualquiera para leerla y continuarla.`}
         </p>
         {conPlaca && (
           <a className="btn solo-escritorio" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
@@ -558,7 +561,7 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
         });
       }}
     >
-      <p className="rotulo">Continuar esta huella</p>
+      <p className="rotulo">{padre.id === obra.id ? "Dejar tu huella en esta obra" : "Continuar esta huella"}</p>
       <label className="campo">
         <span>Lo que te despertó</span>
         <textarea value={texto} maxLength={300} onChange={(e) => setTexto(e.target.value)} placeholder="Solo texto, hasta 300 caracteres" />

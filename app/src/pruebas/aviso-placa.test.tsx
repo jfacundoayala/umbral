@@ -4,6 +4,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Keypair } from "@stellar/stellar-sdk";
 import AvisoPlaca from "../AvisoPlaca";
+import { corta } from "../comun";
 import { mensajePlaca, placaFirmada, type ObraFirmable } from "../placa-firma";
 
 const ID = "d387c0738f34fd75510735cd50a625fd657be543f17183ab7910743c2a4deab6";
@@ -30,7 +31,7 @@ describe("aviso de la placa en la ficha", () => {
     expect(html).toContain('role="status"');
     expect(html).not.toContain("falsa");
     expect(html).toContain("✓ Placa firmada por la cuenta que expuso esta obra");
-    expect(html).toContain(`${artista.publicKey().slice(0, 4)}…${artista.publicKey().slice(-4)}`);
+    expect(html).toContain(corta(artista.publicKey()));
     expect(html).toContain("<b>D387-C073</b>");
   });
 

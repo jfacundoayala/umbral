@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './fuentes.css'
 import App from './App.tsx'
+import { adelantar } from './adelanto'
 
 // Si publicamos una versión nueva con la página abierta, los pedazos viejos ya no existen:
 // se recarga una sola vez para traer la versión nueva en vez de quedar en blanco.
@@ -12,6 +13,9 @@ window.addEventListener('vite:preloadError', (e) => {
   location.reload()
 })
 window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem('umbral-recargada'), 10_000))
+
+// Los datos de la primera pantalla salen ya, en paralelo con el código de esa pantalla.
+adelantar()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

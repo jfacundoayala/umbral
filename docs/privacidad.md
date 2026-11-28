@@ -1,10 +1,10 @@
-# Política de privacidad de umbral
+# Política de privacidad de UMBRAL
 
 Versión de prueba, 27/11/2026.
 
 ## Quién es responsable
 
-Facundo Ayala y Lucía Paz, equipo umbral.
+Facundo Ayala y Lucía Paz, equipo UMBRAL.
 
 ## Qué datos guardamos y para qué
 
@@ -12,9 +12,9 @@ Facundo Ayala y Lucía Paz, equipo umbral.
 |---|---|
 | La cuenta pública de tu billetera de Stellar | Saber quién expuso, continuó o apoyó cada obra y a quién le corresponde cobrar |
 | El nombre que elegís mostrar | Mostrarlo junto a tu huella |
-| Los textos, fotos y audios que publicás | Mostrarlos en umbral |
+| Los textos, fotos y audios que publicás | Mostrarlos en UMBRAL |
 | Tus favoritos | Mostrártelos cuando entrás con tu billetera |
-| Tu opinión, si completás "Contanos qué te pareció" (qué sos, cómo te fue, qué cambiarías y, si querés, un apodo) | Mejorar umbral. Solo si marcás la casilla, citarte en la entrega del hackatón. No se guarda tu cuenta |
+| Tu opinión, si completás "Contanos qué te pareció" (qué sos, cómo te fue, qué cambiarías y, si querés, un apodo) | Mejorar UMBRAL. Solo si marcás la casilla, citarte en la entrega del hackatón. No se guarda tu cuenta |
 
 No pedimos correo, teléfono, documento ni contraseña. No usamos tus datos para publicidad ni los vendemos.
 
@@ -24,7 +24,7 @@ Cada pago y cada huella dejan un registro público en la red de Stellar: tu cuen
 
 ## Dónde se guardan
 
-En los servidores de Supabase, en San Pablo, Brasil. Al usar umbral aceptás que tus datos se guarden ahí.
+En los servidores de Supabase, en San Pablo, Brasil. Al usar UMBRAL aceptás que tus datos se guarden ahí.
 
 ## Cuánto tiempo
 
