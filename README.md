@@ -48,14 +48,16 @@ La primera colección del museo es **Una ciudad que resuena · Colección 001**,
 6. Para la obra física, el artista imprime una **placa con QR firmada**. Quien tiene la obra enfrente escanea y deja su huella ahí mismo.
 7. Quien tiene cuenta guarda **favoritos**, gratis.
 
-Así se ve en la red de pruebas, con una obra de prueba:
+Así se ve en la red de pruebas:
 
 | | |
 |---|---|
-| ![Exponer una obra: quien la sube elige de quién son los derechos y ve a la derecha cómo va a quedar la obra y cuánto cuesta](docs/capturas/01-exponer.png) | ![Continuar una obra: el formulario dice que cuesta 10 XLM y cuánto va a quien hizo la obra](docs/capturas/02-continuar.png) |
+| ![Exponer una obra: quien la sube elige de quién son los derechos y ve a la derecha cómo va a quedar la obra, que cuesta 20 XLM y que después cada huella le deja el 80%](docs/capturas/01-exponer.png) | ![Continuar una huella de Entre raíces: el formulario dice que cuesta 10 XLM, que el 80% va a quien hizo la obra y el 20% a UMBRAL](docs/capturas/02-continuar.png) |
 | **1. Exponer.** Antes de firmar, quien sube la obra elige de quién son los derechos y ve cómo va a quedar y cuánto cuesta. | **2. Continuar.** Antes de firmar dice cuánto cuesta y que el 80% va a quien hizo la obra. Quien continúa no cobra. |
-| ![La constelación en 3D: la obra en el centro, sus huellas unidas con líneas y el rótulo de la huella elegida](docs/capturas/03-constelacion.png) | ![Ficha de una obra expuesta por invitación de una sala, con el sello Estuve ahí y su audio](docs/capturas/04-sello.png) |
-| **3. La constelación.** Gira en 3D: la obra queda en el centro y cada huella sale de la que continúa. Al tocar una, se lee su texto. | **4. Estuve ahí.** Una sala invitó a la artista y pagó su obra con su fondo. El sello sale del comprobante en la red: no se puede inventar. |
+| ![La constelación de Entre raíces: la obra en el centro, sus huellas unidas con líneas y el texto de la huella elegida](docs/capturas/03-constelacion.png) | ![El sello Estuve ahí como una moneda de bronce con relieve, en la portada](docs/capturas/04-sello.png) |
+| **3. La constelación.** Gira en 3D: la obra queda en el centro y cada huella sale de la que continúa. Al tocar una, se lee su texto. | **4. Estuve ahí.** Cuando una sala invita a alguien en la puerta y paga su obra con su fondo, la obra lleva este sello. Sale del comprobante en la red: no se puede inventar. |
+| ![La portada: Más allá de lo tangible, con la escultura Entre raíces y sus órbitas](docs/capturas/05-portada.png) | |
+| **5. La portada.** Una sola obra al centro y su constelación: se entiende sin explicar qué es una blockchain. | |
 
 ## Qué nos diferencia
 
