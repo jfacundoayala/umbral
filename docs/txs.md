@@ -66,31 +66,85 @@ Pagan en XLM, con dos cuentas de prueba nuevas: una artista y una persona del p�
 | Apoyar la obra | Público | "Gracias: tu apoyo llegó." | [a5323cea…](https://stellar.expert/explorer/testnet/tx/a5323cea9a0206c50a8027f07dfba116991974d7376fe8d6fa3c7dfcc219f2bb) |
 | La artista cobra | Artista | Saldo de 10,5 XLM a 0 | [6c09fa05…](https://stellar.expert/explorer/testnet/tx/6c09fa0516a570510a35f1c941924d55e2d4edeaba6723d8a193237165575a33) |
 
-## Colección 001 · Una ciudad que resuena
+## Colección del 28/11/2026
 
-Curaduría de Lucía Paz. Seis obras expuestas desde la web el 28/11/2026, cada una con su foto y 20 XLM. Cinco son obras de muestra. "La sopa paraguaya de Mirta" es una historia familiar real: la expone Lucía P. y su constelación empieza vacía.
+Doce obras expuestas desde la web, cada una con su foto (y su audio cuando tiene) y 20 XLM. "La sopa paraguaya de Mirta" la expone Lucía P.
 
 | Obra | Expone | Comprobante |
 |---|---|---|
-| [Entre raíces](https://umbralmuseo.vercel.app/#/obra/e11edfb7b8f6b72e5f3f6cd7f48e85229cf3dd5eef60825f999586ffa6d0f607) | Colección 001 (obra de muestra) | [bbd3e861…](https://stellar.expert/explorer/testnet/tx/bbd3e861620772741f35ae2175ec6009f3572961fe21b84cd46d87e432fa151c) |
-| [Trama de algodón](https://umbralmuseo.vercel.app/#/obra/a785e3e70f00ab0f7670ca1d832455b987078b09798ccf7361d2fbdd905f64a9) | Colección 001 (obra de muestra) | [a243ab63…](https://stellar.expert/explorer/testnet/tx/a243ab636df45f5dc6822673978ef0cc4beb598310420b560038ff0fa3de06ba) |
 | [La sopa paraguaya de Mirta](https://umbralmuseo.vercel.app/#/obra/8d78f8c880d97a97b4cc6127719c086707843d79a933e3b1c59ec3e6753d551b) | Lucía P. | [814c8f44…](https://stellar.expert/explorer/testnet/tx/814c8f44a8792536cc2a830da3f2948ae6a4f7e54be04d159a343ba0a447c20a) |
-| [Las voces del Impenetrable](https://umbralmuseo.vercel.app/#/obra/9710b66b5cd43c637d5ea76c726c13fbfe0ab13abec925fb92cc66f2595bd26a) | Colección 001 (obra de muestra), audio en preparación | [1534384e…](https://stellar.expert/explorer/testnet/tx/1534384e1c85ee22071f93b77e1928d5dc05873e2e9432812e5e26d44c97729f) |
-| [Frida](https://umbralmuseo.vercel.app/#/obra/7f1d2afb74b440ee4ff3c07ee3af6e7643add9823601455936a5a6c99a5e27d5) | Colección 001 (obra de muestra) | [22887742…](https://stellar.expert/explorer/testnet/tx/22887742cc88ee17e0c6d8a3e4854cc69bde7faa0009c4c700572fb9d5e9c10c) |
-| [Cestería de palma](https://umbralmuseo.vercel.app/#/obra/6814681e44916030685330cde2bec8e03354a661130690b888ec9c3d43806095) | Colección 001 (obra de muestra) | [f9419898…](https://stellar.expert/explorer/testnet/tx/f9419898c03b3bda06c2996c319a609875ee4c25a3695903196ed9a21865d566) |
+| [Entre raíces](https://umbralmuseo.vercel.app/#/obra/84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5) | Julián Romero | [bf9414b9…](https://stellar.expert/explorer/testnet/tx/bf9414b9fbc126356afbd205f5c5f54ab10f4f1844ae91b91c9a285e56f82e81) |
+| [Trama de algodón](https://umbralmuseo.vercel.app/#/obra/3659f7c92201365481b7156ed5a298383a87e1252b75b52af741ed25370cd7e6) | Rosa Benítez | [9a117d3b…](https://stellar.expert/explorer/testnet/tx/9a117d3baf46ccbcdf4dfe83dce8628fca256ec6592400750d367fbef0101f56) |
+| [Las voces del Impenetrable](https://umbralmuseo.vercel.app/#/obra/a02fc7a515f3743d7c34c7da2b98c8ea4875672f726ff87f5be25160e3fa2b57) | Martín Ojeda | [53e73c4c…](https://stellar.expert/explorer/testnet/tx/53e73c4c1d090065467ce68a5819a5e6c52f3b177aa4b1a8fc3ad8dc37b008f0) |
+| [Frida](https://umbralmuseo.vercel.app/#/obra/a3ea7865bc61ab8657234ed0aaed8de2e39c3d5f43596085c9f808d072016550) | Carla Méndez | [cc36c567…](https://stellar.expert/explorer/testnet/tx/cc36c567d75919251973d9582fa627b36cc592088705ee3b63c23baf91254d2c) |
+| [Cestería de palma](https://umbralmuseo.vercel.app/#/obra/73be8241b594c38d7ca9eed03fa2dde34c0563181810c9dad7b9c2973b63bafa) | Ana Galarza | [d1cbaa00…](https://stellar.expert/explorer/testnet/tx/d1cbaa001380cf9c440d846d1aeccb86f3d8301b511ea1841b73ce9a4ebbb595) |
+| [Lluvia en el techo de chapa](https://umbralmuseo.vercel.app/#/obra/de9f1d6046fbb3531c9c8f046cf39fa901157932584c6ae2b63d40ccc179b912) | Beatriz Leiva | [433e65e4…](https://stellar.expert/explorer/testnet/tx/433e65e453a3c6bd26a65df7bf65d6dbe71b04e673d4114288e57c143fde08c5) |
+| [Noche de verano en el barrio](https://umbralmuseo.vercel.app/#/obra/697b592a36591b0c58130e2641aa547193d916b7ff806032dd329cf6c36ff6a2) | Hugo Maidana | [674c1b4b…](https://stellar.expert/explorer/testnet/tx/674c1b4bc2dd47f02d1be6dc372b2f72570f90a4ae1f776558527de63096bcce) |
+| [La costanera del Paraná](https://umbralmuseo.vercel.app/#/obra/c2718482c1b2a223252a64beacd1968826ae90bc96910c6b55fbf55ac73a7e72) | Valentina Sosa | [694b5f9b…](https://stellar.expert/explorer/testnet/tx/694b5f9bca029867d7ad69fb74e9304b05e5d2cc127dc780b583b84e10764553) |
+| [La pava de la mañana](https://umbralmuseo.vercel.app/#/obra/9da2e812e6aa6c03814a44efcdd63bcad3b589758dd8fc0ffd52dd793f1e2094) | Ernesto Duarte | [acdc9479…](https://stellar.expert/explorer/testnet/tx/acdc94797d1d61ab0a87c3c4871bab878606ccdd48b5b497ae5fa0bb5f5eded3) |
+| [Carta a quienes todavía no llegaron](https://umbralmuseo.vercel.app/#/obra/609a3c9382621db501214c9174d340a540f48eb50dbf9cc84c853b7258781811) | Victoria Acosta | [f5cbf660…](https://stellar.expert/explorer/testnet/tx/f5cbf6601f19b4c355c3d183a4f8c010fba8e4170bdc04117b2cc4cbc562a350) |
+| [Cuando las puertas quedaban abiertas](https://umbralmuseo.vercel.app/#/obra/81a25c9fcaf2eea0093df4c63e3262b19c595745a6b14a3e5777df5f5e2e579a) | Marta Ríos | [50fd81d1…](https://stellar.expert/explorer/testnet/tx/50fd81d15ff8f1b6df45499b5cd92516fd13bf634162588f706ae7fa4e58fbd8) |
 
-### Primera tanda (reemplazada)
+### Huellas y apoyos
 
-Las mismas seis obras, expuestas primero con otro cierre en la descripción. Como la descripción entra en el código firmado, no se puede editar: se volvieron a exponer y estas quedan fuera de El cielo.
+Pagados en la red de pruebas desde varias cuentas, a través de la app.
 
-| Obra | Expone | Comprobante |
-|---|---|---|
-| [Entre raíces](https://umbralmuseo.vercel.app/#/obra/9ee8bab1aef222423dba5e444dac6711e53710ebc06697f56acf1eb9d28164ab) | Colección 001 (obra de muestra) | [61f327ff…](https://stellar.expert/explorer/testnet/tx/61f327ff397dd402a9e2728f7fc514778a93566adf93dc03ce38c1d75bc5cedc) |
-| [Trama de algodón](https://umbralmuseo.vercel.app/#/obra/457b0aaddfdb36c9c288b760bc240282d74bab68443220467dc5d1c15fa975a4) | Colección 001 (obra de muestra) | [46cf2800…](https://stellar.expert/explorer/testnet/tx/46cf280097c3082d8c09b4f1a1c50ad4106bbda33fe0e820564f5ca0a1d3cb69) |
-| [La sopa paraguaya de Mirta](https://umbralmuseo.vercel.app/#/obra/fc3d85853f491e1f4aacd69afbf9a590ecfc52c50d86bd1af1b5c3ee5bf65070) | Lucía P. | [36ddd3e0…](https://stellar.expert/explorer/testnet/tx/36ddd3e0ae2831908429be08f259ffefe2077d668d2dc351871dc95a497779b3) |
-| [Las voces del Impenetrable](https://umbralmuseo.vercel.app/#/obra/eaf896193daf133b4eab573a41b76d7162b2f5b18cd2030804e82879b6d4bb35) | Colección 001 (obra de muestra), sin audio todavía | [72a07f31…](https://stellar.expert/explorer/testnet/tx/72a07f312d125d92d018e5d346664c80c6744bc1ec3d28e317871d071840dd27) |
-| [Frida](https://umbralmuseo.vercel.app/#/obra/f64ef3f9c42005a7ead7efbe2c1421ca50bb6572851338da6e5d7daad2a554dd) | Colección 001 (obra de muestra) | [f80a8e9e…](https://stellar.expert/explorer/testnet/tx/f80a8e9efd2b60d7f97b99439a2e4bdfafa52b3199a5888f2c819a300172ff06) |
-| [Cestería de palma](https://umbralmuseo.vercel.app/#/obra/6ba5e56940b74c80c20dfde1df1091e0cb25b9d723afede8f28782641eaa269e) | Colección 001 (obra de muestra) | [10e16b04…](https://stellar.expert/explorer/testnet/tx/10e16b04cbf345c552302fe9ea7cdf98250602927e768fb46dc5c40ad3c5b96e) |
+| Obra | Qué | Dónde | Comprobante |
+|---|---|---|---|
+| Entre raíces | Huella de Elena | continúa la obra | [af642a4a…](https://stellar.expert/explorer/testnet/tx/af642a4aea6357b20aedc74944e83c3dc3fcc9288f2df9717469ae9aab21eecf) |
+| Entre raíces | Huella de Mateo | continúa a Elena | [1ac916d1…](https://stellar.expert/explorer/testnet/tx/1ac916d1ef04b0c26332a737cc438b3a7ad716acb33323db9f941cb5d2bf8b4e) |
+| Entre raíces | Huella de Valentina | continúa la obra | [8f674e63…](https://stellar.expert/explorer/testnet/tx/8f674e63d4f2793585aae714821ebf16c287e68d7a47fc9d946da058673a8347) |
+| Entre raíces | Huella de Rocío | continúa a Mateo | [a8fbbcc9…](https://stellar.expert/explorer/testnet/tx/a8fbbcc9ec828bd77b772598cbb5a636c874a0a8cbab94a88e8d3c2f8c22f2aa) |
+| Entre raíces | Huella de Joaquín | continúa la obra | [2fd81567…](https://stellar.expert/explorer/testnet/tx/2fd81567e937084585f27a05abd1b42b06ea20385dfe785302bc8de0ef52bd1f) |
+| Entre raíces | Apoyo de 5 XLM | a la obra | [10be5e3a…](https://stellar.expert/explorer/testnet/tx/10be5e3aa892fb2b03f325cec54c7b93a66085806a990a16be1c7e4bafa75894) |
+| Trama de algodón | Huella de Marta | continúa la obra | [79360440…](https://stellar.expert/explorer/testnet/tx/79360440aa916e10f1e86b0af011ce4cb13b813925f368b6c600fef72fa11c2a) |
+| Trama de algodón | Huella de Lautaro | continúa a Marta | [f55af8dd…](https://stellar.expert/explorer/testnet/tx/f55af8dd9512cd5ed13c3a66412fbb58f1009fef656ab54fce544faa149832c1) |
+| Trama de algodón | Huella de Sofía | continúa la obra | [a153bc2d…](https://stellar.expert/explorer/testnet/tx/a153bc2dfec5af7ed3c09475c803c14a01f1ef5f0e98bac5d3a02a882803090e) |
+| Trama de algodón | Huella de Gonzalo | continúa a Sofía | [f081241f…](https://stellar.expert/explorer/testnet/tx/f081241f94dcec7fe1a236017e7f2a1aa0cc9d463c479a27a23e3dad429938ec) |
+| Trama de algodón | Huella de Ana | continúa a Gonzalo | [dc844075…](https://stellar.expert/explorer/testnet/tx/dc844075484decbf3339020420a39c58d0b6e8c610d0997b2552e086a35a536c) |
+| Las voces del Impenetrable | Huella de Ramiro | continúa la obra | [68e60264…](https://stellar.expert/explorer/testnet/tx/68e60264475bf160a2a4c66a3a9178eec6e6fd381cefa95a963f7414ac66f665) |
+| Las voces del Impenetrable | Huella de Luz | continúa a Ramiro | [319502c1…](https://stellar.expert/explorer/testnet/tx/319502c1b49d09bf3c98b383a037a1d579ecee1187e4b244728d88849b3f4302) |
+| Las voces del Impenetrable | Huella de Ramiro | continúa a Luz | [bf5355cf…](https://stellar.expert/explorer/testnet/tx/bf5355cfff53930bc0e949feb551336624a68cf1e82d1b106bae7f7de3cd4975) |
+| Las voces del Impenetrable | Huella de Carla | continúa la obra | [49c6fdea…](https://stellar.expert/explorer/testnet/tx/49c6fdea4b5d9406d081892ef697d11c26d5474fcd561784ca944b10788f4b21) |
+| Frida | Huella de Nico | continúa la obra | [9d300be2…](https://stellar.expert/explorer/testnet/tx/9d300be229e85033f4f36dbd6f1e3e568643a42d9d40ee394bea212330d9f194) |
+| Frida | Huella de Belén | continúa a Nico | [8118db59…](https://stellar.expert/explorer/testnet/tx/8118db594f402ee8a10d4605fdee9ee49d5a3c066652a252f538d2f1a85ff2df) |
+| Frida | Huella de Tomás | continúa la obra | [86e2e990…](https://stellar.expert/explorer/testnet/tx/86e2e99015e3b88ad29ee050fb2159add72c500001640f6044ed9f1f73527712) |
+| Frida | Huella de Paula | continúa la obra | [f5b3c0a3…](https://stellar.expert/explorer/testnet/tx/f5b3c0a3ed8e77f11010624b4f4fba022a4d947d23191379859e9e21759d57dc) |
+| Frida | Huella de Mica | continúa a Paula | [3a6df8ee…](https://stellar.expert/explorer/testnet/tx/3a6df8ee96071d28b0524910ca268f32616ad184982e5c643a5c5b0eedf8bb6d) |
+| Frida | Apoyo de 3 XLM | a la obra | [c9fff56a…](https://stellar.expert/explorer/testnet/tx/c9fff56a6c8c793c7165a9c42cd3400e5ec94429cc4cfe02b5e5bb5c3033c238) |
+| Cestería de palma | Huella de Teresa | continúa la obra | [56ac9662…](https://stellar.expert/explorer/testnet/tx/56ac9662660858a0df415c1d1320029144f66641fdb6bbaa86cb907cee796e79) |
+| Cestería de palma | Huella de Julieta | continúa a Teresa | [cbf97880…](https://stellar.expert/explorer/testnet/tx/cbf978803968ba6ed56d7499be5e5f170669464d1430f3b6d74c42beda2d64d5) |
+| Cestería de palma | Huella de Teresa | continúa a Julieta | [87bcf58c…](https://stellar.expert/explorer/testnet/tx/87bcf58ce8f073cbfdd74b6882fa8813a606a352c5196c2b7137c4ac88d038d4) |
+| Cestería de palma | Huella de Martín | continúa la obra | [6d95a13a…](https://stellar.expert/explorer/testnet/tx/6d95a13af492920e88926270c30953fbe57e9ccce3fbcd6fc4fe4a92f56cdad8) |
+| Lluvia en el techo de chapa | Huella de Carolina | continúa la obra | [4f62a18d…](https://stellar.expert/explorer/testnet/tx/4f62a18d7bfc4503505fcddf87155d3fa70722ea6e948607ec52271fc4369248) |
+| Lluvia en el techo de chapa | Huella de Diego | continúa a Carolina | [0bad02a0…](https://stellar.expert/explorer/testnet/tx/0bad02a05da9102f6cfc8ce1b86a2a29b8d224761c64921128d4d2e0b31feea6) |
+| Lluvia en el techo de chapa | Huella de Flor | continúa la obra | [db1b84db…](https://stellar.expert/explorer/testnet/tx/db1b84dbc90592e9a1865e6574363497310fec1f202f21152a816541bdc8a83d) |
+| Noche de verano en el barrio | Huella de Pablo | continúa la obra | [3b1ac5c5…](https://stellar.expert/explorer/testnet/tx/3b1ac5c55eab75d5929437a841e592d686a9d87e7c9b32f10ba4b892193812a5) |
+| Noche de verano en el barrio | Huella de Inés | continúa a Pablo | [6da0a035…](https://stellar.expert/explorer/testnet/tx/6da0a03538e5e0dbfd5072a6371cd9a2cd8f87cb527ea518cc35980c9d9b358b) |
+| Noche de verano en el barrio | Huella de Lucas | continúa la obra | [4ce89c34…](https://stellar.expert/explorer/testnet/tx/4ce89c34f57fccbdb7238ab64d16234528179f95677184fd1ce7579fcc2d744a) |
+| La costanera del Paraná | Huella de Agustina | continúa la obra | [bb92e8da…](https://stellar.expert/explorer/testnet/tx/bb92e8dac05f31bba327b0d2eaf02de17644af60e2188ca811fef0b97265be1e) |
+| La costanera del Paraná | Huella de Martín | continúa a Agustina | [197c1e10…](https://stellar.expert/explorer/testnet/tx/197c1e1088055128219ef6fee09442bff6f7e116dacd1f762ce452048e1abfd9) |
+| La pava de la mañana | Huella de Sergio | continúa la obra | [4db3b318…](https://stellar.expert/explorer/testnet/tx/4db3b318bc3b0e46950b09b7d4ca3ced0d264289c07fd4365797452ecc02d7eb) |
+| La pava de la mañana | Huella de Lorena | continúa a Sergio | [6f424b4c…](https://stellar.expert/explorer/testnet/tx/6f424b4cbf4a428b5cb7ed338720e743821d7eca425a029c2e7b2ac5cdc0dc18) |
+| La pava de la mañana | Huella de Sergio | continúa a Lorena | [8a5b2cb9…](https://stellar.expert/explorer/testnet/tx/8a5b2cb9b81098c7689178cff81778bd70277c1998bc69161910665a65ca3d83) |
+| Carta a quienes todavía no llegaron | Huella de Isabel | continúa la obra | [486764c5…](https://stellar.expert/explorer/testnet/tx/486764c5bbd75f0540763ce170f313b4653bf8663d479445e4abe1f62a8a38ee) |
+| Carta a quienes todavía no llegaron | Huella de Franco | continúa a Isabel | [0a1417c6…](https://stellar.expert/explorer/testnet/tx/0a1417c620fdaada6f81900a72ba689a7075ffffa5d0f5aaa72153b2520f7629) |
+| Carta a quienes todavía no llegaron | Huella de Julia | continúa la obra | [ec8653f0…](https://stellar.expert/explorer/testnet/tx/ec8653f02818bda169d8ebe82b2ee09e8e968bff6777c68884dda10479bf9dcf) |
+| Cuando las puertas quedaban abiertas | Huella de Ricardo | continúa la obra | [a1d7d189…](https://stellar.expert/explorer/testnet/tx/a1d7d18983018478c1e17de0165d02b2e4dfffb9b593042726fc86e95a7bf50c) |
+| Cuando las puertas quedaban abiertas | Huella de Camila | continúa a Ricardo | [72067454…](https://stellar.expert/explorer/testnet/tx/7206745432d16a684dca71b61c476ef65ce69c3d66bb233303d9056ce83d2de0) |
+| La sopa paraguaya de Mirta | Huella de Graciela | continúa la obra | [effef484…](https://stellar.expert/explorer/testnet/tx/effef484c847363e9a2a4595e6a53f312d3e272c1e4dedf8d27def2a67f7090d) |
+| La sopa paraguaya de Mirta | Huella de Hernán | continúa a Graciela | [a578e5ae…](https://stellar.expert/explorer/testnet/tx/a578e5ae758e1a2c09f9805f57c136132f5ce64b4043b8ad5574b4a2094863e2) |
+| La sopa paraguaya de Mirta | Huella de Silvia | continúa a Hernán | [4f613206…](https://stellar.expert/explorer/testnet/tx/4f613206b071eb4be3d4324302a53f452f5dcf6bb48e43a80a84a086a20df70a) |
+| La sopa paraguaya de Mirta | Huella de Omar | continúa la obra | [51720e78…](https://stellar.expert/explorer/testnet/tx/51720e7860a9fc79dc4f5525a364d7c3ef1285b8674a499e310ea539aa7b9be2) |
+| La sopa paraguaya de Mirta | Huella de Rosa | continúa la obra | [4e453b7b…](https://stellar.expert/explorer/testnet/tx/4e453b7ba153309addb9be1870536f22eeb1a1d991efb1198e3dfd54b4763911) |
+
+### Versiones reemplazadas
+
+La descripción entra en el código firmado y no se puede editar: para cambiar un texto hay que volver a exponer la obra. Estas versiones anteriores quedan fuera de El cielo.
+
+- Primera tanda de la Colección 001: [9ee8bab1…](https://umbralmuseo.vercel.app/#/obra/9ee8bab1aef222423dba5e444dac6711e53710ebc06697f56acf1eb9d28164ab), [457b0aad…](https://umbralmuseo.vercel.app/#/obra/457b0aaddfdb36c9c288b760bc240282d74bab68443220467dc5d1c15fa975a4), [fc3d8585…](https://umbralmuseo.vercel.app/#/obra/fc3d85853f491e1f4aacd69afbf9a590ecfc52c50d86bd1af1b5c3ee5bf65070), [eaf89619…](https://umbralmuseo.vercel.app/#/obra/eaf896193daf133b4eab573a41b76d7162b2f5b18cd2030804e82879b6d4bb35), [f64ef3f9…](https://umbralmuseo.vercel.app/#/obra/f64ef3f9c42005a7ead7efbe2c1421ca50bb6572851338da6e5d7daad2a554dd), [6ba5e569…](https://umbralmuseo.vercel.app/#/obra/6ba5e56940b74c80c20dfde1df1091e0cb25b9d723afede8f28782641eaa269e).
+- Segunda tanda de la Colección 001 (con sus huellas): [e11edfb7…](https://umbralmuseo.vercel.app/#/obra/e11edfb7b8f6b72e5f3f6cd7f48e85229cf3dd5eef60825f999586ffa6d0f607), [a785e3e7…](https://umbralmuseo.vercel.app/#/obra/a785e3e70f00ab0f7670ca1d832455b987078b09798ccf7361d2fbdd905f64a9), [9710b66b…](https://umbralmuseo.vercel.app/#/obra/9710b66b5cd43c637d5ea76c726c13fbfe0ab13abec925fb92cc66f2595bd26a), [7f1d2afb…](https://umbralmuseo.vercel.app/#/obra/7f1d2afb74b440ee4ff3c07ee3af6e7643add9823601455936a5a6c99a5e27d5), [6814681e…](https://umbralmuseo.vercel.app/#/obra/6814681e44916030685330cde2bec8e03354a661130690b888ec9c3d43806095).
+- Tercera tanda: Voces con audio y las seis obras sonoras y escritas: [18774dce…](https://umbralmuseo.vercel.app/#/obra/18774dce94bbdd3701b37ba8490b4befe20f68c2b07c7aea0e72498f20e6350b), [e013d989…](https://umbralmuseo.vercel.app/#/obra/e013d989a30ef9637144aea6e21883c37a39fb4c80af3ffe77f48123df0cef44), [907d8a60…](https://umbralmuseo.vercel.app/#/obra/907d8a6090bb14313690f49b2f66b30989387a6c9761d89393046db4a6be2424), [d89a5ac5…](https://umbralmuseo.vercel.app/#/obra/d89a5ac5d501fbe5293b20b82d6f73fee2acdfff49809ce0c38e69116b1499a1), [34886974…](https://umbralmuseo.vercel.app/#/obra/3488697455c610e91b9b48d3e16fa52173bb3891696b4243530e3cc95f444e21), [7650c56e…](https://umbralmuseo.vercel.app/#/obra/7650c56e4291f0ab9da34f0417aab259ab161cb137c88872f2cb07af98588d9b), [33656a1b…](https://umbralmuseo.vercel.app/#/obra/33656a1ba6684df7d5d7e8218917d3b1660d9a007f30c8c4e4e6bbd4301d869c).
 
 ## Lo que no está en esta lista
 
