@@ -23,7 +23,7 @@ async function sinDesborde(page: Page) {
 test("la portada dice qué es UMBRAL y ofrece por dónde seguir", async ({ page }) => {
   const errores = vigilar(page);
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("museo online");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("no termina en la obra");
   await expect(page.getByText("¿A qué venís?")).toBeVisible();
   await expect(page.getByRole("button", { name: /Vengo a mirar/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /Quiero exponer mi obra/ })).toBeVisible();
@@ -152,7 +152,7 @@ test("las páginas legales cargan y una ruta inventada vuelve a la portada", asy
     await expect(page.getByRole("heading").first()).toBeVisible();
   }
   await page.goto("/#/no-existe");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("museo online");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("no termina en la obra");
   expect(errores).toEqual([]);
 });
 

@@ -29,7 +29,7 @@ export function tarjeta(origen: string, id: string, obra: Obra | null): string {
     ? recortar(obra.descripcion)
     : obra?.nombre
       ? `Obra de ${obra.nombre} en UMBRAL`
-      : "Un museo online donde le respondés al arte.";
+      : "El museo donde el arte no termina en la obra.";
   const imagen = obra?.foto_ruta ? `${SUPABASE_URL}/storage/v1/object/public/obras/${obra.foto_ruta}` : `${origen}/og.png`;
   const [t, d, i, u, f] = [titulo, descripcion, imagen, `${origen}/o/${id}`, ficha].map(escapar);
   return `<!doctype html>

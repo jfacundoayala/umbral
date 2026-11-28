@@ -36,8 +36,8 @@ export default function Portada() {
   return (
     <>
       <section className="portada portada-centrada">
-        <p className="rotulo portada-rotulo">Más allá de lo tangible · Resistencia, Chaco</p>
-        <h1>Un museo online donde le respondés al arte.</h1>
+        <p className="rotulo portada-rotulo">Más allá de lo tangible</p>
+        <h1>El museo donde el arte no termina en la obra.</h1>
         <p className="bajada">
           Abrís una obra y escribís lo que te hizo sentir: a eso le decimos <b>huella</b>. Queda junto a la obra, a la vista de todos, y el
           artista recibe el 80% al momento.
