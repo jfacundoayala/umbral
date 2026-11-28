@@ -18,6 +18,10 @@ const ESTRIAS = Array.from({ length: 96 }, (_, i) => {
   return `M${(c * 141).toFixed(1)} ${(s * 141).toFixed(1)} L${(c * 151).toFixed(1)} ${(s * 151).toFixed(1)}`;
 }).join(" ");
 
+/** Reverso: la obra al centro y sus huellas alrededor, unidas. */
+const REVERSO_PUNTOS: [number, number, number][] = [[0, 0, 9], [-44, -26, 6], [38, -38, 5], [50, 18, 6], [-30, 34, 5], [-70, 6, 4]];
+const REVERSO_LINEAS = "M0 0 L-44 -26 L-70 6 M0 0 L38 -38 M0 0 L50 18 M0 0 L-30 34";
+
 /** `chico`: sin textos, para el costado de la ficha. */
 export function SelloVivo({ chico = false, className = "" }: { chico?: boolean; className?: string }) {
   const id = useId().replace(/:/g, "");
@@ -26,7 +30,34 @@ export function SelloVivo({ chico = false, className = "" }: { chico?: boolean; 
   const u = (n: string) => `url(#${n}-${id})`;
 
   return (
-    <Movible className={`sello-vivo sello-moneda ${chico ? "sello-vivo-chico" : ""} ${className}`}>
+    <Movible
+      className={`sello-vivo sello-moneda ${chico ? "sello-vivo-chico" : ""} ${className}`}
+      forma="moneda"
+      grosor={chico ? 4 : 16}
+      dorso={
+        <svg viewBox="-160 -160 320 320" aria-hidden="true">
+          <circle r="152" fill={u("canto")} />
+          <path d={ESTRIAS} stroke="#3E1E0E" strokeOpacity=".55" strokeWidth={chico ? 3 : 1.6} />
+          <circle r="140" fill={u("cara")} />
+          <circle r="140" fill="#000" filter={u("grano")} />
+          <circle r="129" fill="none" stroke="#B77443" strokeWidth="4" filter={u("relieve")} />
+          {/* Reverso: una constelación chica, la que arma cada obra con sus huellas. */}
+          <g filter={u("relieve")} transform={chico ? "scale(1.3)" : "translate(0 -34)"}>
+            <path d={REVERSO_LINEAS} fill="none" stroke="#B87445" strokeWidth={chico ? 4 : 2.4} strokeLinecap="round" />
+            {REVERSO_PUNTOS.map(([x, y, r], i) => (
+              <circle key={i} cx={x} cy={y} r={chico ? r * 1.6 : r} fill={i === 0 ? "#7A3B1E" : "#BE7A49"} />
+            ))}
+          </g>
+          {!chico && (
+            <g filter={u("relieve")}>
+              <text className="sv-texto" y="50" textAnchor="middle">UMBRAL</text>
+              <text className="sv-modo" y="72" textAnchor="middle">MUSEO VIVO</text>
+              <text className="sv-modo" y="92" textAnchor="middle" style={{ fontSize: 10 }}>RESISTENCIA · CHACO</text>
+            </g>
+          )}
+        </svg>
+      }
+    >
       <svg
         viewBox="-160 -160 320 320"
         role="img"

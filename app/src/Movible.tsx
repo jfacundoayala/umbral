@@ -1,7 +1,9 @@
 // Una obra que se puede mover: se inclina siguiendo el cursor, se gira y se desliza al arrastrarla,
 // y vuelve sola a su lugar con un resorte, como las constelaciones. Con `zoom`, doble clic (o doble toque)
 // acerca la imagen en ese punto; acercada, se arrastra para recorrerla y la rueda cambia el aumento.
-import { useEffect, useRef, type ReactNode } from "react";
+// Con `vuelta`, gira entera como un objeto: arrastrada da la vuelta completa y muestra su canto y su dorso;
+// al soltarla queda de frente o de dorso, la cara más cercana. `forma` dibuja el canto: un cuadro o una moneda.
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
 const MAX_GIRO_Y = 55;
 const MAX_GIRO_X = 35;
@@ -9,7 +11,22 @@ const MAX_DESLIZ = 36;
 const AUMENTO = 2.4;
 const AUMENTO_MAX = 4;
 
-export function Movible({ children, className = "", zoom = false }: { children: ReactNode; className?: string; zoom?: boolean }) {
+type Props = {
+  children: ReactNode;
+  className?: string;
+  zoom?: boolean;
+  /** Lo que se ve al darla vuelta. Si está, la pieza gira 360°. */
+  dorso?: ReactNode;
+  forma?: "cuadro" | "moneda";
+  /** Grosor del canto, en píxeles. */
+  grosor?: number;
+};
+
+/** Capas del canto de una moneda: discos apilados que, de costado, se ven como un cilindro. */
+const CAPAS = 12;
+
+export function Movible({ children, className = "", zoom = false, dorso, forma = "cuadro", grosor = 14 }: Props) {
+  const vuelta = dorso !== undefined;
   const caja = useRef<HTMLSpanElement>(null);
   const movio = useRef(false);
 
@@ -17,6 +34,8 @@ export function Movible({ children, className = "", zoom = false }: { children: 
     const el = caja.current;
     if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     // Estado: giro (rx, ry), desliz (tx, ty) y sus velocidades. "meta" es hacia dónde vuelve el resorte.
+    // "cara" es el ángulo de la cara que queda al frente: 0 el frente, 180 el dorso (y sus vueltas).
+    let cara = 0;
     const s = { rx: 0, ry: 0, tx: 0, ty: 0, vrx: 0, vry: 0, vtx: 0, vty: 0, metaX: 0, metaY: 0, z: 1, zMeta: 1, px: 0, py: 0, pxMeta: 0, pyMeta: 0 };
     let ultimoToque = { t: 0, x: 0, y: 0 };
     const acercada = () => s.zMeta > 1.01;
@@ -26,7 +45,7 @@ export function Movible({ children, className = "", zoom = false }: { children: 
 
     const pintar = () => {
       const escala = arrastre ? 1.04 : 1 + Math.min(0.02, (Math.abs(s.rx) + Math.abs(s.ry)) / 2000);
-      el.style.transform = `perspective(900px) translate3d(${s.tx.toFixed(1)}px, ${s.ty.toFixed(1)}px, 0) rotateX(${s.rx.toFixed(2)}deg) rotateY(${s.ry.toFixed(2)}deg) scale(${escala.toFixed(3)})`;
+      el.style.transform = `perspective(${vuelta ? 1400 : 900}px) translate3d(${s.tx.toFixed(1)}px, ${s.ty.toFixed(1)}px, 0) rotateX(${s.rx.toFixed(2)}deg) rotateY(${s.ry.toFixed(2)}deg) scale(${escala.toFixed(3)})`;
       const sombra = 10 + Math.abs(s.ry) / 3 + Math.abs(s.rx) / 3;
       el.style.setProperty("--sombra-x", `${(-s.ry / 4).toFixed(1)}px`);
       el.style.setProperty("--sombra-y", `${(8 + s.rx / 4).toFixed(1)}px`);
@@ -92,17 +111,18 @@ export function Movible({ children, className = "", zoom = false }: { children: 
     const encima = (e: PointerEvent) => {
       if (arrastre || e.pointerType === "touch") return;
       if (acercada()) {
-        s.metaX = s.metaY = 0;
+        s.metaX = 0;
+        s.metaY = cara;
         return;
       }
       const r = el.getBoundingClientRect();
-      s.metaY = ((e.clientX - r.left) / r.width - 0.5) * 16;
+      s.metaY = cara + ((e.clientX - r.left) / r.width - 0.5) * 16;
       s.metaX = -((e.clientY - r.top) / r.height - 0.5) * 12;
       despertar();
     };
     const salir = () => {
       s.metaX = 0;
-      s.metaY = 0;
+      s.metaY = cara;
       despertar();
     };
     const bajar = (e: PointerEvent) => {
@@ -142,12 +162,15 @@ export function Movible({ children, className = "", zoom = false }: { children: 
       }
       const ahora = performance.now();
       const dt = Math.max(8, ahora - arrastre.t);
-      s.ry = limitar(s.ry + dx * 0.45, MAX_GIRO_Y);
+      const fy = vuelta ? 0.6 : 0.45;
+      s.ry = vuelta ? s.ry + dx * fy : limitar(s.ry + dx * fy, MAX_GIRO_Y);
       s.rx = limitar(s.rx - dy * 0.35, MAX_GIRO_X);
-      s.tx = limitar(s.tx + dx * 0.25, MAX_DESLIZ);
-      s.ty = limitar(s.ty + dy * 0.18, MAX_DESLIZ);
+      if (!vuelta) {
+        s.tx = limitar(s.tx + dx * 0.25, MAX_DESLIZ);
+        s.ty = limitar(s.ty + dy * 0.18, MAX_DESLIZ);
+      }
       // La velocidad del último tramo queda como impulso al soltar.
-      s.vry = ((dx * 0.45) / dt) * 16;
+      s.vry = ((dx * fy) / dt) * 16;
       s.vrx = ((-dy * 0.35) / dt) * 16;
       arrastre.ux = e.clientX;
       arrastre.uy = e.clientY;
@@ -159,19 +182,30 @@ export function Movible({ children, className = "", zoom = false }: { children: 
       if (zoom && e.pointerType !== "mouse" && !movio.current) {
         const ahora = performance.now();
         if (ahora - ultimoToque.t < 320 && Math.hypot(e.clientX - ultimoToque.x, e.clientY - ultimoToque.y) < 30) {
-          aumentar(acercada() ? 1 : AUMENTO, e.clientX, e.clientY);
+          if (deDorso()) alFrente();
+          else aumentar(acercada() ? 1 : AUMENTO, e.clientX, e.clientY);
           ultimoToque = { t: 0, x: 0, y: 0 };
         } else ultimoToque = { t: ahora, x: e.clientX, y: e.clientY };
       }
       arrastre = null;
       el.classList.remove("moviendo");
+      // Queda la cara más cercana, contando el impulso: un tirón fuerte la da vuelta.
+      if (vuelta) cara = Math.round((s.ry + s.vry * 6) / 180) * 180;
       s.metaX = 0;
-      s.metaY = 0;
+      s.metaY = cara;
       despertar();
     };
 
+    /** El zoom es solo de frente: si está de dorso, primero la da vuelta. */
+    const deDorso = () => vuelta && ((cara % 360) + 360) % 360 === 180;
+    const alFrente = () => {
+      cara = Math.round(s.ry / 360) * 360;
+      s.metaY = cara;
+      despertar();
+    };
     const dobleClic = (e: MouseEvent) => {
       e.preventDefault();
+      if (deDorso()) return alFrente();
       aumentar(acercada() ? 1 : AUMENTO, e.clientX, e.clientY);
     };
     const rueda = (e: WheelEvent) => {
@@ -201,13 +235,14 @@ export function Movible({ children, className = "", zoom = false }: { children: 
       el.removeEventListener("dblclick", dobleClic);
       el.removeEventListener("wheel", rueda);
     };
-  }, [zoom]);
+  }, [zoom, vuelta]);
 
   return (
     <span
       ref={caja}
-      className={`movible ${zoom ? "movible-zoom" : ""} ${className}`}
-      title={zoom ? "Arrastrala para girarla. Doble clic para acercar." : undefined}
+      className={`movible ${zoom ? "movible-zoom" : ""} ${vuelta ? `movible-vuelta vuelta-${forma}` : ""} ${className}`}
+      style={vuelta ? ({ "--grosor": `${grosor}px` } as CSSProperties) : undefined}
+      title={zoom ? (vuelta ? "Arrastrala para darla vuelta. Doble clic para acercar." : "Arrastrala para girarla. Doble clic para acercar.") : undefined}
       onDragStart={(e) => e.preventDefault()}
       onClickCapture={(e) => {
         // Si fue un arrastre, no es un clic: no abre la obra.
@@ -218,7 +253,19 @@ export function Movible({ children, className = "", zoom = false }: { children: 
         }
       }}
     >
-      {children}
+      {vuelta ? (
+        <>
+          <span className="cara cara-frente">{children}</span>
+          {forma === "cuadro"
+            ? ["izq", "der", "arr", "aba"].map((l) => <span key={l} className={`canto canto-${l}`} aria-hidden="true" />)
+            : Array.from({ length: CAPAS }, (_, i) => (
+                <span key={i} className="capa" aria-hidden="true" style={{ transform: `translateZ(${(((i + 0.5) / CAPAS - 0.5) * grosor).toFixed(2)}px)` }} />
+              ))}
+          <span className="cara cara-dorso">{dorso}</span>
+        </>
+      ) : (
+        children
+      )}
     </span>
   );
 }

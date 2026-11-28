@@ -1,11 +1,12 @@
 // Portada (opción 2 de Lucía, 28/11): composición centrada, una obra suspendida entre órbitas finas
 // y una sola acción. Mirar es libre y no pide cuenta.
 import { Movible } from "./Movible";
+import { OBRA_CON_SELLO } from "./base";
 import { ir } from "./comun";
 import { PortadaMas } from "./PortadaMas";
 
-/** La idea en tres pasos, sin hablar de dinero: eso se cuenta más abajo, en "Cómo funciona". */
-const PASOS = ["Exponé lo que querés que quede", "Quien lo ve deja su huella", "Crece como una constelación"];
+/** Qué pasa, en palabras de todos los días. El 80% se explica más abajo, en "Cómo funciona". */
+const PASOS = ["Abrís una obra", "Le dejás tu huella: lo que te hizo sentir", "El artista recibe el 80% al momento"];
 
 /** "Entre raíces", primera obra de la Colección 001. */
 const OBRA_PORTADA = "84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5";
@@ -36,10 +37,27 @@ export default function Portada() {
   return (
     <>
       <section className="portada portada-centrada">
-        <p className="rotulo portada-rotulo">Museo vivo · Resistencia, Chaco</p>
-        <h1>Más allá de lo tangible.</h1>
-        <p className="idea">UMBRAL guarda lo que no querés perder.</p>
-        <p className="bajada">Una obra, un objeto, un recuerdo. Lo exponés, queda sellado en la red y quienes lo ven le dejan su huella.</p>
+        <p className="rotulo portada-rotulo">Más allá de lo tangible · Resistencia, Chaco</p>
+        <h1>Un museo online donde le respondés al arte.</h1>
+        <p className="bajada">
+          Abrís una obra y escribís lo que te hizo sentir: a eso le decimos <b>huella</b>. Queda junto a la obra, a la vista de todos, y el
+          artista recibe el 80% al momento.
+        </p>
+        <p className="portada-pregunta">¿A qué venís?</p>
+        <div className="portada-elegir">
+          <button className="elegir elegir-mirar" onClick={() => ir("/cielo")}>
+            <span className="elegir-titulo">Vengo a mirar <span aria-hidden="true">→</span></span>
+            <span className="elegir-sub">Recorré las obras gratis, sin crear una cuenta.</span>
+          </button>
+          <button className="elegir elegir-exponer" onClick={() => ir("/abrir")}>
+            <span className="elegir-titulo">Quiero exponer mi obra <span aria-hidden="true">→</span></span>
+            <span className="elegir-sub">Subí una foto de tu obra y cobrá por cada huella que reciba.</span>
+          </button>
+        </div>
+        <p className="libre">
+          ¿Tenés una sala o un museo?{" "}
+          <a href={`#/obra/${OBRA_CON_SELLO}`}>Mirá cómo funciona un encuentro en persona</a>.
+        </p>
         <div className="portada-escena">
           <Orbitas />
           <button className="portada-obra" onClick={() => ir(`/obra/${OBRA_PORTADA}`)} aria-label="Ver la obra Entre raíces y sus huellas">
@@ -56,10 +74,6 @@ export default function Portada() {
             </li>
           ))}
         </ol>
-        <button className="entrar" onClick={() => ir("/cielo")}>
-          Explorá el museo <span aria-hidden="true">→</span>
-        </button>
-        <p className="libre">Mirar es libre. No necesitás una cuenta.</p>
         <p className="donde">En museos, galerías y encuentros, en persona o virtuales.</p>
       </section>
       <PortadaMas />

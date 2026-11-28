@@ -328,11 +328,26 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
       ) : esObra ? (
         <>
           {h.foto_ruta && (
-            <Movible className="movible-foto" zoom>
+            <Movible
+              className="movible-foto"
+              zoom
+              grosor={16}
+              dorso={
+                <span className="dorso-cuadro">
+                  <span className="etiqueta">
+                    <span className="rotulo">UMBRAL · Museo vivo</span>
+                    <strong>{h.titulo}</strong>
+                    {h.nombre && <span>{h.nombre}</span>}
+                    <span>Expuesta el {fecha}</span>
+                    <span>Cuenta {corta(h.autor)}</span>
+                  </span>
+                </span>
+              }
+            >
               <img className="foto" src={urlFoto(h.foto_ruta)} alt={`Foto de la obra ${h.titulo ?? ""}`} />
             </Movible>
           )}
-          {h.foto_ruta && <p className="pista-zoom">Arrastrala para girarla. Doble clic o doble toque para acercar.</p>}
+          {h.foto_ruta && <p className="pista-zoom">Arrastrala de costado para darla vuelta y ver su dorso. Doble clic o doble toque para acercar.</p>}
           <h3>{h.titulo}</h3>
           {h.descripcion && <p>{h.descripcion}</p>}
           {h.audio_ruta && <Reproductor src={urlAudio(h.audio_ruta)} />}
