@@ -152,6 +152,29 @@ textarea { min-height: 90px; resize: vertical; }
 .monto input { width: 100px; border: 1px solid var(--tinta); background: transparent; padding: 8px; }
 .estado { font-size: 13px; color: var(--petroleo); min-height: 1.4em; }
 .estado p { margin: 0; }
+/* Portada centrada (opción 2 de Lucía) */
+.portada-centrada { display: flex; flex-direction: column; align-items: center; text-align: center; padding: clamp(28px, 5vh, 56px) var(--margen) 48px; min-height: calc(100svh - 90px); }
+.portada-centrada > * { position: relative; z-index: 2; }
+.portada-centrada .estela { position: absolute; z-index: 1; }
+.portada-rotulo { margin: 0 0 10px; }
+.portada-centrada h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(40px, 6.2vw, 92px); line-height: 1; letter-spacing: -.02em; margin: 0; }
+.portada-escena { position: relative; width: min(100%, 900px); aspect-ratio: 1000 / 520; display: grid; place-items: center; margin: 6px 0 4px; }
+.orbitas { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; color: var(--petroleo); }
+.orbita { transform-box: view-box; transform-origin: 50% 50%; }
+.portada-obra { position: relative; width: 46%; aspect-ratio: 1; padding: 0; border: 0; background: none; cursor: pointer; }
+.portada-obra img { width: 100%; height: 100%; object-fit: cover; display: block; mix-blend-mode: multiply; -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent 100%); mask-image: radial-gradient(closest-side, #000 72%, transparent 100%); transition: transform .9s ease; }
+.portada-obra:hover img { transform: scale(1.03); }
+.portada-centrada .bajada { margin: 0 0 22px; max-width: 32em; }
+.libre { margin: 14px 0 0; font-size: 13px; color: var(--tenue); }
+@media (prefers-reduced-motion: no-preference) {
+  .portada-obra img { animation: flotar 9s ease-in-out infinite; }
+  @keyframes flotar { 50% { translate: 0 -10px; } }
+}
+@media (max-width: 560px) {
+  .portada-escena { aspect-ratio: 1 / .8; }
+  .portada-obra { width: 72%; }
+}
+
 .pedir-cuenta p { margin: 0 0 8px; font-size: 13px; }
 
 /* ---------- Cobrar ---------- */
