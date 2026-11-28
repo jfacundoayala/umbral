@@ -18,7 +18,11 @@ const radioDe = (nivel: number) => (nivel ? ORBITAS[nivel - 1] ?? ORBITAS[ORBITA
 /** Inclinación con la que se mira al principio: los anillos se ven como elipses. */
 const INCLINACION = 0.42;
 /** Vuelta automática, en radianes por segundo. */
-const VELOCIDAD_SOLA = 0.085;
+const VELOCIDAD_SOLA = 0.12;
+/** Mientras gira sola, la mirada sube y baja apenas, para que se note la profundidad. */
+const VAIVEN = 0.07;
+/** Desenfoque máximo de lo que queda más lejos, en unidades del dibujo. */
+const DESENFOQUE_MAX = 1.6;
 /** Cuánto espera quieta después de que alguien la tocó antes de volver a girar sola. */
 const ESPERA_MS = 7000;
 /** Tamaño de los nombres en pantalla en el celular, en píxeles. */
@@ -208,7 +212,7 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
   const reducida = useConsulta("(prefers-reduced-motion: reduce)");
   const base = angosta ? 190 : 300;
   const rMax = Math.max(0, ...puntos.map((p) => radioDe(p.nivel)));
-  const distancia = Math.max(rMax, base) * 3.4;
+  const distancia = Math.max(rMax, base) * 2.5;
   const alcance = Math.max(base * 0.9, rMax * 0.98 + 46);
   // Si la constelación crece, el dibujo se achica: los puntos y los nombres crecen (hasta el doble) para que se lean y se puedan tocar.
   const k = Math.min(2, alcance / base);
@@ -268,7 +272,8 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
       }
       if (sola()) {
         g.yaw += VELOCIDAD_SOLA * dt;
-        g.pitch += (INCLINACION - g.pitch) * Math.min(1, dt * 0.4);
+        const meta = INCLINACION + VAIVEN * Math.sin(t / 4200);
+        g.pitch += (meta - g.pitch) * Math.min(1, dt * 0.4);
         sigue = true;
       }
       if (sigue) mover(g);
@@ -470,7 +475,10 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
     const clase = ["punto", p.nivel ? "" : "raiz", retirada ? "retirada" : "", sel ? "sel" : ""].join(" ");
     // Más cerca: más grande y más nítida. La obra queda siempre igual.
     const esc = p.nivel ? f : 1;
-    const opacidad = p.nivel ? (sel || p.id === mirando ? 1 : 0.32 + 0.68 * cercania(z)) : 1;
+    const enfocada = sel || p.id === mirando;
+    const opacidad = p.nivel ? (enfocada ? 1 : 0.32 + 0.68 * cercania(z)) : 1;
+    // Lo que queda detrás de la obra se desenfoca, como en una foto con poca profundidad de campo.
+    const desenfoque = p.nivel && !angosta && !enfocada && z < 0 ? DESENFOQUE_MAX * Math.min(1, -z / hondo) : 0;
     const rNucleo = p.nivel ? 11 + Math.min(8, p.desc * 2.5) : 31;
     return (
       <g
@@ -479,7 +487,10 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
         transform={`translate(${sx.toFixed(2)} ${sy.toFixed(2)}) scale(${(esc * k).toFixed(3)})`}
         // En el celular el nombre no se aclara con la distancia (se tiene que leer): se aclara solo el círculo.
         opacity={angosta ? undefined : opacidad}
-        style={angosta ? ({ "--velo": opacidad } as CSSProperties) : undefined}
+        style={{
+          ...(angosta ? ({ "--velo": opacidad } as CSSProperties) : {}),
+          ...(desenfoque > 0.15 ? { filter: `blur(${desenfoque.toFixed(2)}px)` } : {}),
+        }}
         data-id={p.id}
         tabIndex={p.id === activo ? 0 : -1}
         role="button"
@@ -604,7 +615,8 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
       {vista.map(({ p, sx, sy, z }) => {
         const pa = p.padre ? enVista.get(p.padre) : null;
         if (!pa) return null;
-        return <line key={`l${p.id}`} className="linea" x1={pa.sx} y1={pa.sy} x2={sx} y2={sy} opacity={0.3 + 0.6 * cercania((z + pa.z) / 2)} />;
+        const c = cercania((z + pa.z) / 2);
+        return <line key={`l${p.id}`} className="linea" x1={pa.sx} y1={pa.sy} x2={sx} y2={sy} opacity={0.25 + 0.7 * c} style={{ strokeWidth: 0.6 + 1.2 * c }} />;
       })}
       {resto.filter((v) => v.z < 0).map((v) => dibujarPunto(v))}
       <circle className="brillo" r={92 * k} fill={`url(#${uid}-brillo)`} aria-hidden="true" />
