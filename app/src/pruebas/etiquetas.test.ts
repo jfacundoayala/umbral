@@ -35,9 +35,15 @@ describe("nombres de la constelación", () => {
     expect(v.has("tomi")).toBe(false);
   });
 
-  it("un círculo de atrás no oculta el nombre de uno de adelante", () => {
+  it("un nombre encima de un círculo de atrás también se oculta: sobre la foto de la obra no se lee", () => {
     const atras: Candidato = { ...punto("atras", 0, 0, -80, 0, 40) };
     const adelante = { ...punto("adelante", 0, -10, 80), caja: cajaDeNombre("ADELANTE", 0, 5, 10) };
-    expect(etiquetasVisibles([atras, adelante]).has("adelante")).toBe(true);
+    expect(etiquetasVisibles([atras, adelante]).has("adelante")).toBe(false);
+  });
+
+  it("el nombre que se mira o se eligió se muestra aunque toque otro círculo", () => {
+    const atras: Candidato = { ...punto("atras", 0, 0, -80, 0, 40) };
+    const mirada = { ...punto("mirada", 0, -10, 80, 2), caja: cajaDeNombre("MIRADA", 0, 5, 10) };
+    expect(etiquetasVisibles([atras, mirada]).has("mirada")).toBe(true);
   });
 });

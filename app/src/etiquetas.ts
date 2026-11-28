@@ -1,6 +1,7 @@
 // Qué nombres se muestran en la constelación 3D sin que se pisen.
 // Se ubican de a uno, por prioridad: el que se mira o se eligió, después la obra, después de adelante hacia atrás.
-// Un nombre se oculta si choca con otro ya ubicado o si queda debajo de un círculo que está más adelante.
+// Un nombre se oculta si choca con otro ya ubicado o si toca el círculo de otro punto: debajo de uno
+// de adelante queda tapado, y encima de uno de atrás (sobre todo la foto de la obra) no se lee.
 
 export type Caja = { x: number; y: number; ancho: number; alto: number };
 export type Circulo = { x: number; y: number; r: number };
@@ -32,7 +33,7 @@ export function etiquetasVisibles(candidatos: Candidato[]): Set<string> {
   for (const c of orden) {
     if (puestas.some((p) => chocan(p, c.caja))) continue;
     // La que se mira o se eligió se muestra igual: es la que la persona está buscando.
-    if (c.prioridad < 2 && candidatos.some((o) => o.id !== c.id && o.z > c.z && tapa(o.circulo, c.caja))) continue;
+    if (c.prioridad < 2 && candidatos.some((o) => o.id !== c.id && tapa(o.circulo, c.caja))) continue;
     puestas.push(c.caja);
     visibles.add(c.id);
   }
