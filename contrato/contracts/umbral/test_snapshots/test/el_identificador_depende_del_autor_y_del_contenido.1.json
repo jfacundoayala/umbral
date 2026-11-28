@@ -501,6 +501,22 @@
                   },
                   {
                     "key": {
+                      "symbol": "presencial"
+                    },
+                    "val": {
+                      "bool": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "raiz"
+                    },
+                    "val": {
+                      "bytes": "44cd4d84b0ec922325fd1491edfdac73eac74de031fd044fdcd3c2df17a07c59"
+                    }
+                  },
+                  {
+                    "key": {
                       "symbol": "respuestas"
                     },
                     "val": {
@@ -605,6 +621,22 @@
                   },
                   {
                     "key": {
+                      "symbol": "presencial"
+                    },
+                    "val": {
+                      "bool": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "raiz"
+                    },
+                    "val": {
+                      "bytes": "c4047c73c54c43beac6914ea6c4c604859211544f6a7d02cbf8d7e4b36460c49"
+                    }
+                  },
+                  {
+                    "key": {
                       "symbol": "respuestas"
                     },
                     "val": {
@@ -662,6 +694,18 @@
                       },
                       "val": {
                         "u32": 3000
+                      }
+                    },
+                    {
+                      "key": {
+                        "vec": [
+                          {
+                            "symbol": "PlazoAviso"
+                          }
+                        ]
+                      },
+                      "val": {
+                        "u64": "3600"
                       }
                     },
                     {

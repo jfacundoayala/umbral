@@ -307,6 +307,18 @@
                       "key": {
                         "vec": [
                           {
+                            "symbol": "PlazoAviso"
+                          }
+                        ]
+                      },
+                      "val": {
+                        "u64": "3600"
+                      }
+                    },
+                    {
+                      "key": {
+                        "vec": [
+                          {
                             "symbol": "Precios"
                           },
                           {

@@ -188,7 +188,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON"
                 },
                 {
-                  "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                  "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                 },
                 {
                   "address": "CDS3FDGQ4JA2V3F26Y4BMWWJEC5TT26RJBN7KIQKUMVO2MAOCMDTSZ7A"
@@ -249,7 +249,7 @@
                   "i128": "170141183460469231731687303715884105727"
                 },
                 {
-                  "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                  "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                 }
               ]
             }
@@ -292,7 +292,7 @@
               "function_name": "invitar",
               "args": [
                 {
-                  "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                  "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                 },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
@@ -329,7 +329,7 @@
                   "i128": "170141183460469231731687303715884105727"
                 },
                 {
-                  "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                  "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                 }
               ]
             }
@@ -364,7 +364,7 @@
                   "i128": "170141183460469231731687303715884105727"
                 },
                 {
-                  "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                  "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                 }
               ]
             }
@@ -619,7 +619,7 @@
                     "symbol": "Fondo"
                   },
                   {
-                    "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                    "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                   },
                   {
                     "address": "CDS3FDGQ4JA2V3F26Y4BMWWJEC5TT26RJBN7KIQKUMVO2MAOCMDTSZ7A"
@@ -720,6 +720,22 @@
                   },
                   {
                     "key": {
+                      "symbol": "presencial"
+                    },
+                    "val": {
+                      "bool": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "raiz"
+                    },
+                    "val": {
+                      "bytes": "43710776765a2c178d1196023bca11e264896e10772a3934093c79389582a4cd"
+                    }
+                  },
+                  {
+                    "key": {
                       "symbol": "respuestas"
                     },
                     "val": {
@@ -731,7 +747,7 @@
                       "symbol": "sala"
                     },
                     "val": {
-                      "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                      "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                     }
                   }
                 ]
@@ -826,6 +842,22 @@
                   },
                   {
                     "key": {
+                      "symbol": "presencial"
+                    },
+                    "val": {
+                      "bool": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "raiz"
+                    },
+                    "val": {
+                      "bytes": "9f4bfbc3d95fb33bdcfc5e8f05e19ccb9e6341c6ce81fe4974783df28928ca2c"
+                    }
+                  },
+                  {
+                    "key": {
                       "symbol": "respuestas"
                     },
                     "val": {
@@ -837,7 +869,7 @@
                       "symbol": "sala"
                     },
                     "val": {
-                      "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                      "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                     }
                   }
                 ]
@@ -932,6 +964,22 @@
                   },
                   {
                     "key": {
+                      "symbol": "presencial"
+                    },
+                    "val": {
+                      "bool": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "raiz"
+                    },
+                    "val": {
+                      "bytes": "ea90450bc02fe3fbfa206afc1a62d17d426caf39def667f5855a3a0445bba98d"
+                    }
+                  },
+                  {
+                    "key": {
                       "symbol": "respuestas"
                     },
                     "val": {
@@ -943,7 +991,7 @@
                       "symbol": "sala"
                     },
                     "val": {
-                      "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                      "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                     }
                   }
                 ]
@@ -967,7 +1015,7 @@
                     "symbol": "Invitacion"
                   },
                   {
-                    "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                    "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                   },
                   {
                     "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
@@ -997,7 +1045,7 @@
                     "symbol": "Sala"
                   },
                   {
-                    "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                    "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                   }
                 ]
               },
@@ -1048,6 +1096,18 @@
                       },
                       "val": {
                         "u32": 3000
+                      }
+                    },
+                    {
+                      "key": {
+                        "vec": [
+                          {
+                            "symbol": "PlazoAviso"
+                          }
+                        ]
+                      },
+                      "val": {
+                        "u64": "3600"
                       }
                     },
                     {
@@ -1670,7 +1730,7 @@
                     "symbol": "sala"
                   },
                   "val": {
-                    "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                    "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                   }
                 }
               ]

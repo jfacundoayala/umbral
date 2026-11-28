@@ -188,7 +188,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON"
                 },
                 {
-                  "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                  "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                 },
                 {
                   "address": "CDS3FDGQ4JA2V3F26Y4BMWWJEC5TT26RJBN7KIQKUMVO2MAOCMDTSZ7A"
@@ -391,7 +391,7 @@
                     "symbol": "Fondo"
                   },
                   {
-                    "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                    "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                   },
                   {
                     "address": "CDS3FDGQ4JA2V3F26Y4BMWWJEC5TT26RJBN7KIQKUMVO2MAOCMDTSZ7A"
@@ -421,7 +421,7 @@
                     "symbol": "Sala"
                   },
                   {
-                    "bytes": "c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8"
+                    "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
                   }
                 ]
               },
@@ -472,6 +472,18 @@
                       },
                       "val": {
                         "u32": 3000
+                      }
+                    },
+                    {
+                      "key": {
+                        "vec": [
+                          {
+                            "symbol": "PlazoAviso"
+                          }
+                        ]
+                      },
+                      "val": {
+                        "u64": "3600"
                       }
                     },
                     {

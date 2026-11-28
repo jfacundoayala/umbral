@@ -1,12 +1,17 @@
-//! Umbral: registro de huellas con valor.
+//! Umbral: registro de huellas con valor (versión 3).
 //!
 //! Cada huella (un texto, una foto o un audio) queda anotada con su autor, el
 //! código que identifica su contenido y, si es un comentario, la huella de la
-//! que nació. Dejar una huella y continuarla se pagan en una moneda aceptada
-//! (USDC o XLM). Al continuar, una parte queda a nombre del artista que abrió
-//! la obra, en toda la cadena. Apoyar es un pago voluntario de monto libre que
-//! también va al artista. Quien responde no cobra. El contenido nunca se guarda acá: solo su código
-//! (SHA-256).
+//! que nació y la obra raíz de la cadena. Dejar una huella y continuarla se
+//! pagan en una moneda aceptada (USDC o XLM). Al continuar, una parte queda a
+//! nombre del artista que abrió la obra, en toda la cadena. Apoyar es un pago
+//! voluntario de monto libre que también va al artista. Quien responde no
+//! cobra. El contenido nunca se guarda acá: solo su código (SHA-256).
+//!
+//! Los cambios sensibles (código, parte del artista, administrador y tesoro)
+//! se hacen en dos pasos: primero se proponen, con un aviso público, y solo se
+//! pueden aplicar después del plazo fijado en el constructor. Así cualquiera
+//! ve el cambio venir y puede cobrar antes.
 #![no_std]
 use soroban_sdk::{
     contract, contracterror, contractevent, contractimpl, contracttype, token, xdr::ToXdr, Address,
@@ -19,12 +24,15 @@ const DIA: u32 = 17_280;
 const VIDA: u32 = 120 * DIA;
 /// Por debajo de este resto de vida, se renueva.
 const UMBRAL_VIDA: u32 = VIDA - DIA;
+/// Un día en segundos.
+const SEGUNDOS_DIA: u64 = 86_400;
 /// 100% en puntos básicos.
 const TOTAL_BPS: u32 = 10_000;
 /// Parte de cada apoyo voluntario que queda para Umbral (20%).
 const APOYO_UMBRAL_BPS: u32 = 2_000;
-/// Parte fija de Umbral durante una muestra con una sala (30%): ahí Umbral
-/// participa armando la muestra. La sala cobra la suya y el artista, el resto.
+/// Parte fija de Umbral durante una muestra en la que la sala cobra algo
+/// (30%): ahí Umbral participa armando la muestra. La sala cobra la suya y el
+/// artista, el resto. Si la sala no cobra nada, rige el reparto de siempre.
 const MUESTRA_UMBRAL_BPS: u32 = 3_000;
 /// Piso de la parte del artista en una continuación (30%). Ningún
 /// administrador puede bajarla de acá.
@@ -33,18 +41,32 @@ const PISO_AUTOR_BPS: u32 = 3_000;
 /// La parte de la sala se elige al abrir cada muestra; con el 30% de Umbral,
 /// el artista se queda con el resto, que nunca baja del piso.
 const MUESTRA_SALA_MAX_BPS: u32 = 4_000;
-/// Duración máxima de una muestra, en segundos (90 días).
-const MUESTRA_MAX: u64 = 90 * 86_400;
+/// Duración máxima de una muestra (180 días).
+const MUESTRA_MAX: u64 = 180 * SEGUNDOS_DIA;
+/// Cuánto antes de hoy puede empezar una muestra que se abre (1 día).
+const MUESTRA_ATRASO_MAX: u64 = SEGUNDOS_DIA;
+/// Cuánto después de hoy puede empezar una muestra que se abre (365 días).
+const MUESTRA_ANTICIPO_MAX: u64 = 365 * SEGUNDOS_DIA;
+/// Plazo mínimo entre proponer un cambio sensible y aplicarlo (1 hora).
+const PLAZO_MIN: u64 = 3_600;
+/// Plazo máximo, para que un error al crear el contrato no lo deje sin
+/// poder cambiar nada (90 días).
+const PLAZO_MAX: u64 = 90 * SEGUNDOS_DIA;
+/// Cuánto tiempo, después de cumplido el plazo, se puede aplicar una
+/// propuesta (14 días). Pasado eso vence y hay que volver a proponerla.
+const VIGENCIA_PROPUESTA: u64 = 14 * SEGUNDOS_DIA;
+/// Segundos por ledger, aproximado, para pasar fechas a vigencia.
+const SEGUNDOS_LEDGER: u64 = 5;
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    /// Ya hay una huella con ese identificador.
+    /// Ya hay una huella (o una sala) con ese identificador.
     YaExiste = 1,
-    /// No hay ninguna huella con ese identificador.
+    /// No hay ninguna huella (o dato) con ese identificador.
     NoExiste = 2,
-    /// La huella fue retirada.
+    /// La huella, o la obra raíz de su cadena, fue retirada.
     Retirada = 3,
     /// El autor no permite comentarios sobre esa huella.
     NoAdmiteRespuestas = 4,
@@ -64,15 +86,26 @@ pub enum Error {
     Desborde = 11,
     /// No hay ninguna sala con ese identificador.
     SalaNoExiste = 12,
-    /// Esa cuenta ya fue invitada a esa sala.
+    /// Esa cuenta ya tiene una invitación sin usar en esa sala.
     YaInvitada = 13,
     /// El precio vigente es mayor que el máximo que aceptó quien paga.
     PrecioSuperado = 14,
-    /// Las fechas de la muestra no sirven: ya pasó, dura más de 90 días o
-    /// la sala tiene otra muestra que todavía no terminó.
+    /// Las fechas de la muestra no sirven: ya pasó, empieza muy lejos, dura
+    /// más de 180 días, la sala tiene otra que todavía no terminó, o no hay
+    /// muestra en curso para cerrar.
     MuestraInvalida = 15,
     /// El fondo de la sala no alcanza para ese retiro.
     FondoInsuficiente = 16,
+    /// El plazo de aviso tiene que estar entre 1 hora y 90 días.
+    PlazoInvalido = 17,
+    /// Todavía no pasó el plazo de aviso de esa propuesta.
+    PlazoNoCumplido = 18,
+    /// No hay ninguna propuesta de ese tipo pendiente.
+    NoHayPropuesta = 19,
+    /// Esa cuenta no puede hacer esto.
+    NoAutorizado = 20,
+    /// La propuesta venció sin aplicarse: hay que volver a proponerla.
+    PropuestaVencida = 21,
 }
 
 /// Precios en la unidad mínima de la moneda (7 decimales en XLM y USDC).
@@ -94,8 +127,15 @@ pub struct Huella {
     pub digest: BytesN<32>,
     /// Huella de la que nació, si es un comentario.
     pub padre: Option<BytesN<32>>,
+    /// Obra con la que empezó la cadena. En la obra original es su propio
+    /// identificador. Si la raíz se retira, la cadena entera deja de admitir
+    /// continuaciones y apoyos.
+    pub raiz: BytesN<32>,
     /// Sala de museo a la que pertenece, si pertenece a alguna.
     pub sala: Option<BytesN<32>>,
+    /// `true` solo si la pagó el fondo de la sala por una invitación del
+    /// museo: prueba que la persona estuvo ahí.
+    pub presencial: bool,
     pub admite_respuestas: bool,
     pub activa: bool,
     /// Cantidad de apoyos voluntarios recibidos.
@@ -109,10 +149,47 @@ pub struct Huella {
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Muestra {
+    /// Número de apertura en esa sala (1, 2, 3...). Sube cada vez que se
+    /// abre una muestra, así reabrir una igual no revive acuerdos viejos.
+    pub numero: u32,
     pub desde: u64,
     pub hasta: u64,
     /// Parte de cada continuación que recibe la sala, en puntos básicos.
     pub parte_sala_bps: u32,
+}
+
+/// Tipo de cambio sensible. Hay como mucho una propuesta pendiente por tipo.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum TipoCambio {
+    Codigo,
+    ParteAutor,
+    Admin,
+    Tesoro,
+}
+
+/// Un cambio sensible con su valor nuevo.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Cambio {
+    /// Hash del código nuevo, ya subido a la red.
+    Codigo(BytesN<32>),
+    /// Parte nueva del artista, en puntos básicos.
+    ParteAutor(u32),
+    /// Cuenta del administrador nuevo.
+    Admin(Address),
+    /// Cuenta del tesoro nuevo.
+    Tesoro(Address),
+}
+
+/// Un cambio propuesto y entre qué fechas se puede aplicar (segundos desde
+/// 1970, ambas incluidas).
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Propuesta {
+    pub cambio: Cambio,
+    pub aplicable_desde: u64,
+    pub aplicable_hasta: u64,
 }
 
 #[contracttype]
@@ -121,6 +198,10 @@ pub enum Clave {
     Admin,
     Tesoro,
     ParteAutor,
+    /// Segundos entre proponer un cambio sensible y poder aplicarlo.
+    PlazoAviso,
+    /// Propuesta pendiente de un tipo de cambio.
+    Propuesta(TipoCambio),
     Precios(Address),
     Huella(BytesN<32>),
     /// Sala de un museo o institución: guarda quién la abrió.
@@ -133,10 +214,45 @@ pub enum Clave {
     /// Fondo de patrocinio de una sala: (sala, moneda).
     Fondo(BytesN<32>, Address),
     /// Invitación de una sala a una cuenta: (sala, cuenta). `true` mientras
-    /// está disponible, `false` cuando ya se usó.
+    /// está disponible, `false` cuando ya se usó (y se puede volver a invitar).
     Invitacion(BytesN<32>, Address),
     /// Saldo a cobrar: (autor, moneda).
     Saldo(Address, Address),
+}
+
+/// Se creó el contrato: quién lo administra, adónde va lo de Umbral, qué
+/// parte recibe el artista y cuánto aviso se da antes de un cambio sensible.
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Creado {
+    pub admin: Address,
+    pub tesoro: Address,
+    pub parte_autor_bps: u32,
+    pub plazo_aviso: u64,
+}
+
+/// Se propuso un cambio sensible. Se puede aplicar entre `aplicable_desde`
+/// y `aplicable_hasta`.
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CambioPropuesto {
+    pub cambio: Cambio,
+    pub aplicable_desde: u64,
+    pub aplicable_hasta: u64,
+}
+
+/// Se aplicó un cambio sensible que había sido propuesto.
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CambioAplicado {
+    pub cambio: Cambio,
+}
+
+/// Se canceló un cambio sensible propuesto.
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PropuestaCancelada {
+    pub cambio: Cambio,
 }
 
 #[contractevent]
@@ -204,9 +320,21 @@ pub struct SalaPatrocinada {
 pub struct MuestraAbierta {
     #[topic]
     pub sala: BytesN<32>,
+    pub numero: u32,
     pub desde: u64,
     pub hasta: u64,
     pub parte_sala_bps: u32,
+}
+
+/// La muestra de una sala se cerró antes de tiempo. `quien` es el museo o el
+/// administrador; `hasta` es la nueva fecha de fin.
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct MuestraCerrada {
+    #[topic]
+    pub sala: BytesN<32>,
+    pub quien: Address,
+    pub hasta: u64,
 }
 
 /// Un artista aceptó el reparto de la muestra de una sala para sus obras.
@@ -216,6 +344,7 @@ pub struct MuestraAceptada {
     #[topic]
     pub sala: BytesN<32>,
     pub artista: Address,
+    pub numero: u32,
     pub desde: u64,
     pub parte_sala_bps: u32,
 }
@@ -269,10 +398,13 @@ pub struct PreciosFijados {
     pub comentario: i128,
 }
 
+/// Una moneda dejó de aceptarse para pagos nuevos. Los saldos y fondos ya
+/// guardados en esa moneda se pueden seguir cobrando y retirando.
 #[contractevent]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct ParteAutorFijada {
-    pub parte_autor_bps: u32,
+pub struct MonedaQuitada {
+    #[topic]
+    pub moneda: Address,
 }
 
 #[contract]
@@ -282,14 +414,28 @@ pub struct Umbral;
 impl Umbral {
     /// `parte_autor_bps`: qué parte de una continuación va al artista que
     /// abrió la obra, en puntos básicos (5000 = 50%). El resto va a Umbral.
-    pub fn __constructor(env: Env, admin: Address, tesoro: Address, parte_autor_bps: u32) {
+    /// `plazo_aviso`: segundos entre proponer un cambio sensible y poder
+    /// aplicarlo (entre 3600 y 90 días). Queda fijo.
+    pub fn __constructor(
+        env: Env,
+        admin: Address,
+        tesoro: Address,
+        parte_autor_bps: u32,
+        plazo_aviso: u64,
+    ) {
         if parte_autor_bps < PISO_AUTOR_BPS || parte_autor_bps > TOTAL_BPS {
             soroban_sdk::panic_with_error!(&env, Error::PorcentajeInvalido);
+        }
+        if !(PLAZO_MIN..=PLAZO_MAX).contains(&plazo_aviso) {
+            soroban_sdk::panic_with_error!(&env, Error::PlazoInvalido);
         }
         let inst = env.storage().instance();
         inst.set(&Clave::Admin, &admin);
         inst.set(&Clave::Tesoro, &tesoro);
         inst.set(&Clave::ParteAutor, &parte_autor_bps);
+        inst.set(&Clave::PlazoAviso, &plazo_aviso);
+        Self::renovar_instancia(&env);
+        Creado { admin, tesoro, parte_autor_bps, plazo_aviso }.publish(&env);
     }
 
     // ---------- Administración ----------
@@ -307,38 +453,129 @@ impl Umbral {
         Ok(())
     }
 
-    /// Cambia la parte que recibe el artista. Nunca por debajo del piso.
-    pub fn fijar_parte_autor(env: Env, parte_autor_bps: u32) -> Result<(), Error> {
+    /// Deja de aceptar una moneda para pagos nuevos (huellas, continuaciones,
+    /// apoyos y patrocinios). No toca lo ya guardado: los saldos se siguen
+    /// cobrando y los fondos se siguen retirando.
+    pub fn quitar_moneda(env: Env, moneda: Address) -> Result<(), Error> {
         Self::admin(&env).require_auth();
-        if parte_autor_bps < PISO_AUTOR_BPS || parte_autor_bps > TOTAL_BPS {
-            return Err(Error::PorcentajeInvalido);
+        let clave = Clave::Precios(moneda.clone());
+        if !env.storage().instance().has(&clave) {
+            return Err(Error::MonedaNoAceptada);
         }
-        env.storage().instance().set(&Clave::ParteAutor, &parte_autor_bps);
+        env.storage().instance().remove(&clave);
         Self::renovar_instancia(&env);
-        ParteAutorFijada { parte_autor_bps }.publish(&env);
+        MonedaQuitada { moneda }.publish(&env);
         Ok(())
     }
 
     /// Moderación: el administrador de Umbral retira una huella. No borra el
-    /// registro y el aviso dice que fue por moderación.
+    /// registro y el aviso dice que fue por moderación. Si es una obra raíz,
+    /// toda su cadena deja de admitir continuaciones y apoyos.
     pub fn moderar(env: Env, id: BytesN<32>) -> Result<(), Error> {
         Self::admin(&env).require_auth();
         Self::desactivar(&env, id, true)
     }
 
-    /// Reemplaza el código del contrato por uno ya subido a la red, sin
-    /// perder huellas, saldos ni fondos. Solo el administrador.
-    pub fn actualizar(env: Env, wasm_hash: BytesN<32>) {
+    // ---------- Cambios sensibles en dos pasos ----------
+
+    /// Propone reemplazar el código del contrato por uno ya subido a la red.
+    /// Devuelve desde cuándo se puede aplicar.
+    pub fn proponer_actualizacion(env: Env, wasm_hash: BytesN<32>) -> Result<u64, Error> {
+        Self::proponer(&env, TipoCambio::Codigo, Cambio::Codigo(wasm_hash))
+    }
+
+    /// Aplica la actualización propuesta, si ya pasó el plazo. Sin perder
+    /// huellas, saldos ni fondos. Solo el administrador.
+    pub fn aplicar_actualizacion(env: Env) -> Result<(), Error> {
         Self::admin(&env).require_auth();
-        env.deployer()
-            .update_current_contract(soroban_sdk::ContractExecutable::Wasm(wasm_hash));
+        if let Cambio::Codigo(wasm_hash) = Self::tomar_propuesta(&env, TipoCambio::Codigo)? {
+            CambioAplicado { cambio: Cambio::Codigo(wasm_hash.clone()) }.publish(&env);
+            env.deployer()
+                .update_current_contract(soroban_sdk::ContractExecutable::Wasm(wasm_hash));
+        }
+        Ok(())
+    }
+
+    /// Propone cambiar la parte que recibe el artista. Nunca por debajo del piso.
+    pub fn proponer_parte_autor(env: Env, parte_autor_bps: u32) -> Result<u64, Error> {
+        if parte_autor_bps < PISO_AUTOR_BPS || parte_autor_bps > TOTAL_BPS {
+            return Err(Error::PorcentajeInvalido);
+        }
+        Self::proponer(&env, TipoCambio::ParteAutor, Cambio::ParteAutor(parte_autor_bps))
+    }
+
+    /// Aplica la parte del artista propuesta, si ya pasó el plazo. Los saldos
+    /// ya anotados no cambian.
+    pub fn aplicar_parte_autor(env: Env) -> Result<(), Error> {
+        Self::admin(&env).require_auth();
+        if let Cambio::ParteAutor(bps) = Self::tomar_propuesta(&env, TipoCambio::ParteAutor)? {
+            env.storage().instance().set(&Clave::ParteAutor, &bps);
+            CambioAplicado { cambio: Cambio::ParteAutor(bps) }.publish(&env);
+        }
+        Ok(())
+    }
+
+    /// Propone un administrador nuevo (por ejemplo, una cuenta multifirma).
+    pub fn proponer_admin(env: Env, nuevo: Address) -> Result<u64, Error> {
+        Self::proponer(&env, TipoCambio::Admin, Cambio::Admin(nuevo))
+    }
+
+    /// Aplica el administrador propuesto, si ya pasó el plazo. Lo firma el
+    /// administrador nuevo, para no entregarle el contrato a una cuenta que
+    /// nadie controla. Borra las demás propuestas pendientes (código, tesoro
+    /// y parte del artista): el administrador nuevo empieza sin herencias.
+    pub fn aplicar_admin(env: Env) -> Result<(), Error> {
+        let p = Self::leer_propuesta(&env, TipoCambio::Admin)?;
+        if let Cambio::Admin(nuevo) = p.cambio {
+            nuevo.require_auth();
+            Self::tomar_propuesta(&env, TipoCambio::Admin)?;
+            for tipo in [TipoCambio::Codigo, TipoCambio::Tesoro, TipoCambio::ParteAutor] {
+                let clave = Clave::Propuesta(tipo);
+                let pendiente: Option<Propuesta> = env.storage().instance().get(&clave);
+                if let Some(vieja) = pendiente {
+                    env.storage().instance().remove(&clave);
+                    PropuestaCancelada { cambio: vieja.cambio }.publish(&env);
+                }
+            }
+            env.storage().instance().set(&Clave::Admin, &nuevo);
+            CambioAplicado { cambio: Cambio::Admin(nuevo) }.publish(&env);
+        }
+        Ok(())
+    }
+
+    /// Propone una cuenta nueva para el tesoro de Umbral.
+    pub fn proponer_tesoro(env: Env, nuevo: Address) -> Result<u64, Error> {
+        Self::proponer(&env, TipoCambio::Tesoro, Cambio::Tesoro(nuevo))
+    }
+
+    /// Aplica el tesoro propuesto, si ya pasó el plazo. Solo el administrador.
+    pub fn aplicar_tesoro(env: Env) -> Result<(), Error> {
+        Self::admin(&env).require_auth();
+        if let Cambio::Tesoro(nuevo) = Self::tomar_propuesta(&env, TipoCambio::Tesoro)? {
+            env.storage().instance().set(&Clave::Tesoro, &nuevo);
+            CambioAplicado { cambio: Cambio::Tesoro(nuevo) }.publish(&env);
+        }
+        Ok(())
+    }
+
+    /// El administrador cancela una propuesta pendiente.
+    pub fn cancelar_propuesta(env: Env, tipo: TipoCambio) -> Result<(), Error> {
+        Self::admin(&env).require_auth();
+        let p = Self::leer_propuesta(&env, tipo.clone())?;
+        env.storage().instance().remove(&Clave::Propuesta(tipo));
+        Self::renovar_instancia(&env);
+        PropuestaCancelada { cambio: p.cambio }.publish(&env);
+        Ok(())
     }
 
     // ---------- Salas de museos y patrocinio ----------
 
-    /// Un museo o institución abre su sala dentro de Umbral.
-    pub fn abrir_sala(env: Env, museo: Address, sala: BytesN<32>) -> Result<(), Error> {
+    /// Un museo o institución abre su sala dentro de Umbral. El identificador
+    /// lo calcula el contrato a partir de la cuenta del museo y una `semilla`
+    /// (ver `id_sala`), así nadie puede ocupar el de otro. Lo devuelve.
+    pub fn abrir_sala(env: Env, museo: Address, semilla: BytesN<32>) -> Result<BytesN<32>, Error> {
         museo.require_auth();
+        let sala = Self::id_sala(env.clone(), museo.clone(), semilla);
         let clave = Clave::Sala(sala.clone());
         if env.storage().persistent().has(&clave) {
             return Err(Error::YaExiste);
@@ -346,15 +583,16 @@ impl Umbral {
         env.storage().persistent().set(&clave, &museo);
         env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
         Self::renovar_instancia(&env);
-        SalaAbierta { sala, museo }.publish(&env);
-        Ok(())
+        SalaAbierta { sala: sala.clone(), museo }.publish(&env);
+        Ok(sala)
     }
 
     /// Umbral abre la muestra con fecha de una sala, a pedido de su museo.
     /// Mientras dura, cada continuación sobre una obra de esa sala le deja
     /// a la sala `parte_sala_bps` (de 0 a 40%), que se acuerda para cada
-    /// muestra y queda publicado. El artista nunca baja del piso. Dura como
-    /// mucho 90 días y una sala no puede tener dos muestras a la vez.
+    /// muestra y queda publicado. El artista nunca baja del piso. Empieza
+    /// como mucho 1 día antes de hoy y 365 días después, dura como mucho 180
+    /// días y una sala no puede tener dos muestras a la vez.
     pub fn abrir_muestra(
         env: Env,
         sala: BytesN<32>,
@@ -368,40 +606,79 @@ impl Umbral {
         }
         Self::museo_de(env.clone(), sala.clone())?;
         let ahora = env.ledger().timestamp();
-        if hasta <= desde || hasta <= ahora || hasta - desde > MUESTRA_MAX {
+        if hasta <= desde
+            || hasta <= ahora
+            || hasta - desde > MUESTRA_MAX
+            || desde.saturating_add(MUESTRA_ATRASO_MAX) < ahora
+            || desde > ahora.saturating_add(MUESTRA_ANTICIPO_MAX)
+        {
             return Err(Error::MuestraInvalida);
         }
         let clave = Clave::Muestra(sala.clone());
         let anterior: Option<Muestra> = env.storage().persistent().get(&clave);
+        let mut numero: u32 = 1;
         if let Some(m) = anterior {
             if m.hasta >= ahora {
                 return Err(Error::MuestraInvalida);
             }
+            numero = m.numero.checked_add(1).ok_or(Error::Desborde)?;
         }
-        env.storage().persistent().set(&clave, &Muestra { desde, hasta, parte_sala_bps });
+        env.storage()
+            .persistent()
+            .set(&clave, &Muestra { numero, desde, hasta, parte_sala_bps });
+        Self::extender_hasta(&env, &clave, hasta);
+        Self::extender_sala(&env, &sala);
+        MuestraAbierta { sala, numero, desde, hasta, parte_sala_bps }.publish(&env);
+        Ok(())
+    }
+
+    /// Cierra ya la muestra de una sala (en curso o por empezar). La firma el
+    /// museo de la sala o el administrador. Los acuerdos firmados con esa
+    /// muestra dejan de valer solos y la sala puede abrir otra enseguida.
+    pub fn cerrar_muestra(env: Env, quien: Address, sala: BytesN<32>) -> Result<(), Error> {
+        quien.require_auth();
+        let museo = Self::museo_de(env.clone(), sala.clone())?;
+        if quien != museo && quien != Self::admin(&env) {
+            return Err(Error::NoAutorizado);
+        }
+        let clave = Clave::Muestra(sala.clone());
+        let mut m: Muestra = env.storage().persistent().get(&clave).ok_or(Error::MuestraInvalida)?;
+        let ahora = env.ledger().timestamp();
+        if m.hasta < ahora {
+            return Err(Error::MuestraInvalida);
+        }
+        // Termina un segundo antes de ahora: deja de valer en este mismo ledger.
+        m.hasta = ahora.saturating_sub(1);
+        if m.desde > m.hasta {
+            m.desde = m.hasta;
+        }
+        env.storage().persistent().set(&clave, &m);
         env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
-        Self::renovar_sala(&env, &sala);
-        MuestraAbierta { sala, desde, hasta, parte_sala_bps }.publish(&env);
+        Self::extender_sala(&env, &sala);
+        MuestraCerrada { sala, quien, hasta: m.hasta }.publish(&env);
         Ok(())
     }
 
     /// El artista acepta, con su firma, el reparto de la muestra de una sala
     /// para sus obras de esa sala. Sin esta firma, sus obras siguen con el
-    /// reparto de siempre aunque la sala esté en muestra. `desde`, `hasta` y
-    /// `parte_sala_bps` son la muestra que el artista vio: si no coinciden, falla.
+    /// reparto de siempre aunque la sala esté en muestra. `numero`, `desde`,
+    /// `hasta` y `parte_sala_bps` son la muestra que el artista vio: si no
+    /// coinciden, falla.
     pub fn aceptar_muestra(
         env: Env,
         artista: Address,
         sala: BytesN<32>,
+        numero: u32,
         desde: u64,
         hasta: u64,
         parte_sala_bps: u32,
     ) -> Result<(), Error> {
         artista.require_auth();
+        let clave_muestra = Clave::Muestra(sala.clone());
         let m: Muestra = env
             .storage()
             .persistent()
-            .get(&Clave::Muestra(sala.clone()))
+            .get(&clave_muestra)
             .ok_or(Error::MuestraInvalida)?;
         if m.hasta < env.ledger().timestamp() {
             return Err(Error::MuestraInvalida);
@@ -409,30 +686,33 @@ impl Umbral {
         if m.parte_sala_bps != parte_sala_bps {
             return Err(Error::PorcentajeInvalido);
         }
-        if m.desde != desde || m.hasta != hasta {
+        if m.numero != numero || m.desde != desde || m.hasta != hasta {
             return Err(Error::MuestraInvalida);
         }
         let clave = Clave::Acuerdo(sala.clone(), artista.clone());
         env.storage().persistent().set(&clave, &m);
-        env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
-        Self::renovar_sala(&env, &sala);
-        MuestraAceptada { sala, artista, desde: m.desde, parte_sala_bps }.publish(&env);
+        Self::extender_hasta(&env, &clave, m.hasta);
+        Self::extender_hasta(&env, &clave_muestra, m.hasta);
+        Self::extender_sala(&env, &sala);
+        MuestraAceptada { sala, artista, numero, desde: m.desde, parte_sala_bps }.publish(&env);
         Ok(())
     }
 
     /// El museo que abrió la sala invita a una cuenta: el fondo de la sala le
-    /// paga una huella, una sola vez. Solo el museo decide a quién invita, así
-    /// nadie puede vaciar el fondo creando cuentas.
+    /// paga una huella, una sola vez por invitación. Solo el museo decide a
+    /// quién invita, así nadie puede vaciar el fondo creando cuentas. Una
+    /// invitación ya usada se puede renovar para otro encuentro.
     pub fn invitar(env: Env, sala: BytesN<32>, cuenta: Address) -> Result<(), Error> {
         let museo = Self::museo_de(env.clone(), sala.clone())?;
         museo.require_auth();
         let clave = Clave::Invitacion(sala.clone(), cuenta.clone());
-        if env.storage().persistent().has(&clave) {
+        let disponible: bool = env.storage().persistent().get(&clave).unwrap_or(false);
+        if disponible {
             return Err(Error::YaInvitada);
         }
         env.storage().persistent().set(&clave, &true);
         env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
-        Self::renovar_sala(&env, &sala);
+        Self::extender_sala(&env, &sala);
         VisitanteInvitado { sala, cuenta }.publish(&env);
         Ok(())
     }
@@ -462,7 +742,7 @@ impl Umbral {
         let nuevo = actual.checked_add(monto).ok_or(Error::Desborde)?;
         env.storage().persistent().set(&clave, &nuevo);
         env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
-        Self::renovar_sala(&env, &sala);
+        Self::extender_sala(&env, &sala);
         SalaPatrocinada { sala, quien, moneda, monto }.publish(&env);
         Ok(())
     }
@@ -496,7 +776,7 @@ impl Umbral {
             &museo,
             &monto,
         );
-        Self::renovar_sala(&env, &sala);
+        Self::extender_sala(&env, &sala);
         FondoRetirado { sala, museo, moneda, monto }.publish(&env);
         Ok(())
     }
@@ -505,7 +785,8 @@ impl Umbral {
 
     /// Deja una huella nueva. El precio completo va al museo Umbral.
     /// Si la huella va a una sala con fondo y el museo invitó a esa cuenta,
-    /// paga el fondo y no el autor. Devuelve `true` si la pagó el fondo.
+    /// paga el fondo y no el autor, y la huella queda marcada como
+    /// presencial. Devuelve `true` si la pagó el fondo.
     /// El identificador lo calcula el contrato (ver `id_de`).
     /// `precio_max`: lo máximo que acepta pagar quien firma. Si el precio
     /// cambió y es mayor, la acción falla en vez de cobrar de más.
@@ -529,20 +810,26 @@ impl Umbral {
         let mut patrocinada = false;
         if let Some(s) = sala.clone() {
             Self::museo_de(env.clone(), s.clone())?;
-            Self::renovar_sala(&env, &s);
+            Self::extender_sala(&env, &s);
             patrocinada = Self::usar_patrocinio(&env, &s, &autor, &moneda, precios.huella);
         }
         if !patrocinada {
             Self::cobrar_y_repartir(&env, &autor, &moneda, precios.huella, None, None)?;
         }
         let artista = autor.clone();
-        Self::guardar_nueva(&env, id, autor, artista, digest, None, admite_respuestas, sala);
+        let raiz = id.clone();
+        Self::guardar_nueva(
+            &env,
+            id,
+            Nueva { autor, artista, digest, padre: None, raiz, sala, presencial: patrocinada, admite_respuestas },
+        );
         Ok(patrocinada)
     }
 
     /// Continúa una huella existente. Una parte del pago queda a nombre del
     /// artista que abrió la obra (sea cual sea el nivel de la cadena) y el
     /// resto va a Umbral. Quien escribió la huella continuada no cobra.
+    /// Falla si la huella continuada o la obra raíz fueron retiradas.
     /// `precio_max`: lo máximo que acepta pagar quien firma.
     pub fn comentar(
         env: Env,
@@ -562,9 +849,7 @@ impl Umbral {
         Self::exigir_id_libre(&env, &id)?;
 
         let mut original = Self::obtener(env.clone(), padre.clone())?;
-        if !original.activa {
-            return Err(Error::Retirada);
-        }
+        Self::exigir_activa(&env, &padre, &original)?;
         if !original.admite_respuestas {
             return Err(Error::NoAdmiteRespuestas);
         }
@@ -581,15 +866,24 @@ impl Umbral {
 
         original.respuestas = original.respuestas.checked_add(1).ok_or(Error::Desborde)?;
         Self::guardar(&env, &padre, &original);
-        let sala = original.sala.clone();
-        let artista = original.artista.clone();
-        Self::guardar_nueva(&env, id, autor, artista, digest, Some(padre), admite_respuestas, sala);
+        let nueva = Nueva {
+            autor,
+            artista: original.artista.clone(),
+            digest,
+            padre: Some(padre),
+            raiz: original.raiz.clone(),
+            sala: original.sala.clone(),
+            presencial: false,
+            admite_respuestas,
+        };
+        Self::guardar_nueva(&env, id, nueva);
         Ok(())
     }
 
-    /// Apoyo voluntario de monto libre sobre cualquier huella. El 70% queda a
-    /// nombre del artista que abrió la obra (lo retira con `cobrar`) y el 30%
-    /// va a Umbral. Quien escribió una respuesta no cobra.
+    /// Apoyo voluntario de monto libre sobre cualquier huella activa de una
+    /// obra activa. El 80% queda a nombre del artista que abrió la obra (lo
+    /// retira con `cobrar`) y el 20% va a Umbral. Quien escribió una
+    /// respuesta no cobra.
     pub fn apoyar(
         env: Env,
         quien: Address,
@@ -604,9 +898,7 @@ impl Umbral {
             return Err(Error::MontoInvalido);
         }
         let mut huella = Self::obtener(env.clone(), id.clone())?;
-        if !huella.activa {
-            return Err(Error::Retirada);
-        }
+        Self::exigir_activa(&env, &id, &huella)?;
 
         let para_umbral = Self::parte_de(monto, APOYO_UMBRAL_BPS)?;
         let para_artista = monto - para_umbral;
@@ -628,17 +920,43 @@ impl Umbral {
     /// Cualquiera puede renovar la vigencia de una huella para que no se
     /// archive por falta de movimiento. No cambia ningún dato.
     pub fn renovar(env: Env, id: BytesN<32>) -> Result<(), Error> {
-        let clave = Clave::Huella(id);
-        if !env.storage().persistent().has(&clave) {
-            return Err(Error::NoExiste);
+        Self::extender(&env, &Clave::Huella(id), Error::NoExiste)
+    }
+
+    /// Cualquiera puede renovar la vigencia del saldo de una cuenta en una
+    /// moneda. No cambia el monto.
+    pub fn renovar_saldo(env: Env, autor: Address, moneda: Address) -> Result<(), Error> {
+        Self::extender(&env, &Clave::Saldo(autor, moneda), Error::NadaParaCobrar)
+    }
+
+    /// Cualquiera puede renovar la vigencia del fondo de una sala en una moneda.
+    pub fn renovar_fondo(env: Env, sala: BytesN<32>, moneda: Address) -> Result<(), Error> {
+        Self::extender(&env, &Clave::Fondo(sala, moneda), Error::NoExiste)
+    }
+
+    /// Cualquiera puede renovar la vigencia de una sala y de su muestra.
+    pub fn renovar_sala(env: Env, sala: BytesN<32>) -> Result<(), Error> {
+        Self::extender(&env, &Clave::Sala(sala.clone()), Error::SalaNoExiste)?;
+        let muestra = Clave::Muestra(sala);
+        if env.storage().persistent().has(&muestra) {
+            env.storage().persistent().extend_ttl(&muestra, UMBRAL_VIDA, VIDA);
         }
-        // Solo extiende la vigencia: no reescribe el dato.
-        env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
+        Ok(())
+    }
+
+    /// Cualquiera puede renovar la vigencia del acuerdo de un artista con la
+    /// muestra de una sala: hasta el fin de esa muestra, y como mínimo la
+    /// vida de siempre.
+    pub fn renovar_acuerdo(env: Env, sala: BytesN<32>, artista: Address) -> Result<(), Error> {
+        let clave = Clave::Acuerdo(sala, artista);
+        let a: Muestra = env.storage().persistent().get(&clave).ok_or(Error::NoExiste)?;
+        Self::extender_hasta(&env, &clave, a.hasta);
         Self::renovar_instancia(&env);
         Ok(())
     }
 
     /// El artista retira lo que juntó en una moneda. Devuelve el monto cobrado.
+    /// Funciona aunque la moneda ya no se acepte para pagos nuevos.
     pub fn cobrar(env: Env, autor: Address, moneda: Address) -> Result<i128, Error> {
         autor.require_auth();
         let clave = Clave::Saldo(autor.clone(), moneda.clone());
@@ -675,9 +993,17 @@ impl Umbral {
     /// código del contenido. Lo calcula el contrato, así nadie puede ocupar el
     /// identificador de otro ni quedar como autor de un envío ajeno.
     pub fn id_de(env: Env, autor: Address, digest: BytesN<32>) -> BytesN<32> {
-        let mut datos: Bytes = autor.to_xdr(&env);
-        datos.append(&Bytes::from(digest));
-        env.crypto().sha256(&datos).to_bytes()
+        Self::hash_de(&env, &autor, digest)
+    }
+
+    /// Identificador de una sala: SHA-256 de los bytes "sala", seguidos de la
+    /// cuenta del museo (en XDR, como en `id_de`) y de la semilla. El prefijo
+    /// lo separa de los identificadores de huellas.
+    pub fn id_sala(env: Env, museo: Address, semilla: BytesN<32>) -> BytesN<32> {
+        let mut todo = Bytes::from_slice(&env, b"sala");
+        todo.append(&museo.to_xdr(&env));
+        todo.append(&Bytes::from(semilla));
+        env.crypto().sha256(&todo).to_bytes()
     }
 
     /// Si una cuenta tiene una invitación sin usar en una sala.
@@ -747,9 +1073,35 @@ impl Umbral {
     pub fn tesoro(env: Env) -> Address {
         env.storage().instance().get(&Clave::Tesoro).unwrap()
     }
+
+    pub fn administrador(env: Env) -> Address {
+        Self::admin(&env)
+    }
+
+    /// Segundos entre proponer un cambio sensible y poder aplicarlo.
+    pub fn plazo_aviso(env: Env) -> u64 {
+        env.storage().instance().get(&Clave::PlazoAviso).unwrap()
+    }
+
+    /// La propuesta pendiente de un tipo, si hay.
+    pub fn propuesta(env: Env, tipo: TipoCambio) -> Option<Propuesta> {
+        env.storage().instance().get(&Clave::Propuesta(tipo))
+    }
 }
 
 // ---------- Funciones internas ----------
+
+/// Datos de una huella nueva antes de guardarla.
+struct Nueva {
+    autor: Address,
+    artista: Address,
+    digest: BytesN<32>,
+    padre: Option<BytesN<32>>,
+    raiz: BytesN<32>,
+    sala: Option<BytesN<32>>,
+    presencial: bool,
+    admite_respuestas: bool,
+}
 
 impl Umbral {
     fn admin(env: &Env) -> Address {
@@ -761,38 +1113,136 @@ impl Umbral {
     }
 
     /// Renueva la vigencia de una sala (que ya existe) y de la instancia.
-    fn renovar_sala(env: &Env, sala: &BytesN<32>) {
+    fn extender_sala(env: &Env, sala: &BytesN<32>) {
         env.storage()
             .persistent()
             .extend_ttl(&Clave::Sala(sala.clone()), UMBRAL_VIDA, VIDA);
         Self::renovar_instancia(env);
     }
 
+    /// Extiende la vigencia de un dato persistente sin reescribirlo. Si no
+    /// existe, devuelve `si_falta`.
+    fn extender(env: &Env, clave: &Clave, si_falta: Error) -> Result<(), Error> {
+        if !env.storage().persistent().has(clave) {
+            return Err(si_falta);
+        }
+        env.storage().persistent().extend_ttl(clave, UMBRAL_VIDA, VIDA);
+        Self::renovar_instancia(env);
+        Ok(())
+    }
+
+    /// Extiende la vigencia de un dato persistente al menos hasta la fecha
+    /// `hasta` (segundos desde 1970) más un día de margen, y como mínimo la
+    /// vida de siempre. Nunca pasa del máximo que permite la red.
+    fn extender_hasta(env: &Env, clave: &Clave, hasta: u64) {
+        let ahora = env.ledger().timestamp();
+        let ledgers = hasta.saturating_sub(ahora) / SEGUNDOS_LEDGER;
+        let max = env.storage().max_ttl();
+        let objetivo = u32::try_from(ledgers)
+            .unwrap_or(u32::MAX)
+            .saturating_add(DIA)
+            .max(VIDA)
+            .min(max);
+        env.storage()
+            .persistent()
+            .extend_ttl(clave, objetivo.saturating_sub(DIA), objetivo);
+    }
+
+    fn hash_de(env: &Env, cuenta: &Address, datos: BytesN<32>) -> BytesN<32> {
+        let mut todo: Bytes = cuenta.clone().to_xdr(env);
+        todo.append(&Bytes::from(datos));
+        env.crypto().sha256(&todo).to_bytes()
+    }
+
+    /// Guarda una propuesta (reemplaza la pendiente del mismo tipo y reinicia
+    /// el plazo). Solo el administrador. Devuelve desde cuándo se aplica.
+    fn proponer(env: &Env, tipo: TipoCambio, cambio: Cambio) -> Result<u64, Error> {
+        Self::admin(env).require_auth();
+        let plazo: u64 = env.storage().instance().get(&Clave::PlazoAviso).unwrap();
+        let aplicable_desde = env
+            .ledger()
+            .timestamp()
+            .checked_add(plazo)
+            .ok_or(Error::Desborde)?;
+        let aplicable_hasta = aplicable_desde
+            .checked_add(VIGENCIA_PROPUESTA)
+            .ok_or(Error::Desborde)?;
+        let p = Propuesta { cambio: cambio.clone(), aplicable_desde, aplicable_hasta };
+        env.storage().instance().set(&Clave::Propuesta(tipo), &p);
+        Self::renovar_instancia(env);
+        CambioPropuesto { cambio, aplicable_desde, aplicable_hasta }.publish(env);
+        Ok(aplicable_desde)
+    }
+
+    fn leer_propuesta(env: &Env, tipo: TipoCambio) -> Result<Propuesta, Error> {
+        env.storage()
+            .instance()
+            .get(&Clave::Propuesta(tipo))
+            .ok_or(Error::NoHayPropuesta)
+    }
+
+    /// Saca la propuesta pendiente de un tipo si ya pasó su plazo y todavía
+    /// no venció, y devuelve el cambio. La firma se revisa antes, en cada
+    /// `aplicar_*`. Una vencida queda guardada hasta que se cancela o se
+    /// reemplaza con otra propuesta, pero ya no se puede aplicar.
+    fn tomar_propuesta(env: &Env, tipo: TipoCambio) -> Result<Cambio, Error> {
+        let p = Self::leer_propuesta(env, tipo.clone())?;
+        let ahora = env.ledger().timestamp();
+        if ahora < p.aplicable_desde {
+            return Err(Error::PlazoNoCumplido);
+        }
+        if ahora > p.aplicable_hasta {
+            return Err(Error::PropuestaVencida);
+        }
+        env.storage().instance().remove(&Clave::Propuesta(tipo));
+        Self::renovar_instancia(env);
+        Ok(p.cambio)
+    }
+
+    /// La huella tiene que estar activa y, si no es la raíz, su obra raíz
+    /// también. Así la moderación de una obra corta toda su cadena.
+    fn exigir_activa(env: &Env, id: &BytesN<32>, huella: &Huella) -> Result<(), Error> {
+        if !huella.activa {
+            return Err(Error::Retirada);
+        }
+        if huella.raiz != *id {
+            let raiz = Self::obtener(env.clone(), huella.raiz.clone())?;
+            if !raiz.activa {
+                return Err(Error::Retirada);
+            }
+        }
+        Ok(())
+    }
+
     /// Si la huella es de una sala que hoy tiene su muestra en curso y el
     /// artista aceptó esa muestra, devuelve el museo y la parte acordada.
+    /// Renueva la vigencia de la muestra, del acuerdo y de la sala que lee.
     fn museo_en_muestra(
         env: &Env,
         sala: &Option<BytesN<32>>,
         artista: &Address,
     ) -> Option<(Address, u32)> {
         let s = sala.clone()?;
-        let m: Muestra = env.storage().persistent().get(&Clave::Muestra(s.clone()))?;
+        let clave_muestra = Clave::Muestra(s.clone());
+        let m: Muestra = env.storage().persistent().get(&clave_muestra)?;
+        Self::extender_hasta(env, &clave_muestra, m.hasta);
         let ahora = env.ledger().timestamp();
         if ahora < m.desde || ahora > m.hasta {
             return None;
         }
-        let aceptada: Muestra = env
-            .storage()
-            .persistent()
-            .get(&Clave::Acuerdo(s.clone(), artista.clone()))?;
+        let clave_acuerdo = Clave::Acuerdo(s.clone(), artista.clone());
+        let aceptada: Muestra = env.storage().persistent().get(&clave_acuerdo)?;
+        Self::extender_hasta(env, &clave_acuerdo, aceptada.hasta);
         if aceptada != m {
             return None;
         }
-        let museo: Address = env.storage().persistent().get(&Clave::Sala(s))?;
+        let museo: Address = env.storage().persistent().get(&Clave::Sala(s.clone()))?;
+        Self::extender_sala(env, &s);
         Some((museo, m.parte_sala_bps))
     }
 
-    /// `monto * bps / 10000`, con control de desborde.
+    /// `monto * bps / 10000`, con control de desborde. Redondea hacia abajo:
+    /// lo que sobra del redondeo va al tesoro.
     fn parte_de(monto: i128, bps: u32) -> Result<i128, Error> {
         Ok(monto.checked_mul(bps as i128).ok_or(Error::Desborde)? / (TOTAL_BPS as i128))
     }
@@ -858,23 +1308,16 @@ impl Umbral {
         env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
     }
 
-    fn guardar_nueva(
-        env: &Env,
-        id: BytesN<32>,
-        autor: Address,
-        artista: Address,
-        digest: BytesN<32>,
-        padre: Option<BytesN<32>>,
-        admite_respuestas: bool,
-        sala: Option<BytesN<32>>,
-    ) {
+    fn guardar_nueva(env: &Env, id: BytesN<32>, n: Nueva) {
         let huella = Huella {
-            autor: autor.clone(),
-            artista: artista.clone(),
-            digest: digest.clone(),
-            padre: padre.clone(),
-            sala: sala.clone(),
-            admite_respuestas,
+            autor: n.autor.clone(),
+            artista: n.artista.clone(),
+            digest: n.digest.clone(),
+            padre: n.padre.clone(),
+            raiz: n.raiz,
+            sala: n.sala.clone(),
+            presencial: n.presencial,
+            admite_respuestas: n.admite_respuestas,
             activa: true,
             apoyos: 0,
             respuestas: 0,
@@ -882,7 +1325,15 @@ impl Umbral {
         };
         Self::guardar(env, &id, &huella);
         Self::renovar_instancia(env);
-        HuellaDejada { id, autor, artista, digest, padre, sala }.publish(env);
+        HuellaDejada {
+            id,
+            autor: n.autor,
+            artista: n.artista,
+            digest: n.digest,
+            padre: n.padre,
+            sala: n.sala,
+        }
+        .publish(env);
     }
 
     fn desactivar(env: &Env, id: BytesN<32>, por_moderacion: bool) -> Result<(), Error> {
@@ -913,23 +1364,23 @@ impl Umbral {
             return Err(Error::PrecioInvalido);
         }
         let cliente = token::TokenClient::new(env, moneda);
-        // Sin muestra: el artista recibe su parte (80%). Con muestra en curso:
-        // Umbral se queda con el 30%, la sala con la parte acordada y el artista
-        // con el resto, que nunca baja del piso.
+        // Sin muestra, o con una muestra en la que la sala no cobra nada: el
+        // artista recibe su parte (80%). Con muestra en curso y sala > 0%:
+        // Umbral se queda con el 30%, la sala con la parte acordada y el
+        // artista con el resto, que nunca baja del piso.
+        let museo = museo.filter(|(_, bps)| *bps > 0);
         let (parte, parte_sala) = match (artista, museo) {
-            (Some(_), sala) => match sala {
-                Some((_, bps_sala)) => {
-                        let bps_artista = TOTAL_BPS
-                            .saturating_sub(MUESTRA_UMBRAL_BPS)
-                            .saturating_sub(bps_sala)
-                            .max(PISO_AUTOR_BPS);
-                        (Self::parte_de(monto, bps_artista)?, Self::parte_de(monto, bps_sala)?)
-                }
-                None => {
-                    let bps: u32 = env.storage().instance().get(&Clave::ParteAutor).unwrap();
-                    (Self::parte_de(monto, bps)?, 0)
-                }
-            },
+            (Some(_), Some((_, bps_sala))) => {
+                let bps_artista = TOTAL_BPS
+                    .saturating_sub(MUESTRA_UMBRAL_BPS)
+                    .saturating_sub(bps_sala)
+                    .max(PISO_AUTOR_BPS);
+                (Self::parte_de(monto, bps_artista)?, Self::parte_de(monto, bps_sala)?)
+            }
+            (Some(_), None) => {
+                let bps: u32 = env.storage().instance().get(&Clave::ParteAutor).unwrap();
+                (Self::parte_de(monto, bps)?, 0)
+            }
             (None, _) => (0, 0),
         };
         let al_contrato = parte + parte_sala;

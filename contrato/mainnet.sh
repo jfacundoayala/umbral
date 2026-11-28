@@ -14,7 +14,8 @@ RED="${RED:-testnet}"                  # mainnet | testnet
 CLAVE="${CLAVE:-umbral-main}"          # alias de stellar-cli que firma
 ADMIN="${ADMIN:?Falta ADMIN: la dirección pública (G...) de la cuenta $CLAVE}"
 TESORO="${TESORO:-$ADMIN}"             # adónde va la parte de UMBRAL
-PARTE_AUTOR_BPS="${PARTE_AUTOR_BPS:-7000}"   # 70% para el artista
+PARTE_AUTOR_BPS="${PARTE_AUTOR_BPS:-8000}"   # 80% para el artista
+PLAZO_AVISO="${PLAZO_AVISO:-259200}"         # 3 días entre proponer y aplicar un cambio sensible
 SIMULAR="${SIMULAR:-0}"                # 1 = simula todo y no envía nada
 CONTRATO="${CONTRATO:-}"               # si ya se desplegó, se saltean subir y desplegar
 CONFIRMAR_TODO="${CONFIRMAR_TODO:-0}"  # solo para probar en testnet sin preguntar
@@ -29,7 +30,7 @@ PRECIO_USDC_COMENTARIO="${PRECIO_USDC_COMENTARIO:-200000}" # 0,02 USDC
 # El mismo código que está en testnet (CBPXN2SA…V3TP), compilado con Rust 1.100.0. No se recompila acá.
 CARPETA="$(cd "$(dirname "$0")" && pwd)"
 WASM="${WASM:-$CARPETA/target/wasm32v1-none/release/umbral.wasm}"
-WASM_ESPERADO="54c8d2b3d1288b105831c4725d80018458b09cfe02c7b6f3fa59da9a0768a105"
+WASM_ESPERADO="${WASM_ESPERADO:?Falta WASM_ESPERADO: el sha256 del wasm verificado (ver docs/contrato.md)}"
 
 case "$RED" in
   mainnet)
@@ -116,9 +117,9 @@ if [ -z "$CONTRATO" ]; then
   decir "   Código en la red: $HASH_RED"
 
   # 2. Crear el contrato con su administrador, tesoro y parte del artista
-  confirmar "Desplegar el contrato (admin $ADMIN, tesoro $TESORO, artista $PARTE_AUTOR_BPS bps)" "$C_DESPLEGAR"
+  confirmar "Desplegar el contrato (admin $ADMIN, tesoro $TESORO, artista $PARTE_AUTOR_BPS bps, aviso $PLAZO_AVISO s)" "$C_DESPLEGAR"
   CONTRATO="$(stellar contract deploy --wasm-hash "$HASH_RED" --source-account "$CLAVE" "${EN_RED[@]}" \
-    -- --admin "$ADMIN" --tesoro "$TESORO" --parte_autor_bps "$PARTE_AUTOR_BPS" 2> >(tee -a "$LOG" >&2))"
+    -- --admin "$ADMIN" --tesoro "$TESORO" --parte_autor_bps "$PARTE_AUTOR_BPS" --plazo_aviso "$PLAZO_AVISO" 2> >(tee -a "$LOG" >&2))"
   decir "   Contrato: $CONTRATO · $EXPLORADOR/contract/$CONTRATO"
 fi
 
