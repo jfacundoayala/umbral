@@ -10,7 +10,7 @@ import type { Firmar } from "./umbral";
 import "./Formularios.css";
 
 const red = () => import("./umbral");
-const firmar: Firmar = async (xdr) => (await import("./billetera")).firmar(xdr);
+const firmar: Firmar = async (xdr, cuenta) => (await import("./billetera")).firmar(xdr, cuenta);
 
 /** Un QR en SVG, armado en el navegador (qrcode se baja recién acá). */
 function useQr(texto: string | null) {
@@ -48,7 +48,10 @@ export function MiCodigo({ sesion, sala }: { sesion: Sesion; sala?: string }) {
         <p className="sub">Mostráselo a la sala en la puerta. Lo escanean y te invitan: tu obra la paga la sala y queda con el sello "Estuve ahí".</p>
       </div>
       {!sesion.cuenta ? (
-        <Entrar sesion={sesion} para="ver tu código." />
+        <div className="entrar-para">
+          <p className="sub">Tu código identifica tu cuenta. Entrá con tu billetera para mostrarlo en la puerta.</p>
+          <button className="btn lleno" onClick={sesion.entrar}>Entrar con billetera</button>
+        </div>
       ) : (
         <>
           <div className="encuentro-qr" role="img" aria-label={`Código QR de tu cuenta ${corta(sesion.cuenta)}`} dangerouslySetInnerHTML={{ __html: svg }} />

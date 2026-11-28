@@ -1,14 +1,44 @@
 // Puente entre las pantallas y el contrato de UMBRAL.
 // Cada acción: arma el pedido, lo simula, pide la firma a la billetera, lo manda y devuelve el comprobante.
 import { Buffer } from "buffer";
-import { Address, rpc, scValToNative, StrKey } from "@stellar/stellar-sdk";
+import { Address, Keypair, rpc, scValToNative, StrKey, TransactionBuilder } from "@stellar/stellar-sdk";
 import { Client } from "./contrato/cliente";
 import { CONTRATO_ID, MONEDA_ID, RED, UNIDAD } from "./config";
-import { nuevaSal, PagoSinConfirmar } from "./sin-red";
-export { nuevaSal, PagoSinConfirmar };
+import { nuevaSal, otraCuenta, PagoSinConfirmar, RechazadaPorLaRed } from "./sin-red";
+export { nuevaSal, PagoSinConfirmar, RechazadaPorLaRed };
 
-/** Función que firma un pedido con la billetera de la persona. */
-export type Firmar = (xdr: string) => Promise<{ signedTxXdr: string }>;
+/** Función que firma un pedido con la billetera de la persona. `cuenta` es la cuenta que tiene que firmar. */
+export type Firmar = (xdr: string, cuenta?: string) => Promise<{ signedTxXdr: string }>;
+
+/** `false` si el pedido volvió firmado, pero por otra cuenta (la billetera cambió de cuenta después de entrar).
+ *  Si no trae firmas o no se puede leer, no opina: decide la red. */
+export function firmadaPor(xdrFirmado: string, cuenta: string): boolean {
+  let tx: ReturnType<typeof TransactionBuilder.fromXDR>;
+  try {
+    tx = TransactionBuilder.fromXDR(xdrFirmado, RED.frase);
+  } catch {
+    return true;
+  }
+  if (tx.signatures.length === 0) return true;
+  const clave = Keypair.fromPublicKey(cuenta);
+  const hash = tx.hash();
+  return tx.signatures.some((s) => {
+    try {
+      return clave.verify(hash, Buffer.from(s.signature.value));
+    } catch {
+      return false;
+    }
+  });
+}
+
+/** Pide la firma para esa cuenta y comprueba que firmó ella, antes de mandar nada a la red. */
+export const firmarComo =
+  (cuenta: string, firmar: Firmar) =>
+  async (xdr: string) => {
+    const firmado = await firmar(xdr, cuenta);
+    if (!firmadaPor(firmado.signedTxXdr, cuenta)) throw otraCuenta(cuenta);
+    return firmado;
+  };
 
 export type Comprobante = { hash: string; enlace: string };
 
@@ -72,7 +102,7 @@ function cliente(cuenta?: string, firmar?: Firmar) {
     rpcUrl: RED.rpcUrl,
     networkPassphrase: RED.frase,
     publicKey: cuenta,
-    signTransaction: firmar,
+    signTransaction: cuenta && firmar ? firmarComo(cuenta, firmar) : undefined,
   });
 }
 
@@ -93,14 +123,17 @@ export async function idDe(cuenta: string, digest: Buffer): Promise<Buffer> {
 const ERRORES: Record<number, string> = {
   1: "Ya dejaste esta huella.",
   2: "Esa huella no existe.",
-  3: "Esa huella fue retirada.",
-  4: "Esa huella no admite continuaciones.",
+  3: "Esa huella o su obra fue retirada.",
+  4: "Esa huella no admite más huellas encima.",
   5: "Esa moneda no está aceptada.",
   6: "El monto tiene que ser mayor que cero.",
   7: "No tenés nada para cobrar.",
   8: "Solo quien dejó la huella puede retirarla.",
   11: "El monto es demasiado grande.",
   12: "Esa sala no existe.",
+  15: "Esa muestra no es válida o ya cerró.",
+  16: "El fondo de la sala no alcanza.",
+  20: "Esa sala no te invitó. Podés dejar tu obra sin nombrar la sala.",
   14: "El precio cambió mientras decidías. Volvé a intentar para ver el precio nuevo.",
 };
 
@@ -108,6 +141,8 @@ export function enPalabras(e: unknown): Error {
   const texto = e instanceof Error ? e.message : String(e);
   const m = texto.match(/Error\(Contract, #(\d+)\)/);
   if (m && ERRORES[Number(m[1])]) return new Error(ERRORES[Number(m[1])]);
+  if (/^Tu billetera está en otra cuenta/.test(texto)) return e as Error;
+  if (/tx_?bad_?auth/i.test(texto)) return new Error("Tu billetera firmó con otra cuenta. Cambiá a la cuenta con la que entraste y probá de nuevo.");
   if (/trustline|TrustlineMissing|#13\b/i.test(texto)) return new Error("Tu cuenta no tiene USDC habilitado. Elegí pagar en XLM arriba y volvé a intentar.");
   if (/balance is not sufficient|insufficient|underfunded|#10\b/i.test(texto)) return new Error('No te alcanza el saldo. Si tu cuenta es nueva, tocá "Cargar fondos de prueba" arriba.');
   if (/account not found|does not exist|\b404\b/i.test(texto)) return new Error('Tu cuenta todavía no existe en la red de pruebas. Tocá "Cargar fondos de prueba" arriba y volvé a intentar.');
@@ -128,13 +163,24 @@ type Enviado = {
 /** Firma y manda. Solo devuelve comprobante si la red aceptó la acción. */
 type Vigia = { onSubmitted?: (r?: { hash?: string }) => void };
 
-async function enviar(armar: () => Promise<{ signAndSend: (o?: { watcher?: Vigia }) => Promise<Enviado> }>): Promise<Comprobante> {
+/** `alEnviar` recibe el comprobante apenas la acción sale hacia la red, antes de saber cómo terminó:
+ *  quien llama lo guarda ahí, así no se pierde si se cierra la pestaña durante la espera. */
+export type AlEnviar = (hash: string) => void;
+
+async function enviar(armar: () => Promise<{ signAndSend: (o?: { watcher?: Vigia }) => Promise<Enviado> }>, alEnviar?: AlEnviar): Promise<Comprobante> {
   let enviado: Enviado;
   // El comprobante se conoce apenas sale la acción, antes de saber si salió bien.
   let mandada = "";
   try {
     const tx = await armar(); // acá se simula: si el contrato va a rechazar, falla antes de firmar
-    enviado = await tx.signAndSend({ watcher: { onSubmitted: (r) => (mandada = r?.hash ?? "") } });
+    enviado = await tx.signAndSend({
+      watcher: {
+        onSubmitted: (r) => {
+          mandada = r?.hash ?? "";
+          if (mandada) alEnviar?.(mandada);
+        },
+      },
+    });
   } catch (e) {
     // Si ya se mandó, cualquier error en la espera (red cortada, "Load failed" en Safari, 503…)
     // no es un rechazo: puede haberse cobrado. Se anota para no perder la huella.
@@ -146,7 +192,7 @@ async function enviar(armar: () => Promise<{ signAndSend: (o?: { watcher?: Vigia
   const estado = enviado.getTransactionResponse?.status;
   // Solo FAILED es un rechazo seguro. Sin respuesta o NOT_FOUND, la red todavía no decidió.
   if (estado === "FAILED") {
-    throw new Error(`La red rechazó la acción. Podés ver el detalle en ${RED.explorador}/tx/${hash}`);
+    throw new RechazadaPorLaRed(`La red rechazó la acción. Podés ver el detalle en ${RED.explorador}/tx/${hash}`);
   }
   if (estado !== "SUCCESS") throw new PagoSinConfirmar(hash);
   return comprobante(hash);
@@ -161,18 +207,19 @@ export async function preciosVigentes(moneda: string = MONEDA_ID): Promise<{ hue
 /** Abre una obra nueva. `precioMax` es el precio que la persona vio en pantalla:
  *  si cambió y es mayor, el contrato rechaza la acción en vez de cobrar de más. */
 /** `salaHex`: si la obra se abre por invitación de una sala, su fondo paga la obra (si la cuenta está invitada y hay fondos). */
-export async function dejarHuella(cuenta: string, firmar: Firmar, doc: Documento, precioMax: bigint, moneda: string = MONEDA_ID, salaHex?: string) {
+export async function dejarHuella(cuenta: string, firmar: Firmar, doc: Documento, precioMax: bigint, moneda: string = MONEDA_ID, salaHex?: string, alEnviar?: AlEnviar) {
   const c = cliente(cuenta, firmar);
   const digest = await codigoDe(doc);
   const id = await idDe(cuenta, digest);
   const recibo = await enviar(() =>
     c.dejar_huella({ autor: cuenta, digest, admite_respuestas: true, moneda, precio_max: precioMax, sala: salaHex ? Buffer.from(salaHex, "hex") : undefined }),
+    alEnviar,
   );
   return { ...recibo, id: id.toString("hex"), digest: digest.toString("hex") };
 }
 
 /** Continúa una huella que ya existe. */
-export async function continuar(cuenta: string, firmar: Firmar, padreHex: string, doc: Documento, precioMax: bigint, moneda: string = MONEDA_ID) {
+export async function continuar(cuenta: string, firmar: Firmar, padreHex: string, doc: Documento, precioMax: bigint, moneda: string = MONEDA_ID, alEnviar?: AlEnviar) {
   const c = cliente(cuenta, firmar);
   const digest = await codigoDe(doc);
   const id = await idDe(cuenta, digest);
@@ -185,6 +232,7 @@ export async function continuar(cuenta: string, firmar: Firmar, padreHex: string
       moneda,
       precio_max: precioMax,
     }),
+    alEnviar,
   );
   return { ...recibo, id: id.toString("hex"), digest: digest.toString("hex") };
 }

@@ -24,7 +24,7 @@ export const mensajeError = (e: unknown) => (e instanceof Error ? e.message : "A
 export type Ruta =
   | { pantalla: "portada" }
   | { pantalla: "cielo" }
-  | { pantalla: "obra"; id: string; placa?: { firma: string } }
+  | { pantalla: "obra"; id: string; placa?: { firma: string }; dejar?: boolean }
   | { pantalla: "placa"; id: string }
   | { pantalla: "abrir"; sala?: string }
   | { pantalla: "cobrar" }
@@ -50,7 +50,11 @@ export function rutaDe(hash: string): Ruta {
   const [camino, consulta = ""] = hash.replace(/^#\/?/, "").split("?");
   const partes = camino.split("/");
   if (partes[0] === "cielo") return { pantalla: "cielo" };
-  if (partes[0] === "obra" && partes[1]) return { pantalla: "obra", id: partes[1], placa: placaDe(consulta) };
+  if (partes[0] === "obra" && partes[1]) {
+    // #/obra/<id>?dejar: llega directo al formulario para dejar una huella.
+    const dejar = new URLSearchParams(consulta).has("dejar") ? true : undefined;
+    return { pantalla: "obra", id: partes[1], placa: placaDe(consulta), dejar };
+  }
   if (partes[0] === "placa" && partes[1]) return { pantalla: "placa", id: partes[1] };
   if (partes[0] === "abrir") {
     // Invitación de una sala: #/abrir?sala=<id de la sala>
@@ -91,4 +95,4 @@ export const ir = (destino: string) => {
 export const palabras = (t: string) => (t.trim() ? t.trim().split(/\s+/).length : 0);
 
 /** "Entre raíces": la obra de la portada y el ejemplo de placa con QR (una talla en algarrobo, existe en el mundo). */
-export const OBRA_PORTADA = "84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5";
+export const OBRA_PORTADA = "f23f895aa98d356b2870ec370e2b17d47ef7558592d2d7bc7a1ba13d9958b420";

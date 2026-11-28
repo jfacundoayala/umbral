@@ -63,7 +63,7 @@ export default function Fondos({ cuenta, moneda, cambiarMoneda }: { cuenta: stri
   if (!estado.existe) {
     return (
       <div className="ayuda-fondos" role="status">
-        <p>Tu cuenta todavía no tiene fondos de prueba. Son gratis y no valen dinero real: sirven para probar UMBRAL.</p>
+        <p>Tu cuenta es nueva. Te cargamos saldo de prueba gratis. No vale dinero real y sirve para probar UMBRAL.</p>
         <button className="btn lleno" onClick={cargar} disabled={cargando}>
           {cargando ? "Cargando…" : "Cargar fondos de prueba"}
         </button>

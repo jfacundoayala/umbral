@@ -43,13 +43,13 @@ export function Cuentas() {
         <div><b>{autor}</b><span>para quien hizo la obra</span></div>
         <div><b>{umbral}</b><span>para sostener UMBRAL</span></div>
       </div>
-      <p>Así se reparte cada huella y cada apoyo. Mirar es gratis. Si la obra entra en una muestra con fecha, cambia: UMBRAL se queda con el 30%, la sala con la parte que se publicó (hasta 40%) y el artista con el resto. Pasa solo si el artista lo acepta con su firma, y nunca le queda menos del 30%.</p>
+      <p>Así se reparte cada huella y cada aporte. Mirar es gratis. Si la obra entra en una muestra con fecha, cambia: UMBRAL se queda con el 30%, la sala con la parte que se publicó (hasta 40%) y el artista con el resto. Pasa solo si el artista lo acepta con su firma, y nunca le queda menos del 30%.</p>
 
       {precios.length > 0 && (
         <ul className="cuentas-lista">
           {precios.map((p) => (
             <li key={p.codigo}>
-              En {p.codigo}: exponer una obra, <b>{plata(p.huella, p.codigo)}</b> · dejar una huella, <b>{plata(p.continuar, p.codigo)}</b>
+              {p.codigo === "USDC" ? "Precio, en USDC" : `Si pagás con ${p.codigo}`}: exponer una obra, <b>{plata(p.huella, p.codigo)}</b> · dejar una huella, <b>{plata(p.continuar, p.codigo)}</b>
             </li>
           ))}
         </ul>
@@ -66,7 +66,7 @@ export function Cuentas() {
 
       <h2 className="h3">Quién paga qué</h2>
       <ul>
-        <li><b>El público</b> mira gratis. Si una obra lo toca, deja su huella o la apoya.</li>
+        <li><b>El público</b> mira gratis. Si una obra lo toca, deja su huella o le da un aporte.</li>
         <li><b>Las salas y los padrinos</b> ponen un fondo para los encuentros en persona: quien va deja su obra sin pagar y se lleva el sello Estuve ahí.</li>
         <li><b>Cada obra</b> puede tener su placa con QR, firmada por quien la expuso, para poner al lado de la pieza: conecta el objeto con su registro en la red.</li>
       </ul>
@@ -80,7 +80,7 @@ export function Cuentas() {
       </ul>
 
       <h2 className="h3">Lo que todavía puede cambiar (y cómo lo vamos a cerrar)</h2>
-      <p>Hoy UMBRAL puede cambiar el % general, siempre entre 30% y 100%, y actualizar el código del contrato. Lo contamos acá para que no haya sorpresas. Antes de la red real, el % va a quedar fijo en cada obra desde que se expone, y cada cambio va a necesitar la firma de varias personas y un aviso con días de anticipación.</p>
+      <p>Hoy UMBRAL puede cambiar el % general, siempre entre 30% y 100%, y actualizar el código del contrato. Cada uno de esos cambios se publica antes y recién se puede aplicar 1 día después. Los precios y la moderación no tienen plazo. Lo contamos acá para que no haya sorpresas. Todavía firma una sola cuenta: antes de la red real va a hacer falta la firma de varias personas, y el % va a quedar fijo en cada obra desde que se expone.</p>
 
       <h2 className="h3">Avisos</h2>
       <ul className="cuentas-avisos">

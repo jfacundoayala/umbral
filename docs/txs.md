@@ -1,6 +1,35 @@
 # Transacciones en la red de pruebas de Stellar
 
-Red: Stellar Testnet. El USDC y el XLM usados no tienen valor real. Fecha: 27/11/2026.
+Red: Stellar Testnet. El USDC y el XLM usados no tienen valor real.
+
+## Contrato final (28/11/2026)
+
+Contrato: `CBE4RP5RRN7HKZLQKYZKNZFVCGDOFB74JPWGGWSIAUNNLR3R3IUXJ4ZM`
+[Ver el contrato en Stellar Expert](https://stellar.expert/explorer/testnet/contract/CBE4RP5RRN7HKZLQKYZKNZFVCGDOFB74JPWGGWSIAUNNLR3R3IUXJ4ZM)
+
+Es el contrato que usa la app. Suma todo lo que salió de las auditorías. Los cambios sensibles van en dos pasos con un día de aviso, se puede cambiar el administrador y el tesoro, moderar una obra corta los pagos sobre ella, un artista puede salir de una muestra y solo quien fue invitado puede nombrar una sala.
+
+**Código verificado.** El código publicado en este repo es el que corre en la red, y cualquiera lo puede comprobar.
+
+- Código instalado (sha256): `b20adb9a7ed35042f4637aa59a96048319c920bddc4053b506953ab63301afbd`
+- Fuente: commit `8946874`, archivo [umbral-contrato-src.tar.gz](https://github.com/jfacundoayala/umbral/releases/download/contrato-4/umbral-contrato-src.tar.gz), sha256 `8059190854b0d1c7700ed5b9f838282b2205be900ed526ab845fc13d51a4a295`
+- Imagen de compilación: `ghcr.io/jfacundoayala/umbral/stellar-cli@sha256:0aa57a02467a60d940d09e5e008144f158b924e83c34051aa3ad139391ba3eda`
+- Resultado: [Verified, 42593 bytes](https://github.com/jfacundoayala/umbral/actions/runs/46139902038). Se repite con el flujo [verificar-contrato](../.github/workflows/verificar-contrato.yml).
+
+| Acción | Quién firma | Detalle | Comprobante |
+|---|---|---|---|
+| Instalar el código del contrato | UMBRAL | Código `b20adb9a…afbd` | [9df9fb80…](https://stellar.expert/explorer/testnet/tx/9df9fb80babb57971ea9c78b5e148b1d952431a679c976902f883b8d2089a7b0) |
+| Desplegar el contrato | UMBRAL | Artista 80%, UMBRAL 20%, aviso de 1 día | [165c04fd…](https://stellar.expert/explorer/testnet/tx/165c04fd1a2e3c854766b8cf064156ede238350460574b09628e5c46ae524368) |
+| Fijar precios en USDC | UMBRAL | Exponer una obra 2, continuar 1 | [d111d69b…](https://stellar.expert/explorer/testnet/tx/d111d69b53f8b35ab5ba39c6ee213061d35fcc6427e4d440625cad3e72d8be08) |
+| Fijar precios en XLM | UMBRAL | Exponer una obra 20, continuar 10 | [c1a7822d…](https://stellar.expert/explorer/testnet/tx/c1a7822d48d82b3bfa5679a1e5253320aa069b702b36f9ed77ea17290ef2594e) |
+
+<!-- EVIDENCIA-4 -->
+
+## Contratos anteriores
+
+Siguen en la red con sus comprobantes, pero la app ya no los usa. El tercero, `CAQP7FGUBFA4RLDAZDLW4J4WVWIKJBBZZ72VRY4FHD2WP4VQIHMLB755`, fue un ensayo del contrato final.
+
+### Segundo contrato (27/11/2026)
 
 Contrato: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`
 [Ver el contrato en Stellar Expert](https://stellar.expert/explorer/testnet/contract/CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP)

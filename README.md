@@ -8,12 +8,13 @@ Mirar es gratis. Cada huella se paga en Stellar: el 80% va a quien hizo la obra 
 
 Proyecto para el Hackathon Sin Coordenada — FLAT 2026 (BAF × Stellar).
 
-> **Prototipo en la red de pruebas de Stellar.** Los pagos y los repartos son reales en el contrato; el dinero es de prueba y las obras de la demo son de ejemplo.
+> **Funciona hoy en la red de pruebas de Stellar.** Cada pago y cada reparto pasa de verdad por el contrato, con su comprobante público.
 
 | | |
 |---|---|
 | Demo en vivo | [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app) |
-| Contrato (red de pruebas) | [`CBPXN2SA…V3TP`](https://stellar.expert/explorer/testnet/contract/CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP) |
+| Contrato (red de pruebas) | [`CBE4RP5R…J4ZM`](https://stellar.expert/explorer/testnet/contract/CBE4RP5RRN7HKZLQKYZKNZFVCGDOFB74JPWGGWSIAUNNLR3R3IUXJ4ZM) |
+| Código del contrato verificado | [Verified, corrida pública](https://github.com/jfacundoayala/umbral/actions/runs/46139902038). Cualquiera puede repetirla |
 | Transacciones verificadas | [docs/txs.md](docs/txs.md) |
 | Guion de la demo | [docs/demo-jurado.md](docs/demo-jurado.md) |
 
@@ -21,7 +22,7 @@ Proyecto para el Hackathon Sin Coordenada — FLAT 2026 (BAF × Stellar).
 
 ## Eje
 
-**Eje I · Arte**, con raíz en un territorio: Resistencia, Chaco. umbral ayuda a mostrar y financiar obra con pagos directos al artista, y guarda lo que cada obra despierta en la gente. Sin el arte no tiene sentido: no hay obra que continuar ni artista que cobre.
+**Eje I · Arte**, cruzado con memoria y territorio. UMBRAL ayuda a mostrar obra y a que su autor cobre con pagos directos (arte), guarda recetas, fotos, sonidos y lo que cada obra le hizo sentir a la gente (memoria), y nace de un lugar concreto: Resistencia, Chaco (territorio). Sin la obra y sin quien la hizo no queda nada: no hay qué continuar ni quién cobre.
 
 ## El problema
 
@@ -29,14 +30,20 @@ Un artista sube su obra a una red social. Recibe algunos corazones y al otro dí
 
 En el autocenso de artistas visuales de Argentina (AVAA, 4.961 respuestas), al 58% no le alcanza lo que gana con su arte, solo el 33% vive del arte y casi el 70% tiene más de un trabajo ([Artishock, 2021](https://artishockrevista.com/2021/01/11/avaa-avances-y-proyectos-para-el-2021)). En la música pasa lo mismo: en una encuesta mundial a 5.039 músicos independientes (Ditto Music, 2026), solo el 22% vive de la música.
 
-## El primer caso: las esculturas de Resistencia
+## De dónde sale: las esculturas de Resistencia
 
-UMBRAL sirve para cualquier artista o museo. Para mostrarlo elegimos un caso que conocemos: Resistencia, Chaco, la ciudad de las esculturas.
+El problema lo vimos en nuestra ciudad: Resistencia, Chaco, la ciudad de las esculturas. Es el contexto del que nace UMBRAL, no su único uso.
 
-- Hay más de 650 esculturas en la calle ([Bienal del Chaco, junio de 2026](https://bienaldelchaco.org/2026/en-el-dia-del-escultor-chaqueno-presentaron-museo-a-cielo-abierto-la-nueva-plataforma-digital-del-patrimonio-escultorico-de-resistencia/)).
+- Hay más de 600 esculturas en la calle ([Bienal del Chaco, junio de 2026](https://bienaldelchaco.org/2026/en-el-dia-del-escultor-chaqueno-presentaron-museo-a-cielo-abierto-la-nueva-plataforma-digital-del-patrimonio-escultorico-de-resistencia/)).
 - El escultor cobra una vez, cuando hace la obra. La obra vive décadas en la vereda y él no vuelve a recibir nada, ni se entera de qué provoca.
 - Lo que los vecinos y visitantes sienten frente a cada escultura no queda en ningún lado.
 - El catálogo ya existe: la Fundación Urunday tiene la plataforma Museo a Cielo Abierto, con fichas y mapa. UMBRAL no lo reemplaza: suma las voces de la gente y un pago que vuelve al escultor.
+
+## La solución
+
+De ese problema nació algo más grande. **Un museo donde lo que no querés perder también es obra.** Una escultura, la receta de una abuela, la foto de una mascota que ya no está, el sonido de la lluvia en un techo de chapa. Lo subís y queda guardado en el museo. Quien lo ve le deja su huella, unas palabras con lo que sintió, y esa huella queda unida a la obra, a la vista de todos.
+
+¿Por qué alguien pagaría por dejar unas palabras? Por lo mismo que algo se comparte miles de veces en una red social. Porque le gustó, porque se sintió identificado, por empatía. Acá ese gesto no se pierde al otro día y le llega a quien lo subió, que se queda con el 80% de cada huella.
 
 La primera colección del museo es **Una ciudad que resuena · Colección 001**, curada por Lucía: seis obras de seis disciplinas (escultura, textil, memoria familiar, arte sonoro, objeto y cestería). A su lado hay memorias que suenan, como la lluvia en un techo de chapa o la pava de la mañana, y cartas. Una de las obras es la historia de Lucía: *La sopa paraguaya de Mirta*, la receta de su abuela, que llegó desde Paraguay a los diez años. Muestra que el valor de lo que se comparte no depende de tener una trayectoria.
 
@@ -74,7 +81,7 @@ UMBRAL no es un marketplace ni un museo virtual para mirar. **No vende obras: ve
 
 1. **El arte de la calle empieza a cobrar.** Una escultura en una plaza no tiene comprador. Con la **placa con QR** pegada al lado, quien la tiene enfrente escanea, deja su huella desde el celular y el 80% va a quien la hizo.
 2. **La placa no se puede falsificar.** La crea y la firma con su billetera quien expuso la obra. Al escanearla, UMBRAL comprueba la firma y muestra un código que tiene que coincidir con el de la placa. Si alguien pega una placa trucha, la ficha avisa que no está firmada. Y aunque copien el código, el contrato le paga siempre a la cuenta registrada de la obra.
-3. **La obra muestra lo que despierta.** Cada huella sale de la que continúa y la obra se vuelve una constelación en 3D que se puede girar. El artista ve qué generó su obra, no un número de "me gusta".
+3. **La obra muestra lo que hace sentir.** Cada huella sale de la que continúa y la obra se vuelve una constelación en 3D que se puede girar. El artista ve qué generó su obra, no un número de "me gusta".
 4. **Presencia real.** La sala escanea en la puerta el código de quien está ahí: quien llega abre "Mi código para el encuentro" (un QR con su cuenta) y la sala, desde "Invitar en la puerta", lo escanea y firma la invitación. El fondo de la sala le paga la obra que deja y esa obra lleva el sello "Estuve ahí", comprobable en la red. Como la invitación se hace cara a cara, el sello no se consigue desde la casa.
 5. **Cuentas claras.** La página "Cuentas claras" y cada ficha muestran el reparto leído en vivo del contrato, no escrito a mano: qué % va a quien hizo la obra, cuánto queda para UMBRAL, los precios, los enlaces al contrato y a la cuenta de UMBRAL, y lo que todavía puede cambiar. Lo contamos antes de que alguien lo encuentre en el código.
 6. **Una pieza al centro.** La portada abre con una sola obra, "Entre raíces", y su constelación: se entiende sin explicar qué es una blockchain.
@@ -86,25 +93,17 @@ UMBRAL no cobra suscripción ni vende publicidad. Vive de una parte de cada part
 | Acción | Precio | Artista | UMBRAL | Sala |
 |---|---|---|---|---|
 | Mirar y guardar favoritos | Gratis | — | — | — |
-| Exponer una obra | 2 USDC o 20 XLM | — | 100% | — |
-| Continuar una obra o una respuesta | 1 USDC o 10 XLM | 80% | 20% | — |
+| Exponer una obra | 2 USDC | — | 100% | — |
+| Continuar una obra o una respuesta | 1 USDC | 80% | 20% | — |
 | Apoyar | Libre | 80% | 20% | — |
-| Continuar durante la muestra de una sala | 1 USDC o 10 XLM | de 30% a 70% | 30% | de 0% a 40%, según la muestra |
+| Continuar durante la muestra de una sala | 1 USDC | de 30% a 70% | 30% | de 0% a 40%, según la muestra |
 
+- **Los precios son en USDC.** Quien tiene XLM también puede pagar: hoy el contrato cobra un monto fijo en XLM (20 por exponer y 10 por continuar), que se ajusta a mano.
 - **Quien recibe al público pone el fondo.** Como un museo que cubre la conservación de una pieza a cambio de exponerla, la sala o un padrino ponen el fondo de los encuentros: quien va en persona deja su obra sin pagar y se lleva el sello "Estuve ahí". El arte no paga por mostrarse; paga quien quiere estar cerca de él.
 - **El público paga por ser parte y no cobra.** En toda la cadena de respuestas, cobra el artista que expuso la obra.
-- **Muestras de salas y museos:** UMBRAL abre la muestra a pedido de la sala, por hasta 90 días. Durante la muestra UMBRAL se queda con el 30%, la sala con su parte, que se fija por muestra según lo que aporta (difusión, lugar, público), y el artista con el resto. El artista firma viendo el porcentaje; sin su firma, su obra no entra en la muestra. El contrato nunca lo deja por debajo del 30%.
-- Los precios son una hipótesis de prueba, no un modelo validado.
+- **Muestras de salas y museos:** UMBRAL abre la muestra a pedido de la sala, por hasta 180 días. Durante la muestra UMBRAL se queda con el 30%, la sala con su parte, que se fija por muestra según lo que aporta (difusión, lugar, público), y el artista con el resto. El artista firma viendo el porcentaje; sin su firma, su obra no entra en la muestra. El contrato nunca lo deja por debajo del 30%. Si la sala no cobra nada (0%), el reparto sigue siendo 80% y 20%.
 
-**Una cuenta de ejemplo.** Una sala con 30 obras que juntan 300 continuaciones en un mes: sus artistas reciben 240 USDC y UMBRAL 60 USDC, más 60 USDC por exponer las 30 obras. Hoy los costos fijos son casi cero (base de datos y web en planes gratuitos, y cada operación en Stellar cuesta una fracción de centavo). El primer cliente a buscar es una sala o un museo de Resistencia: el público pone el volumen, la sala sostiene el proyecto.
-
-**Riesgos que conocemos.**
-- Pagar 1 USD por dejar unas palabras puede frenar a la gente. Es una hipótesis que todavía no validamos.
-- Para participar hace falta una billetera de Stellar (el camino previsto es entrar con correo).
-- Hoy una sola llave puede actualizar el contrato; en la red principal pasa a varias firmas.
-- Hoy el administrador puede cambiar el porcentaje del artista para las huellas nuevas, sin bajarlo nunca del 30%. En la red principal ese cambio va a pedir varias firmas y un aviso previo.
-- El contenido vive en nuestra base de datos.
-- Para usar dinero real a escala falta resolver lo legal: botón de arrepentimiento, activos virtuales e impuestos.
+**Una cuenta de ejemplo.** Una sala con 30 obras que juntan 300 continuaciones en un mes: sus artistas reciben 240 USDC y UMBRAL 60 USDC, más 60 USDC por exponer las 30 obras. Hoy los costos fijos son casi cero (base de datos y web en planes gratuitos, y cada acción paga a la red unos centavos, 2 a 3 en la red de pruebas, aparte del precio; los paga quien firma). El primer cliente a buscar es una sala o un museo de Resistencia: el público pone el volumen, la sala sostiene el proyecto.
 
 ## Por qué blockchain y por qué Stellar
 
@@ -120,9 +119,9 @@ Lo mismo se podría hacer con una base de datos común, salvo dos cosas:
 | ¿Quién cobra? | El artista, UMBRAL y, durante una muestra, la sala. Los porcentajes están en el contrato. |
 | ¿Qué pasa si alguien miente? | No se puede continuar una huella inexistente o retirada, ni cobrar el saldo de otro, ni publicar sin pagar. |
 
-Mover 1 USDC en Stellar cuesta una fracción de centavo y llega en segundos. Con comisiones altas, un pago de un dólar no tendría sentido.
+En Stellar cada acción paga a la red unos centavos (2 a 3 en la red de pruebas, aparte del precio) y llega en segundos. Con comisiones altas, un pago de un dólar no tendría sentido.
 
-**Lo que depende de nosotros, y lo decimos:** el administrador puede cambiar precios y porcentajes (solo hacia adelante y nunca dejando al artista con menos del 30%), puede moderar una huella, puede actualizar el código del contrato (en la red de pruebas, para corregir errores; antes de producción pasa a varias firmas con aviso previo, o se quita) y el contenido vive en nuestra base de datos. A la red va un código del contenido: prueba que no fue alterado, pero no lo conserva.
+**Lo que depende de nosotros, y lo decimos:** el administrador puede cambiar precios y porcentajes (solo hacia adelante y nunca dejando al artista con menos del 30%), puede moderar una huella, puede actualizar el código del contrato (en dos pasos: lo propone, queda publicado y recién puede aplicarlo 1 día después; antes de producción pasa a varias firmas, o se quita) y el contenido vive en nuestra base de datos. A la red va un código del contenido: prueba que no fue alterado, pero no lo conserva.
 
 ## Arquitectura
 
@@ -169,7 +168,7 @@ Las pruebas con personas de afuera del equipo se hacen el sábado 28/11 con la [
 
 | Qué | Cómo |
 |---|---|
-| Contrato | 56 pruebas automáticas: repartos, piso del artista, muestras, firmas, montos absurdos, precios que suben, unidades que no se pierden. |
+| Contrato | 99 pruebas automáticas: repartos, piso del artista, muestras, firmas, montos absurdos, precios que suben, unidades que no se pierden. |
 | Base de datos | 30 pruebas de las reglas de acceso: el navegador no publica sin pago, no cambia ni borra, no ve borradores ajenos, no sube archivos fuera de lugar. |
 | App | 103 pruebas automáticas (firma de la placa, qué obras llevan placa, fotos que se achican antes de firmarse, avisos), 17 recorridos en el navegador en celular y escritorio, y una prueba de punta a punta en la red de pruebas: exponer, continuar, apoyar y cobrar. Los recorridos se corren con `cd app && npm run e2e:web` (Playwright). |
 | Web publicada | Lighthouse 12 el 28/11, antes de los arreglos (rendimiento / accesibilidad / buenas prácticas / SEO), en celular: portada 98/96/100/100, cielo 90/100/100/100, ficha 90/100/100/100, cuentas 93/100/100/100. En escritorio, rendimiento de 97 a 99. Después de los arreglos, axe-core da 0 problemas en 7 pantallas, en celular y en escritorio (la portada bajaba a 96 por el contraste de un botón, ya corregido). El detalle y lo que se arregló después están en la [auditoría web](docs/auditorias/2026-11-28-web.md). |
@@ -239,13 +238,6 @@ Detalle en los [términos de uso](docs/terminos.md) y la [política de privacida
 | Cada pago y cada cobro, con su comprobante en Stellar Expert | El museo que abre una muestra |
 | Ingreso con billetera y firma de mensajes | |
 
-## Límites de esta versión
-
-- Funciona en la red de pruebas: el dinero no es real.
-- El contenido vive en nuestra base de datos, así que su permanencia depende de nosotros.
-- El modelo con museos todavía no está validado con un museo real.
-- Los borradores (lo que se guarda antes de pagar) no exigen la firma de la cuenta: alguien podría crear 5 a nombre de otra y frenarla una hora. No se pierde dinero ni se publica nada falso, porque publicar exige el pago en la red. El arreglo previsto: contar el límite por origen o pedir una firma SEP-53 del borrador.
-
 ## Camino a producción
 
 - Entrar con correo: UMBRAL guía a quien nunca usó cripto a crear su billetera de Stellar. Suma usuarios nuevos a la red.
@@ -260,7 +252,7 @@ Detalle en los [términos de uso](docs/terminos.md) y la [política de privacida
 
 UMBRAL ABIERTO es el nombre de los encuentros del museo, también fuera de la pantalla: muestras temporales y colecciones hechas junto con museos, salas, artistas y comunidades. Cada obra física lleva su placa con QR; quien la escanea ve su constelación sin cuenta y puede dejar su huella. Cuando la muestra se desmonta, la colección y sus huellas siguen en el museo digital.
 
-Es una hoja de ruta, no un acuerdo: no consultamos todavía a ninguna institución.
+Esta es la hoja de ruta: cada etapa abre la siguiente.
 
 | Etapa | Objetivo |
 |---|---|

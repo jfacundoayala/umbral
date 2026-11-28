@@ -9,22 +9,43 @@
 // Uso (desde app/):
 //   node scripts/sembrar.mjs --ensayo          lee, arma el árbol y revisa todo; no crea ni envía nada
 //   UMBRAL_CONTRATO=C... node scripts/sembrar.mjs   siembra de verdad en ese contrato
-// Opciones: --solo=N (solo las primeras N obras), --con-sala (incluye las obras abiertas por una sala;
-//   por defecto quedan para el final, a mano, porque necesitan el circuito de sala).
+// Opciones:
+//   --solo=N       solo las primeras N obras
+//   --a-la-vez=N   cuántas obras reciben huellas al mismo tiempo (por defecto 5)
+//   --con-sala     incluye las obras abiertas por una sala. Para cada sala vieja crea una cuenta de museo,
+//                  abre una sala nueva (`abrir_sala(museo, semilla) -> id`), le pone fondo e invita a la
+//                  cuenta del artista: la obra queda pagada por el fondo y marcada como presencial.
+//   --con-fichas   suma las obras nuevas de privado/fotos-libres/fichas.json (material con licencia libre):
+//                  cada ficha es una obra con su archivo ya bajado, el crédito al final de la descripción
+//                  y sus huellas de ejemplo. La ficha cuyo archivo todavía no está bajado se saltea y se avisa.
+//   --mezclar      cambia el orden de las obras para que no queden seguidas las del mismo tipo (sonido,
+//                  foto, solo texto, museo, paisaje...). El cielo muestra primero lo último que se sembró,
+//                  así que el orden de siembra es el orden en que se ven. Siempre da el mismo orden.
+//
+// Orden: primero las obras, una por una y en el orden original (así El cielo las ordena igual).
+// Después las huellas: dentro de cada obra van en su orden (padres antes que hijos) y varias obras
+// avanzan a la vez. Cada cuenta firma de a una acción por vez (una cola por cuenta), así no se pisan.
 //
 // Guarda en privado/siembra/ (carpeta ignorada por git; NUNCA se imprime ni se sube):
-//   llaves.json            cuenta vieja → llave secreta de la cuenta nueva
+//   llaves.json            cuenta vieja → llave secreta de la cuenta nueva ("sala:<id>" → la del museo de esa sala)
 //   mapa-<contrato>.json   id viejo → id nuevo, comprobante y estado
+//   cambios.json           (opcional, lo escribe una persona) id viejo de una obra → { foto, descripcion, derechos }
+//                          para sembrarla con otra foto (ruta desde la raíz del repo), otro texto u otros derechos
 // Es idempotente: si se corta, se vuelve a correr y sigue donde quedó.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
+import { randomBytes } from "node:crypto";
 import { Keypair, TransactionBuilder } from "@stellar/stellar-sdk";
 
 const ENSAYO = process.argv.includes("--ensayo");
 const CON_SALA = process.argv.includes("--con-sala");
-const SOLO = Number(process.argv.find((a) => a.startsWith("--solo="))?.split("=")[1] ?? 0);
+const CON_FICHAS = process.argv.includes("--con-fichas");
+const MEZCLAR = process.argv.includes("--mezclar");
+const opcion = (nombre, porDefecto) => Number(process.argv.find((a) => a.startsWith(`--${nombre}=`))?.split("=")[1] ?? porDefecto);
+const SOLO = opcion("solo", 0);
+const A_LA_VEZ = Math.max(1, opcion("a-la-vez", 5));
 const CONTRATO = process.env.UMBRAL_CONTRATO ?? "";
 if (!ENSAYO && !/^C[A-Z2-7]{55}$/.test(CONTRATO)) {
   console.error("Falta UMBRAL_CONTRATO (el id del contrato nuevo). Para probar sin enviar nada: --ensayo");
@@ -44,6 +65,7 @@ const { RED, CONTRATO_ID, XLM_ID, UNIDAD, SUPABASE_URL, SUPABASE_CLAVE_PUBLICA }
 const base = await cargar("/src/base.ts");
 const umbral = await cargar("/src/umbral.ts");
 const { EXTENSION, EXTENSION_AUDIO } = await cargar("/src/archivos.ts");
+const { Client } = await cargar("/src/contrato/cliente.ts");
 
 const ARCHIVO_MAPA = join(PRIVADO, `mapa-${CONTRATO_ID}.json`);
 const leerJson = (ruta) => (existsSync(ruta) ? JSON.parse(readFileSync(ruta, "utf8")) : {});
@@ -90,7 +112,9 @@ async function bajar(url, ruta) {
 }
 
 console.log(`Red: ${RED.nombre}. Contrato: ${CONTRATO_ID}${ENSAYO ? "  (ENSAYO: no se crea ni se envía nada)" : ""}`);
-const todas = (await base.obras("nuevas")).sort((a, b) => a.recibido.localeCompare(b.recibido));
+// Lo que ya sembró una corrida anterior también está en la base: no es colección vieja, no se vuelve a sembrar.
+const yaSembradas = new Set(Object.values(leerJson(ARCHIVO_MAPA)).map((v) => v.nuevo));
+const todas = (await base.obras("nuevas")).filter((o) => !yaSembradas.has(o.id)).sort((a, b) => a.recibido.localeCompare(b.recibido));
 const aparte = todas.filter((o) => o.sala && !CON_SALA);
 let obras = todas.filter((o) => !o.sala || CON_SALA);
 if (SOLO) obras = obras.slice(0, SOLO);
@@ -124,6 +148,46 @@ for (const obra of obras) {
   arboles.push({ obra, huellas: lista, saltadas });
 }
 
+// Obras nuevas con licencia libre (--con-fichas). No vienen de la base: se arman acá con la misma forma.
+const avisos = [];
+if (CON_FICHAS) {
+  const RAIZ = join(APP, "..");
+  const ARCHIVO_SALES = join(PRIVADO, "sales-fichas.json");
+  // La sal de cada documento se guarda: si la corrida se corta, al seguir sale el mismo código y el mismo id.
+  const sales = leerJson(ARCHIVO_SALES);
+  const salDe = (clave) => (sales[clave] ??= randomBytes(16).toString("hex"));
+  const { fichas = [] } = leerJson(join(RAIZ, "privado", "fotos-libres", "fichas.json"));
+  for (const f of fichas) {
+    const id = `ficha:${f.slug}`;
+    const falta = [f.archivo, f.audio].filter((r) => r && !existsSync(join(RAIZ, r)));
+    if (!f.archivo && !f.audio) falta.push("(la ficha no nombra foto ni audio)");
+    if (falta.length) {
+      avisos.push(`Ficha "${f.titulo}": no se siembra, falta ${falta.join(" y ")}.`);
+      continue;
+    }
+    const obra = { id, autor: id, estado: "publicada", padre: null, sala: null, enlace: null, texto: "", titulo: f.titulo, nombre: f.nombre, descripcion: `${f.descripcion} ${f.credito}`, creado: f.creado, sal: salDe(id), ficha: f };
+    const huellas = (f.huellas ?? []).map((h, i) => {
+      const hid = `${id}:h${i + 1}`;
+      return { id: hid, autor: hid, estado: "publicada", padre: id, texto: h.texto, nombre: h.nombre, creado: new Date(Date.parse(f.creado) + (i + 1) * 60000).toISOString(), sal: salDe(hid), ficha: f };
+    });
+    arboles.push({ obra, huellas, saltadas: [] });
+  }
+  if (!ENSAYO) guardarJson(ARCHIVO_SALES, sales);
+}
+
+if (MEZCLAR) {
+  const tipoDe = ({ obra }) => obra.ficha?.tipo ?? (obra.sala ? "encuentro" : obra.audio_ruta ? "sonido" : obra.foto_ruta ? "foto" : "texto");
+  const grupos = new Map();
+  for (const a of arboles) grupos.set(tipoDe(a), [...(grupos.get(tipoDe(a)) ?? []), a]);
+  // Cada grupo se reparte parejo a lo largo de toda la lista: el elemento k de un grupo de n va en la
+  // posición (k + 0,5) / n. Así los grupos grandes quedan intercalados y los chicos, bien separados.
+  const mezcladas = [...grupos.values()]
+    .flatMap((g, i) => g.map((arbol, k) => ({ arbol, lugar: (k + 0.5) / g.length + i * 1e-6 })))
+    .sort((x, y) => x.lugar - y.lugar)
+    .map((x) => x.arbol);
+  arboles.splice(0, arboles.length, ...mezcladas);
+}
+
 const total = arboles.reduce((s, a) => s + 1 + a.huellas.length, 0);
 const autores = new Set(arboles.flatMap((a) => [a.obra.autor, ...a.huellas.map((h) => h.autor)]));
 console.log(`\n${arboles.length} obras y ${total - arboles.length} huellas (${total} en total) de ${autores.size} cuentas.`);
@@ -131,25 +195,36 @@ console.log(`\n${arboles.length} obras y ${total - arboles.length} huellas (${to
 // ---------------------------------------------------------------- 2. Armar cada documento y revisarlo contra el original
 
 const DERECHOS = ["autoria", "dominio_publico", "autorizacion"];
+const cambios = leerJson(join(PRIVADO, "cambios.json"));
 const archivos = new Map(); // id viejo → { foto, audio, codigoFoto, codigoAudio }
 const documentos = new Map(); // id viejo → Documento
-const avisos = [];
+const deDisco = (ruta) => new File([readFileSync(join(APP, "..", ruta))], ruta.split("/").pop(), { type: tipoPorRuta(ruta) });
 
 for (const { obra, huellas } of arboles) {
-  const foto = obra.foto_ruta ? await bajar(base.urlFoto(obra.foto_ruta), obra.foto_ruta) : null;
-  const audio = obra.audio_ruta ? await bajar(base.urlAudio(obra.audio_ruta), obra.audio_ruta) : null;
+  const cambio = cambios[obra.id];
+  const ficha = obra.ficha;
+  const rutaFoto = cambio?.foto ?? ficha?.archivo;
+  const foto = rutaFoto ? deDisco(rutaFoto) : obra.foto_ruta ? await bajar(base.urlFoto(obra.foto_ruta), obra.foto_ruta) : null;
+  if (foto && !(foto.type in EXTENSION)) throw new Error(`La foto de "${obra.titulo}" no es jpg, png ni webp.`);
+  const audio = ficha?.audio ? deDisco(ficha.audio) : obra.audio_ruta ? await bajar(base.urlAudio(obra.audio_ruta), obra.audio_ruta) : null;
+  if (audio && (!(audio.type in EXTENSION_AUDIO) || audio.size > 5 * 1024 * 1024)) throw new Error(`El audio de "${obra.titulo}" tiene que ser mp3, m4a, webm u ogg y pesar hasta 5 MB.`);
   const a = { foto, audio, codigoFoto: foto ? await umbral.codigoDeArchivo(foto) : undefined, codigoAudio: audio ? await umbral.codigoDeArchivo(audio) : undefined };
   archivos.set(obra.id, a);
   // Mismo contenido que el original: mismos textos, misma fecha, misma sal y los mismos archivos.
-  const comun = { texto: obra.texto ?? "", nombre: obra.nombre ?? "", titulo: obra.titulo ?? "", descripcion: obra.descripcion ?? "", creado: obra.creado, sal: obra.sal };
+  const comun = { texto: obra.texto ?? "", nombre: obra.nombre ?? "", titulo: obra.titulo ?? "", descripcion: cambio?.descripcion ?? obra.descripcion ?? "", creado: obra.creado, sal: obra.sal };
   const conArchivos = { ...comun, ...(a.codigoFoto ? { foto: a.codigoFoto } : {}), ...(a.codigoAudio ? { audio: a.codigoAudio } : {}) };
   // La vista pública no trae los derechos declarados: se deducen probando cuál da el código original.
-  let derechos = null;
-  for (const d of DERECHOS) {
+  let derechos = ficha ? (ficha.derechos ?? "autorizacion") : null;
+  for (const d of ficha ? [] : DERECHOS) {
     if ((await umbral.codigoDe({ ...conArchivos, derechos: d })).toString("hex") === obra.digest) derechos = d;
   }
   if (obra.enlace) avisos.push(`"${obra.titulo}": tenía un enlace; no se siembra (la app ya no guarda enlaces).`);
-  if (!derechos) {
+  if (ficha) {
+    if (!DERECHOS.includes(derechos)) throw new Error(`Ficha "${obra.titulo}": derechos "${derechos}" no existe.`);
+  } else if (cambio) {
+    derechos = cambio.derechos ?? derechos ?? "autoria";
+    avisos.push(`"${obra.titulo}": se siembra con cambios pedidos (${Object.keys(cambio).join(", ")}).`);
+  } else if (!derechos) {
     derechos = "autoria";
     avisos.push(`"${obra.titulo}": el código original no se pudo reproducir (documento de una versión anterior); se siembra con derechos "autoria".`);
   }
@@ -157,7 +232,7 @@ for (const { obra, huellas } of arboles) {
 
   for (const h of huellas) {
     const doc = { texto: h.texto ?? "", nombre: h.nombre ?? "", creado: h.creado, sal: h.sal };
-    if ((await umbral.codigoDe(doc)).toString("hex") !== h.digest) avisos.push(`Huella ${h.id.slice(0, 8)} de "${obra.titulo}": el código original no se pudo reproducir; se siembra igual con su texto.`);
+    if (!h.ficha && (await umbral.codigoDe(doc)).toString("hex") !== h.digest) avisos.push(`Huella ${h.id.slice(0, 8)} de "${obra.titulo}": el código original no se pudo reproducir; se siembra igual con su texto.`);
     documentos.set(h.id, doc);
   }
 }
@@ -174,7 +249,7 @@ for (const { obra, huellas } of arboles) {
 console.log(`Precios en el contrato: exponer ${xlm(precios.huella)}, continuar ${xlm(precios.continuar)}.\n`);
 for (const { obra, huellas, saltadas } of arboles) {
   const d = documentos.get(obra.id);
-  console.log(`● ${obra.titulo} — ${obra.nombre} [${obra.id.slice(0, 8)}] cuenta ${corta(obra.autor)} · ${d.derechos}${obra.foto_ruta ? " · foto" : ""}${obra.audio_ruta ? " · audio" : ""}${obra.sala ? " · SALA" : ""}`);
+  console.log(`● ${obra.titulo} — ${obra.nombre} [${obra.id.slice(0, 8)}] cuenta ${corta(obra.autor)} · ${d.derechos}${archivos.get(obra.id).foto ? " · foto" : ""}${archivos.get(obra.id).audio ? " · audio" : ""}${obra.sala ? " · SALA" : ""}${obra.ficha ? " · NUEVA (ficha)" : ""}`);
   const hijos = (padre, nivel) => {
     for (const h of huellas.filter((x) => x.padre === padre)) {
       console.log(`${"   ".repeat(nivel)}└ ${h.nombre} [${h.id.slice(0, 8)}] cuenta ${corta(h.autor)}: ${(h.texto ?? "").slice(0, 60).replace(/\s+/g, " ")}${(h.texto ?? "").length > 60 ? "…" : ""}`);
@@ -209,6 +284,13 @@ for (const vieja of autores) {
 if (nuevas) guardarJson(ARCHIVO_LLAVES, llaves);
 console.log(`\nCuentas: ${autores.size} (${nuevas} nuevas). Las llaves quedan en privado/siembra/llaves.json y no se muestran.`);
 
+// Cada sala vieja tiene su cuenta de museo nueva.
+for (const sala of new Set(arboles.map((a) => a.obra.sala).filter(Boolean))) {
+  if (llaves[`sala:${sala}`]) continue;
+  llaves[`sala:${sala}`] = Keypair.random().secret();
+  guardarJson(ARCHIVO_LLAVES, llaves);
+}
+
 const fondeadas = new Set();
 async function fondear(vieja) {
   if (fondeadas.has(vieja)) return;
@@ -227,12 +309,69 @@ const firmante = (vieja) => async (xdr) => {
   return { signedTxXdr: tx.toXDR() };
 };
 
-// ---------------------------------------------------------------- 5. Sembrar: borrador → archivos → firma y pago → publicar
+// ---------------------------------------------------------------- 5. Colas: una por cuenta, y un tope de obras a la vez
+
+const colas = new Map();
+/** Corre `hacer` cuando termina lo anterior de esa misma cola (una cuenta firma de a una acción). */
+function enCola(clave, hacer) {
+  const turno = (colas.get(clave) ?? Promise.resolve()).then(hacer, hacer);
+  colas.set(clave, turno.catch(() => undefined));
+  return turno;
+}
+
+/** Corre `hacer` sobre cada elemento, con `tope` a la vez como mucho. */
+async function deATantos(lista, tope, hacer) {
+  let i = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(tope, lista.length) }, async () => {
+      while (i < lista.length) await hacer(lista[i++]);
+    }),
+  );
+}
+
+// ---------------------------------------------------------------- 6. Salas (solo con --con-sala)
 
 const anotar = (viejo, datos) => {
   mapa[viejo] = { ...mapa[viejo], ...datos };
   guardarJson(ARCHIVO_MAPA, mapa);
 };
+
+/** Firma y manda una acción del contrato que la app no tiene envuelta (abrir sala, poner fondo). */
+async function mandar(que, armar) {
+  return reintentar(que, async () => {
+    const enviado = await (await armar()).signAndSend();
+    const estado = enviado.getTransactionResponse?.status;
+    if (estado !== "SUCCESS") throw new Error(`${que}: la red de pruebas respondió ${estado ?? "sin estado"}`);
+    return enviado.sendTransactionResponse?.hash;
+  });
+}
+
+/** Deja lista la sala nueva que reemplaza a `vieja`, con fondo y con `invitada` invitada. Devuelve el id nuevo. */
+async function prepararSala(vieja, invitada) {
+  const clave = `sala:${vieja}`;
+  return enCola(clave, async () => {
+    await fondear(clave);
+    const museo = cuentaDe(clave).publicKey();
+    const c = new Client({ contractId: CONTRATO_ID, rpcUrl: RED.rpcUrl, networkPassphrase: RED.frase, publicKey: museo, signTransaction: firmante(clave) });
+    if (typeof c.id_sala !== "function") throw new Error("El cliente del contrato no tiene id_sala: falta regenerarlo para el contrato nuevo.");
+    if (!mapa[clave]?.semilla) anotar(clave, { semilla: randomBytes(32).toString("hex"), cuenta: museo });
+    const semilla = Buffer.from(mapa[clave].semilla, "hex");
+    // El id de la sala lo calcula el contrato con la cuenta del museo y la semilla.
+    const nuevo = Buffer.from((await c.id_sala({ museo, semilla })).result).toString("hex");
+    anotar(clave, { nuevo });
+    if (!(await umbral.museoDe(nuevo))) {
+      const tx = await mandar("abrir sala", () => c.abrir_sala({ museo, semilla }));
+      anotar(clave, { tx });
+      console.log(`  ✓ sala nueva ${nuevo.slice(0, 8)} (reemplaza a ${vieja.slice(0, 8)}) · ${RED.explorador}/tx/${tx}`);
+    }
+    const estado = await umbral.invitacion(nuevo, invitada, XLM_ID);
+    if (estado.fondo < precios.huella) await mandar("poner fondo", () => c.patrocinar({ quien: museo, sala: Buffer.from(nuevo, "hex"), moneda: XLM_ID, monto: precios.huella - estado.fondo }));
+    if (!estado.invitada) await reintentar("invitar", () => umbral.invitar(museo, firmante(clave), nuevo, invitada));
+    return nuevo;
+  });
+}
+
+// ---------------------------------------------------------------- 7. Sembrar: borrador → archivos → firma y pago → publicar
 
 /** Paga y publica una huella. Si ya estaba pagada (corrida anterior), solo publica. */
 async function pagarYPublicar(viejo, id, pagar) {
@@ -261,43 +400,74 @@ async function sembrar(viejo, etiqueta, hacer) {
   console.log(`  ✓ ${etiqueta}: ${mapa[viejo].nuevo.slice(0, 8)} · ${RED.explorador}/tx/${mapa[viejo].tx ?? ""}`);
 }
 
+const fallas = [];
 let hechas = 0;
-for (const { obra, huellas } of arboles) {
-  console.log(`\n● ${obra.titulo} — ${obra.nombre}`);
-  await sembrar(obra.id, "obra", async () => {
-    await fondear(obra.autor);
-    const cuenta = cuentaDe(obra.autor).publicKey();
-    const doc = documentos.get(obra.id);
-    const { foto, audio } = archivos.get(obra.id);
-    const digest = await umbral.codigoDe(doc);
-    const id = (await umbral.idDe(cuenta, digest)).toString("hex");
-    anotar(obra.id, { nuevo: id, cuenta });
-    const foto_ruta = foto ? `${id}/foto.${EXTENSION[foto.type]}` : null;
-    const audio_ruta = audio ? `${id}/audio.${EXTENSION_AUDIO[audio.type]}` : null;
-    await reintentar("borrador", () => base.guardarBorrador({ id, digest: digest.toString("hex"), autor: cuenta, artista: cuenta, moneda: XLM_ID, padre: null, sala: null, foto_ruta, audio_ruta }, doc));
-    if (foto) await reintentar("subir foto", () => base.subirArchivo("obras", foto_ruta, foto));
-    if (audio) await reintentar("subir audio", () => base.subirArchivo("audios", audio_ruta, audio));
-    await pagarYPublicar(obra.id, id, () => umbral.dejarHuella(cuenta, firmante(obra.autor), doc, precios.huella, XLM_ID));
-  });
-  hechas++;
+const fallo = (etiqueta, e) => {
+  fallas.push(`${etiqueta}: ${e?.message ?? e}`);
+  console.log(`  ✗ ${etiqueta}: ${e?.message ?? e}`);
+};
 
-  const artista = mapa[obra.id].cuenta;
-  for (const h of huellas) {
-    await sembrar(h.id, `huella de ${h.nombre}`, async () => {
-      await fondear(h.autor);
-      const cuenta = cuentaDe(h.autor).publicKey();
-      const doc = documentos.get(h.id);
-      const padre = mapa[h.padre]?.nuevo;
-      if (!padre || !mapa[h.padre].publicada) throw new Error(`El padre de ${h.id.slice(0, 8)} todavía no está publicado.`);
-      const digest = await umbral.codigoDe(doc);
-      const id = (await umbral.idDe(cuenta, digest)).toString("hex");
-      anotar(h.id, { nuevo: id, cuenta });
-      await reintentar("borrador", () => base.guardarBorrador({ id, digest: digest.toString("hex"), autor: cuenta, artista, moneda: XLM_ID, padre, sala: null }, doc));
-      await pagarYPublicar(h.id, id, () => umbral.continuar(cuenta, firmante(h.autor), padre, doc, precios.continuar, XLM_ID));
-    });
+// Primero las obras, una por una y en su orden.
+console.log("\nObras:");
+for (const { obra } of arboles) {
+  const etiqueta = `"${obra.titulo}" — ${obra.nombre}`;
+  try {
+    await sembrar(obra.id, etiqueta, () =>
+      enCola(obra.autor, async () => {
+        await fondear(obra.autor);
+        const cuenta = cuentaDe(obra.autor).publicKey();
+        const doc = documentos.get(obra.id);
+        const { foto, audio } = archivos.get(obra.id);
+        const digest = await umbral.codigoDe(doc);
+        const id = (await umbral.idDe(cuenta, digest)).toString("hex");
+        anotar(obra.id, { nuevo: id, cuenta });
+        const sala = obra.sala ? await prepararSala(obra.sala, cuenta) : null;
+        const foto_ruta = foto ? `${id}/foto.${EXTENSION[foto.type]}` : null;
+        const audio_ruta = audio ? `${id}/audio.${EXTENSION_AUDIO[audio.type]}` : null;
+        await reintentar("borrador", () => base.guardarBorrador({ id, digest: digest.toString("hex"), autor: cuenta, artista: cuenta, moneda: XLM_ID, padre: null, sala, foto_ruta, audio_ruta }, doc));
+        if (foto) await reintentar("subir foto", () => base.subirArchivo("obras", foto_ruta, foto));
+        if (audio) await reintentar("subir audio", () => base.subirArchivo("audios", audio_ruta, audio));
+        await pagarYPublicar(obra.id, id, () => umbral.dejarHuella(cuenta, firmante(obra.autor), doc, precios.huella, XLM_ID, sala ?? undefined));
+      }),
+    );
     hechas++;
+  } catch (e) {
+    fallo(etiqueta, e);
   }
 }
 
-console.log(`\nListo: ${hechas} de ${total} sembradas en ${CONTRATO_ID}. El mapa id viejo → id nuevo quedó en privado/siembra/.`);
+// Después las huellas: cada obra en su orden, varias obras a la vez.
+console.log(`\nHuellas (${A_LA_VEZ} obras a la vez):`);
+await deATantos(arboles, A_LA_VEZ, async ({ obra, huellas }) => {
+  if (!mapa[obra.id]?.publicada) return;
+  const artista = mapa[obra.id].cuenta;
+  for (const h of huellas) {
+    const etiqueta = `"${obra.titulo}" ← ${h.nombre}`;
+    try {
+      await sembrar(h.id, etiqueta, () =>
+        enCola(h.autor, async () => {
+          await fondear(h.autor);
+          const cuenta = cuentaDe(h.autor).publicKey();
+          const doc = documentos.get(h.id);
+          const padre = mapa[h.padre]?.nuevo;
+          if (!padre || !mapa[h.padre].publicada) throw new Error("su huella anterior todavía no está publicada");
+          const digest = await umbral.codigoDe(doc);
+          const id = (await umbral.idDe(cuenta, digest)).toString("hex");
+          anotar(h.id, { nuevo: id, cuenta });
+          // En el contrato, una continuación hereda la sala de su obra: el borrador tiene que decir lo mismo.
+          const sala = obra.sala ? mapa[`sala:${obra.sala}`].nuevo : null;
+          await reintentar("borrador", () => base.guardarBorrador({ id, digest: digest.toString("hex"), autor: cuenta, artista, moneda: XLM_ID, padre, sala }, doc));
+          await pagarYPublicar(h.id, id, () => umbral.continuar(cuenta, firmante(h.autor), padre, doc, precios.continuar, XLM_ID));
+        }),
+      );
+      hechas++;
+    } catch (e) {
+      fallo(etiqueta, e);
+    }
+  }
+});
+
+console.log(`\n${fallas.length ? "Incompleto" : "Listo"}: ${hechas} de ${total} sembradas en ${CONTRATO_ID}. El mapa id viejo → id nuevo quedó en privado/siembra/.`);
+if (fallas.length) console.log(`Fallaron ${fallas.length} (volvé a correr el mismo comando: sigue donde quedó):\n${fallas.map((f) => `  - ${f}`).join("\n")}`);
 await vite.close();
+process.exit(fallas.length ? 1 : 0);

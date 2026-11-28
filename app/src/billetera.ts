@@ -6,7 +6,7 @@
 // Las seis billeteras son de la lista que la documentación oficial de Stellar da como
 // compatibles y que no necesitan configuración extra. Varial es el nuevo nombre de Freighter.
 import { Networks, StellarWalletsKit } from "@creit.tech/stellar-wallets-kit";
-import { AlbedoModule } from "@creit.tech/stellar-wallets-kit/modules/albedo";
+import { ALBEDO_ID, AlbedoModule } from "@creit.tech/stellar-wallets-kit/modules/albedo";
 import { HanaModule } from "@creit.tech/stellar-wallets-kit/modules/hana";
 import { LobstrModule } from "@creit.tech/stellar-wallets-kit/modules/lobstr";
 import { RabetModule } from "@creit.tech/stellar-wallets-kit/modules/rabet";
@@ -14,6 +14,7 @@ import { VarialModule } from "@creit.tech/stellar-wallets-kit/modules/varial";
 import { xBullModule } from "@creit.tech/stellar-wallets-kit/modules/xbull";
 import { RED } from "./config";
 import type { Firmar } from "./umbral";
+import { otraCuenta } from "./sin-red";
 import { cuentaDePrueba, firmarDePrueba, firmarMensajeDePrueba, modoPrueba } from "./prueba";
 
 StellarWalletsKit.init({
@@ -28,9 +29,14 @@ StellarWalletsKit.init({
   network: Networks.TESTNET,
 });
 
-/** Abre la ventana para elegir billetera y devuelve la cuenta de la persona. */
-export async function entrar(): Promise<string> {
+/** Devuelve la cuenta de la persona. Con "albedo" va directo a esa billetera (se usa desde el navegador,
+ *  sin instalar nada); sin nada, abre la ventana para elegir entre todas. */
+export async function entrar(cual?: "albedo"): Promise<string> {
   if (modoPrueba) return cuentaDePrueba();
+  if (cual === "albedo") {
+    StellarWalletsKit.setWallet(ALBEDO_ID);
+    return (await StellarWalletsKit.fetchAddress()).address;
+  }
   const { address } = await StellarWalletsKit.authModal();
   return address;
 }
@@ -64,13 +70,15 @@ export async function enLaRedDePruebas(): Promise<boolean | null> {
   }
 }
 
-/** Firma con la billetera elegida. Si la billetera está en otra red, frena antes de firmar. */
-export const firmar: Firmar = async (xdr) => {
+/** Firma con la billetera elegida. Si la billetera está en otra red, frena antes de firmar.
+ *  Con `cuenta`, le pide a la billetera que firme esa cuenta y no la que tenga activa. */
+export const firmar: Firmar = async (xdr, cuenta) => {
   if (modoPrueba) return firmarDePrueba(xdr);
   if ((await enLaRedDePruebas()) === false) {
     throw new Error("Tu billetera está en otra red. Cambiala a la red de pruebas (Testnet) y volvé a intentar.");
   }
-  const { signedTxXdr } = await StellarWalletsKit.signTransaction(xdr, { networkPassphrase: RED.frase });
+  const { signedTxXdr, signerAddress } = await StellarWalletsKit.signTransaction(xdr, { networkPassphrase: RED.frase, ...(cuenta ? { address: cuenta } : {}) });
+  if (cuenta && signerAddress && signerAddress !== cuenta) throw otraCuenta(cuenta);
   return { signedTxXdr };
 };
 

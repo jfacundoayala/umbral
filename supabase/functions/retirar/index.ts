@@ -6,7 +6,7 @@ import { Account, BASE_FEE, Contract, rpc, scValToNative, TransactionBuilder, xd
 
 const RPC = Deno.env.get("UMBRAL_RPC") ?? "https://soroban-testnet.stellar.org";
 const FRASE = Deno.env.get("UMBRAL_FRASE") ?? "Test SDF Network ; September 2015";
-const CONTRATO = Deno.env.get("UMBRAL_CONTRATO") ?? "CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP";
+const CONTRATO = Deno.env.get("UMBRAL_CONTRATO") ?? "CBE4RP5RRN7HKZLQKYZKNZFVCGDOFB74JPWGGWSIAUNNLR3R3IUXJ4ZM";
 const CUENTA_LECTURA = "GCCYPGWDNHLQBJAGIPNX5DRBB4CKMCTEQT4IK64IRSNN2IGGBO4JAB5C";
 
 const CORS = {

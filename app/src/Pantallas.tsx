@@ -2,7 +2,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { audioValido, fotoValida } from "./archivos";
 import { borrarRetirada, cambiarFavorito, favoritosDe, urlAudio, urlFoto, urlTarjeta, type Huella, type Orden } from "./base";
-import { corta, enlaceTx, ir, mensajeError, MONEDAS, palabras, plata, type Moneda } from "./comun";
+import { corta, enlaceTx, ir, mensajeError, monedaDe, MONEDAS, palabras, plata, type Moneda } from "./comun";
 import Constelacion from "./Constelacion";
 import AvisoPlaca from "./AvisoPlaca";
 import { placaFirmada } from "./placa-firma";
@@ -30,9 +30,9 @@ const enCalma = () =>
  *  se baja después de mostrar la obra, así no compite con la foto. Lo que dispara la persona usa `red()`. */
 const redLuego = () => enCalma().then(red);
 const acciones = () => import("./acciones");
-const firmar: Firmar = async (xdr) => (await import("./billetera")).firmar(xdr);
+const firmar: Firmar = async (xdr, cuenta) => (await import("./billetera")).firmar(xdr, cuenta);
 
-export type Sesion = { cuenta: string | null; moneda: Moneda; entrar: () => Promise<string | null> };
+export type Sesion = { cuenta: string | null; moneda: Moneda; cambiarMoneda: (m: Moneda) => void; entrar: () => Promise<string | null> };
 
 /** Estado de una acción con pago: lo que pasa ahora, el error o el comprobante final. */
 function useAccion() {
@@ -79,21 +79,81 @@ function Estado({ a, listo, opinar }: { a: ReturnType<typeof useAccion>; listo: 
   );
 }
 
+type Precios = { huella: bigint; continuar: bigint };
+
+const CLAVE_PRECIOS = "umbral-precios";
+/** El último precio que se leyó en este navegador. */
+function preciosGuardados(moneda: string): Precios | null {
+  try {
+    const g = JSON.parse(localStorage.getItem(CLAVE_PRECIOS) ?? "{}")[moneda];
+    return g ? { huella: BigInt(g.huella), continuar: BigInt(g.continuar) } : null;
+  } catch {
+    return null;
+  }
+}
+function guardarPrecios(moneda: string, p: Precios) {
+  try {
+    const todos = JSON.parse(localStorage.getItem(CLAVE_PRECIOS) ?? "{}");
+    todos[moneda] = { huella: String(p.huella), continuar: String(p.continuar) };
+    localStorage.setItem(CLAVE_PRECIOS, JSON.stringify(todos));
+  } catch {
+    // Sin lugar para guardar: la próxima vez se vuelve a leer.
+  }
+}
+
+/** Precios en la moneda con la que se paga y, como referencia, en USDC: el precio se dice siempre en USDC.
+ *  `precios` es lo que dice el contrato ahora (con eso se firma). `conocidos` es eso o, mientras llega,
+ *  lo último que se leyó en este navegador: sirve para mostrar el precio sin esperar. */
 function usePrecios(moneda: string) {
-  const [precios, setPrecios] = useState<{ huella: bigint; continuar: bigint } | null>(null);
-  const [error, setError] = useState(false);
+  const [leidos, setLeidos] = useState<{ moneda: string; precios: Precios } | null>(null);
+  const [enUsdc, setEnUsdc] = useState<Precios | null>(() => preciosGuardados(MONEDAS[0].id));
+  const [fallo, setFallo] = useState("");
+  const guardados = useMemo(() => preciosGuardados(moneda), [moneda]);
   useEffect(() => {
     let vivo = true;
     redLuego()
       .then((r) => r.preciosVigentes(moneda))
-      .then((p) => vivo && (setPrecios(p), setError(false)))
-      .catch(() => vivo && setError(true));
+      .then((p) => {
+        guardarPrecios(moneda, p);
+        if (vivo) {
+          setLeidos({ moneda, precios: p });
+          setFallo("");
+        }
+      })
+      .catch(() => vivo && setFallo(moneda));
+    // Si la referencia no se puede leer, se muestra solo lo que se paga.
+    redLuego()
+      .then((r) => r.preciosVigentes(MONEDAS[0].id))
+      .then((p) => {
+        guardarPrecios(MONEDAS[0].id, p);
+        if (vivo) setEnUsdc(p);
+      })
+      .catch(() => undefined);
     return () => {
       vivo = false;
-      setPrecios(null);
     };
   }, [moneda]);
-  return { precios, error };
+  const precios = leidos?.moneda === moneda ? leidos.precios : null;
+  return { precios, conocidos: precios ?? guardados, enUsdc, error: fallo === moneda && !precios };
+}
+
+/** "1 USDC", o "1 USDC (10 XLM)" si se paga en otra moneda: primero el precio en USDC, después lo que sale de la cuenta. */
+function precioEnUsdc(pago: bigint, codigo: string, usdc?: bigint) {
+  return codigo === "USDC" || usdc === undefined ? plata(pago, codigo) : `${plata(usdc, "USDC")} (${plata(pago, codigo)})`;
+}
+
+/** Con qué se paga. Va en cada formulario de pago, no en el menú. */
+function ElegirMoneda({ sesion }: { sesion: Sesion }) {
+  return (
+    <label className="campo moneda-pago">
+      <span>Moneda (de prueba)</span>
+      <select value={sesion.moneda.id} onChange={(e) => sesion.cambiarMoneda(monedaDe(e.target.value))}>
+        {MONEDAS.map((m) => (
+          <option key={m.id} value={m.id}>{m.codigo}</option>
+        ))}
+      </select>
+    </label>
+  );
 }
 
 function BotonEntrar({ sesion, texto }: { sesion: Sesion; texto: string }) {
@@ -127,7 +187,10 @@ export function Cielo() {
     <section className="hoja">
       <p className="rotulo">El cielo</p>
       <h1 className="titulo">Obras expuestas</h1>
-      <p className="sub">Cada obra es una estrella. Las que más huellas tienen brillan primero.</p>
+      <p className="sub">Tocá una obra para verla y dejarle tu huella. Las que más huellas tienen brillan primero.</p>
+      <p>
+        <button className="btn" onClick={() => ir("/abrir")}>Subí lo tuyo</button>
+      </p>
       <div className="orden" role="group" aria-label="Ordenar">
         <button aria-pressed={orden === "huellas"} onClick={() => setOrden("huellas")}>
           Más huellas
@@ -142,7 +205,7 @@ export function Cielo() {
         <div className="vacio">
           <p>Todavía no hay obras. La primera puede ser la tuya.</p>
           <button className="btn lleno" onClick={() => ir("/abrir")}>
-            Exponer una obra
+            Subí lo tuyo
           </button>
         </div>
       )}
@@ -186,7 +249,7 @@ export function Cielo() {
 
 // ---------------------------------------------------------------- Ficha de una obra
 
-export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; desdePlaca?: { firma: string } }) {
+export function Ficha({ id, sesion, desdePlaca, dejar }: { id: string; sesion: Sesion; desdePlaca?: { firma: string }; dejar?: boolean }) {
   // Llegada desde la placa: se comprueba que la haya firmado quien expuso la obra.
   const [placaOk, setPlacaOk] = useState<boolean | null>(null);
   const [datos, setDatos] = useState<{ obra: Huella | null; huellas: Huella[] } | null>(null);
@@ -233,6 +296,15 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
       vivo = false;
     };
   }, [id, vuelta]);
+
+  // Llegada con ?dejar (el botón "Dejar mi huella" de la portada): va al formulario y pone el cursor ahí.
+  const cargada = !!datos?.obra;
+  useEffect(() => {
+    if (!dejar || !cargada) return;
+    const campo = document.getElementById("lo-que-sentiste");
+    campo?.closest("form")?.scrollIntoView({ block: "start" });
+    campo?.focus({ preventScroll: true });
+  }, [dejar, cargada]);
 
   if (error) return <section className="hoja"><p className="error">{error}</p></section>;
   if (!datos) return <section className="hoja"><p>Buscando la obra…</p></section>;
@@ -285,16 +357,10 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
         {desdePlaca && obra.estado !== "retirada" && <AvisoPlaca firmada={placaOk} obra={obra} />}
         <p className="sub">
           {huellas.length === 0
-            ? "Todavía no tiene huellas. Dejá la primera: escribí lo que te despertó la obra."
-            : `${huellas.length} ${huellas.length === 1 ? "huella" : "huellas"}. La obra está en el centro y cada huella sale de la que continúa. Tocá cualquiera para leerla y continuarla.`}
+            ? "Todavía no tiene huellas. Dejá la primera y contá qué sentiste al verla."
+            : `${huellas.length} ${huellas.length === 1 ? "huella" : "huellas"}. La obra está en el centro y cada huella sale de aquella a la que responde. Tocá cualquiera para leerla y dejarle tu huella.`}
         </p>
-        {conPlaca && (
-          <a className="btn solo-escritorio" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
-        )}
         <Constelacion obra={obra} huellas={huellas} elegida={actual.id} elegir={setElegida} invitada={sello?.obra === obra.id} />
-        {conPlaca && (
-          <a className="btn solo-celular" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
-        )}
       </div>
       <aside>
         {publicada !== null && (
@@ -303,7 +369,7 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
             {publicada && <a href={publicada} target="_blank" rel="noopener noreferrer">Ver el comprobante ↗</a>} · {OPINAR}
           </p>
         )}
-        <Lectura key={`l${actual.id}`} h={actual} esObra={actual.id === obra.id} sesion={sesion} alRetirar={() => setVuelta((v) => v + 1)} museo={sello?.obra === actual.id ? sello.museo : null} />
+        <Lectura key={`l${actual.id}`} h={actual} esObra={actual.id === obra.id} sesion={sesion} alRetirar={() => setVuelta((v) => v + 1)} museo={sello?.obra === actual.id ? sello.museo : null} placa={conPlaca && actual.id === obra.id} />
         <Continuar key={actual.id} obra={obra} padre={actual} sesion={sesion} alPublicar={(nueva, enlace) => { setElegida(nueva); setVuelta((v) => v + 1); setPublicada(enlace); }} />
         <Apoyar obra={obra} sesion={sesion} />
       </aside>
@@ -311,7 +377,7 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
   );
 }
 
-function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: boolean; sesion: Sesion; alRetirar: () => void; museo: string | null }) {
+function Lectura({ h, esObra, sesion, alRetirar, museo, placa }: { h: Huella; esObra: boolean; sesion: Sesion; alRetirar: () => void; museo: string | null; placa: boolean }) {
   const fecha = new Date(h.creado).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
   return (
     <div className="lectura">
@@ -339,7 +405,7 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
       {h.estado === "retirada" ? (
         <>
           <h2 className="h3">{esObra ? "Obra retirada" : "Huella retirada"}</h2>
-          <p className="sub">Quien la escribió la retiró. Su contenido se borró; el comprobante sigue en la red.</p>
+          <p className="sub">Quien la escribió la retiró. Su contenido se borró y el comprobante sigue en la red.</p>
         </>
       ) : esObra ? (
         <>
@@ -376,11 +442,19 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
         {fecha} · cuenta {corta(h.autor)}
       </p>
       {h.tx_hash && (
-        <a className="btn" href={enlaceTx(h.tx_hash)} target="_blank" rel="noopener noreferrer">
-          Ver el comprobante en Stellar Expert ↗
-        </a>
+        <p className="comprobante">
+          <a className="btn" href={enlaceTx(h.tx_hash)} target="_blank" rel="noopener noreferrer">
+            Ver el comprobante público ↗
+          </a>
+          <small>Un registro que nadie puede borrar ni cambiar.</small>
+        </p>
       )}
       {esObra && h.estado === "publicada" && <Compartir id={h.id} titulo={h.titulo} />}
+      {placa && (
+        <p className="placa-oferta">
+          ¿La hiciste vos? <a href={`#/placa/${h.id}`}>Imprimí una placa con QR para ponerla al lado de la obra</a>.
+        </p>
+      )}
       {esObra && h.estado !== "retirada" && <RepartoFicha nombre={h.nombre} />}
       {h.estado === "publicada" && sesion.cuenta === h.autor && <Retirar h={h} cuenta={sesion.cuenta} alRetirar={alRetirar} />}
     </div>
@@ -501,8 +575,9 @@ function Favorito({ huella, sesion }: { huella: string; sesion: Sesion }) {
     setOcupado(true);
     setError("");
     try {
-      const { fecha, firma } = await (await acciones()).firmaDeFavoritos(cuenta);
-      await cambiarFavorito({ cuenta, huella_id: huella, accion: esta ? "quitar" : "guardar", fecha, firma });
+      const accion = esta ? "quitar" : "guardar";
+      const { fecha, firma } = await (await acciones()).firmaDeFavoritos(cuenta, accion, huella);
+      await cambiarFavorito({ cuenta, huella_id: huella, accion, fecha, firma });
       const nuevas = new Set(guardadas);
       if (esta) nuevas.delete(huella);
       else nuevas.add(huella);
@@ -537,11 +612,12 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
   const [texto, setTexto] = useState("");
   const [nombre, setNombre] = useState("");
   const [permiso, setPermiso] = useState(false);
-  const { precios, error: sinPrecio } = usePrecios(sesion.moneda.id);
+  const { precios, conocidos, enUsdc, error: sinPrecio } = usePrecios(sesion.moneda.id);
   const a = useAccion();
   const limpio = texto.trim();
   const doc = useDocumento(`${sesion.cuenta}|${sesion.moneda.id}|${padre.id}|${limpio}|${nombre.trim()}`, () => ({ texto: limpio, nombre: nombre.trim() }));
   const precio = precios?.continuar;
+  const visto = precio ?? conocidos?.continuar;
   const listo = limpio.length >= 3 && limpio.length <= 300 && nombre.trim().length > 0 && permiso && precio !== undefined && !a.ocupado;
 
   if (padre.estado === "retirada") return null;
@@ -561,10 +637,10 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
         });
       }}
     >
-      <p className="rotulo">{padre.id === obra.id ? "Dejar tu huella en esta obra" : "Continuar esta huella"}</p>
+      <p className="rotulo">{padre.id === obra.id ? "Dejá tu huella sobre esta obra" : "Dejá tu huella sobre esta"}</p>
       <label className="campo">
-        <span>Lo que te despertó</span>
-        <textarea value={texto} maxLength={300} onChange={(e) => setTexto(e.target.value)} placeholder="Solo texto, hasta 300 caracteres" />
+        <span>Lo que sentiste</span>
+        <textarea id="lo-que-sentiste" value={texto} maxLength={300} onChange={(e) => setTexto(e.target.value)} placeholder="Solo texto, hasta 300 caracteres" />
         <small>{texto.length}/300</small>
       </label>
       <label className="campo">
@@ -575,20 +651,21 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
         <input type="checkbox" checked={permiso} onChange={(e) => setPermiso(e.target.checked)} />
         <span>Doy permiso para publicar este texto. Sé que cualquiera lo puede leer y que no incluye datos sensibles míos ni de otras personas.</span>
       </label>
+      <ElegirMoneda sesion={sesion} />
       <p className="precio">
-        Cuesta <b>{precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>. El 80% va a quien hizo la obra y el 20% a UMBRAL. Solo cambia si el artista firma una muestra con una sala, y nunca le queda menos del 30%. Vos no cobrás por continuar.
+        Cuesta <b>{visto !== undefined ? precioEnUsdc(visto, sesion.moneda.codigo, enUsdc?.continuar) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>. El 80% va a quien hizo la obra y el 20% a UMBRAL. Solo cambia si el artista firma una muestra con una sala, y nunca le queda menos del 30%. Vos no cobrás por dejar tu huella.
       </p>
       {sesion.cuenta ? (
         <button className="btn lleno" disabled={!listo}>
           Firmar y pagar {precio !== undefined ? plata(precio, sesion.moneda.codigo) : ""}
         </button>
       ) : (
-        <BotonEntrar sesion={sesion} texto="Para continuar, entrá con tu billetera." />
+        <BotonEntrar sesion={sesion} texto="Para dejar tu huella, entrá con tu billetera." />
       )}
       {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && (
         <p className="sub">Para firmar, escribí al menos 3 letras, poné tu nombre y marcá el permiso.</p>
       )}
-      <Estado a={a} listo="Listo: tu huella ya está en la constelación." opinar />
+      <Estado a={a} listo="Listo, tu huella ya está en la constelación." opinar />
     </form>
   );
 }
@@ -611,8 +688,9 @@ function Apoyar({ obra, sesion }: { obra: Huella; sesion: Sesion }) {
         });
       }}
     >
-      <p className="rotulo">Apoyar la obra</p>
-      <p className="sub">Monto libre, sin escribir nada. El 80% va a quien la hizo.</p>
+      <p className="rotulo">Apoyar</p>
+      <p className="sub">Sin escribir nada, elegí cuánto. El 80% es para quien lo subió.</p>
+      <ElegirMoneda sesion={sesion} />
       <div className="fila">
         <label className="monto">
           <input inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value)} aria-label={`Monto en ${sesion.moneda.codigo}`} />
@@ -629,7 +707,7 @@ function Apoyar({ obra, sesion }: { obra: Huella; sesion: Sesion }) {
         )}
       </div>
       {!valido && monto.trim() !== "" && <p className="error" role="status">Poné un monto entre 0,01 y 10.000 {sesion.moneda.codigo}.</p>}
-      <Estado a={a} listo="Gracias: tu apoyo llegó." />
+      <Estado a={a} listo="Gracias, tu apoyo llegó." />
     </form>
   );
 }
@@ -654,11 +732,11 @@ function useInvitacion(sala: string | undefined, cuenta: string | null, moneda: 
 }
 
 const OPCIONES_DERECHOS: [Derechos, string][] = [
-  ["autoria", "Soy autora o autor de esta obra."],
-  ["dominio_publico", "Es de dominio público: su autor murió hace más de 70 años."],
+  ["autoria", "Un recuerdo, una receta, una foto de la familia, o una obra que hice yo."],
+  ["dominio_publico", "Es de dominio público, su autor murió hace más de 70 años."],
   ["autorizacion", "Tengo autorización de su autor o de quien tiene sus derechos."],
 ];
-const NOMBRE_DERECHOS: Record<Derechos, string> = { autoria: "Obra propia", dominio_publico: "Dominio público", autorizacion: "Con autorización" };
+const NOMBRE_DERECHOS: Record<Derechos, string> = { autoria: "Es mío", dominio_publico: "Dominio público", autorizacion: "Con autorización" };
 
 const peso = (b: number) => (b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1024 / 1024).toLocaleString("es-AR", { maximumFractionDigits: 1 })} MB`);
 const minutos = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
@@ -799,7 +877,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
   const inv = useInvitacion(sala, sesion.cuenta, sesion.moneda.id);
   const [permiso, setPermiso] = useState(false);
   const [derechos, setDerechos] = useState<Derechos | null>(null);
-  const { precios, error: sinPrecio } = usePrecios(sesion.moneda.id);
+  const { precios, conocidos, enUsdc, error: sinPrecio } = usePrecios(sesion.moneda.id);
   const a = useAccion();
   const [nueva, setNueva] = useState<string | null>(null);
   const vista = useMemo(() => (foto ? URL.createObjectURL(foto) : null), [foto]);
@@ -820,16 +898,17 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
   const listo = (!sala || inv?.museo) && nPalabras >= 1 && nPalabras <= 20 && titulo.trim().length <= 200 && descripcion.length <= 400 && nombre.trim().length > 0 && derechos !== null && permiso && precio !== undefined && !a.ocupado;
   const faltan = [
     nPalabras < 1 && "el título",
-    !nombre.trim() && "quién la hizo",
-    derechos === null && "los derechos",
+    !nombre.trim() && "tu nombre",
+    derechos === null && "de quién es",
     !permiso && "marcar el permiso",
   ].filter((x): x is string => !!x);
-  const pista = faltan.length ? `Para firmar te falta: ${faltan.join(", ")}.` : nPalabras > 20 ? "Acortá el título: hasta 20 palabras." : "";
-  const textoPrecio = precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)";
+  const pista = faltan.length ? `Para firmar te falta ${faltan.join(", ")}.` : nPalabras > 20 ? "Acortá el título, hasta 20 palabras." : "";
+  const visto = precio ?? conocidos?.huella;
+  const textoPrecio = visto !== undefined ? precioEnUsdc(visto, sesion.moneda.codigo, enUsdc?.huella) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)";
 
   const elegirFoto = (f: File | null) => {
     if (f && !fotoValida(f)) {
-      setAviso("Esa foto no sirve: tiene que ser JPG, PNG o WEBP y pesar hasta 20 MB.");
+      setAviso("Esa foto no sirve. Tiene que ser JPG, PNG o WEBP y pesar hasta 20 MB.");
       setFoto(null);
       return false;
     }
@@ -839,7 +918,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
   };
   const elegirAudio = (f: File | null) => {
     if (f && !audioValido(f)) {
-      setAvisoAudio("Ese audio no sirve: tiene que ser MP3, M4A, WEBM u OGG y pesar hasta 5 MB.");
+      setAvisoAudio("Ese audio no sirve. Tiene que ser MP3, M4A, WEBM u OGG y pesar hasta 5 MB.");
       setAudio(null);
       return false;
     }
@@ -863,8 +942,8 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
           </div>
         )}
         <div className="ficha-texto">
-          <h2 className={titulo.trim() ? "h3" : "h3 a-completar"}>{titulo.trim() || "Título de la obra"}</h2>
-          <p className={`ficha-autor${nombre.trim() ? "" : " a-completar"}`}>{nombre.trim() || "Autor o autora"}</p>
+          <h2 className={titulo.trim() ? "h3" : "h3 a-completar"}>{titulo.trim() || "Título"}</h2>
+          <p className={`ficha-autor${nombre.trim() ? "" : " a-completar"}`}>{nombre.trim() || "Tu nombre"}</p>
           {descripcion.trim() && <p className="ficha-desc">{descripcion.trim()}</p>}
           {oido && <Reproductor src={oido} />}
           <dl className="ficha-datos">
@@ -873,7 +952,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
               <dd>{derechos ? NOMBRE_DERECHOS[derechos] : "Sin elegir"}</dd>
             </div>
             <div>
-              <dt>Exponer</dt>
+              <dt>Subirlo</dt>
               <dd>
                 {pagaLaSala ? "Paga la sala" : textoPrecio}
                 <small>va a UMBRAL</small>
@@ -882,24 +961,24 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
           </dl>
         </div>
       </article>
-      <p className="previa-nota">Después, cada continuación y cada apoyo te deja el 80%.</p>
+      <p className="previa-nota">Después, cada huella y cada aporte te deja el 80%.</p>
     </>
   );
 
   return (
     <section className="hoja exponer">
       <div className="form-cabeza">
-        <p className="rotulo">Exponer una obra</p>
-        <h1 className="titulo">Tu obra, en el cielo</h1>
-        <p className="sub">Subís una foto de tu obra, la firmás con tu billetera y queda en el cielo a tu nombre. Cada vez que alguien la continúe o la apoye, te llega el 80%.</p>
+        <p className="rotulo">Exponer</p>
+        <h1 className="titulo">Subí lo tuyo</h1>
+        <p className="sub">Una obra o un recuerdo, con una foto o un audio y su título. Lo firmás con tu billetera y queda en el cielo a tu nombre. Cada vez que alguien le deje su huella o un aporte, te llega el 80%.</p>
       </div>
       {sala && (
         <p className="invitacion">
           {!inv
             ? "Leyendo la invitación…"
             : !inv.museo
-              ? "Esa sala no existe. Podés exponer la obra igual, sin sala, desde \"Exponer una obra\"."
-              : `Te invitó la sala de ${corta(inv.museo)}. ${pagaLaSala ? "Su fondo paga esta obra: vos no pagás nada." : sesion.cuenta ? "Tu cuenta no tiene una invitación disponible de esta sala (o se le acabó el fondo): la obra la pagás vos." : "Entrá con tu billetera para ver si la sala te paga la obra."}`}
+              ? "Esa sala no existe. Podés subirla igual, sin sala, desde \"Subí lo tuyo\"."
+              : `Te invitó la sala de ${corta(inv.museo)}. ${pagaLaSala ? "Su fondo paga esta obra, vos no pagás nada." : sesion.cuenta ? "Tu cuenta no tiene una invitación disponible de esta sala (o se le acabó el fondo). La obra la pagás vos." : "Entrá con tu billetera para ver si la sala te paga la obra."}`}
           {inv?.museo && sesion.cuenta && !pagaLaSala && (
             <>
               {" "}Si estás en la sala, <a href={`#/codigo?sala=${sala}`}>mostrá tu código para el encuentro</a> y te invitan en la puerta.
@@ -922,7 +1001,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
           }}
         >
           <ol className="pasos">
-            <Paso n={1} titulo="La obra">
+            <Paso n={1} titulo="¿Qué subís?">
               <label className="campo">
                 <span>Título</span>
                 <input value={titulo} maxLength={200} onChange={(e) => setTitulo(e.target.value)} placeholder="Hasta 20 palabras" />
@@ -930,11 +1009,11 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
               </label>
               <label className="campo">
                 <span>Descripción (opcional)</span>
-                <textarea value={descripcion} maxLength={400} onChange={(e) => setDescripcion(e.target.value)} placeholder="Qué es, dónde está, qué te despierta" />
+                <textarea value={descripcion} maxLength={400} onChange={(e) => setDescripcion(e.target.value)} placeholder="Qué es, de dónde viene, qué sentís al verlo" />
                 <small>{descripcion.length}/400</small>
               </label>
               <label className="campo">
-                <span>Autor o autora</span>
+                <span>Tu nombre (o el de quien lo hizo)</span>
                 <input value={nombre} maxLength={80} onChange={(e) => setNombre(e.target.value)} />
               </label>
             </Paso>
@@ -960,9 +1039,9 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
                 alElegir={elegirAudio}
               />
             </Paso>
-            <Paso n={3} titulo="Derechos">
+            <Paso n={3} titulo="¿De quién es?">
               <fieldset className="derechos tarjetas-derechos">
-                <legend>Derechos de la obra (elegí una)</legend>
+                <legend>De quién es lo que subís (elegí una)</legend>
                 {OPCIONES_DERECHOS.map(([valor, texto]) => (
                   <label key={valor} className="opcion-derecho">
                     <input type="radio" name="derechos" value={valor} checked={derechos === valor} onChange={() => setDerechos(valor)} required />
@@ -973,7 +1052,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
                   </label>
                 ))}
                 <small>
-                  Una foto tomada en la calle no alcanza: una escultura o un mural en la vía pública sigue teniendo autor. Si aparecen personas que se reconocen, tienen que haber dado su consentimiento.{" "}
+                  Una foto tomada en la calle no alcanza. Una escultura o un mural en la vía pública sigue teniendo autor. Si aparecen personas que se reconocen, tienen que haber dado su consentimiento.{" "}
                   <a className="enlace-tocable" href="#/terminos" target="_blank" rel="noopener noreferrer">Leer los términos</a>
                 </small>
               </fieldset>
@@ -984,15 +1063,16 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
               </div>
               <label className="check permiso">
                 <input type="checkbox" checked={permiso} onChange={(e) => setPermiso(e.target.checked)} />
-                <span>Acepto que cualquiera vea la obra y la continúe.</span>
+                <span>Acepto que cualquiera lo vea y le deje su huella.</span>
               </label>
               <div className="resumen">
+                <ElegirMoneda sesion={sesion} />
                 <div className="resumen-fila" aria-hidden="true">
                   <span>Total</span>
                   <b>{pagaLaSala ? "Paga la sala" : textoPrecio}</b>
                 </div>
                 <p className="precio">
-                  Exponer una obra cuesta <b>{textoPrecio}</b>, que van a UMBRAL.
+                  Subirlo cuesta <b>{textoPrecio}</b>, que van a UMBRAL.
                   {pagaLaSala && " Esta vez los paga el fondo de la sala."}
                 </p>
                 {sesion.cuenta ? (
@@ -1000,11 +1080,11 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
                     {pagaLaSala ? "Firmar (paga la sala)" : `Firmar y pagar ${precio !== undefined ? plata(precio, sesion.moneda.codigo) : ""}`}
                   </button>
                 ) : (
-                  <BotonEntrar sesion={sesion} texto="Para exponer una obra, entrá con tu billetera." />
+                  <BotonEntrar sesion={sesion} texto="Para subir lo tuyo, entrá con tu billetera." />
                 )}
                 {sesion.cuenta && !listo && !a.ocupado && precio !== undefined && pista && <p className="sub">{pista}</p>}
               </div>
-              <Estado a={a} listo="Listo: tu obra ya está en el cielo." opinar />
+              <Estado a={a} listo="Listo, tu obra ya está en el cielo." opinar />
               {nueva && (
                 <button type="button" className="btn" onClick={() => ir(`/obra/${nueva}`)}>
                   Ver mi obra
@@ -1025,8 +1105,8 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
 
 const PASOS_COBRO: { titulo: string; texto: string; dibujo: ReactNode }[] = [
   {
-    titulo: "Alguien continúa o apoya tu obra",
-    texto: "Cada huella nueva y cada apoyo suman a tu saldo.",
+    titulo: "Alguien deja su huella o un aporte en tu obra",
+    texto: "Cada huella nueva y cada aporte suman a tu saldo.",
     dibujo: (
       <svg viewBox="0 0 64 64" aria-hidden="true">
         <path d="M22 40 40 22M22 40l22 8" />
@@ -1093,9 +1173,9 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
   return (
     <section className="hoja cobro">
       <div className="form-cabeza">
-        <p className="rotulo">Cobrar</p>
+        <p className="rotulo">Mis cobros</p>
         <h1 className="titulo">Lo que juntaron tus obras</h1>
-        <p className="sub">Si expusiste una obra, acá ves lo que juntó: el 80% de cada continuación y de cada apoyo. Lo pasás a tu billetera cuando quieras.</p>
+        <p className="sub">Si expusiste una obra, acá ves lo que juntó, el 80% de cada huella y de cada aporte. Lo pasás a tu billetera cuando quieras.</p>
       </div>
       {!cuenta ? (
         <>
@@ -1141,9 +1221,9 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
               })}
             </ul>
           )}
-          {saldos && MONEDAS.every((m) => (saldos[m.id] ?? 0) <= 0) && <p className="sub">Todavía no hay nada para retirar. Aparece acá cuando alguien continúe o apoye una obra tuya.</p>}
+          {saldos && MONEDAS.every((m) => (saldos[m.id] ?? 0) <= 0) && <p className="sub">Todavía no hay nada para retirar. Aparece acá cuando alguien deje su huella o un aporte en una obra tuya.</p>}
           <div className="cobro-resultado">
-            <Estado a={a} listo="Listo: el dinero ya está en tu billetera." />
+            <Estado a={a} listo="Listo, el dinero ya está en tu billetera." />
           </div>
           <p className="rotulo cobro-como">Cómo funciona</p>
           {pasos}

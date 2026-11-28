@@ -2,8 +2,8 @@
 import { Buffer } from "buffer";
 import { guardarBorrador, publicar, subirArchivo, type Huella } from "./base";
 import { firmar, firmarMensaje } from "./billetera";
-import { codigoDe, codigoDeArchivo, continuar, dejarHuella, idDe, PagoSinConfirmar, type Comprobante, type Documento } from "./umbral";
-import { anotar, quitar } from "./pendientes";
+import { codigoDe, codigoDeArchivo, continuar, dejarHuella, idDe, PagoSinConfirmar, RechazadaPorLaRed, type AlEnviar, type Comprobante, type Documento } from "./umbral";
+import { anotar, anotarSiFalta, estaAnotada, quitar } from "./pendientes";
 import { enlaceTx } from "./comun";
 import { achicarFoto } from "./achicar";
 import { EXTENSION, EXTENSION_AUDIO, PESO_MAX, tipoAudio } from "./archivos";
@@ -13,18 +13,29 @@ const YA_PAGADA = "Ya dejaste esta huella.";
 
 export type Avance = (texto: string) => void;
 
-/** Paga y publica. El comprobante se anota antes de publicar: si algo falla después del pago,
- *  la huella se publica sola la próxima vez que se abra UMBRAL, sin volver a pagar. */
-async function pagarYPublicar<T extends Comprobante>(id: string, pagar: () => Promise<T>, avance: Avance): Promise<T> {
+/** Paga y publica. El comprobante se anota apenas el pago sale hacia la red, antes de saber cómo terminó:
+ *  si algo falla después (se corta la conexión, se cierra la pestaña), la huella se publica sola
+ *  la próxima vez que se abra UMBRAL, sin volver a pagar. */
+export async function pagarYPublicar<T extends Comprobante>(id: string, pagar: (alEnviar: AlEnviar) => Promise<T>, avance: Avance): Promise<T> {
   let recibo: T;
+  // Si un intento anterior quedó anotado, puede estar pagado: esa nota no se borra por un rechazo de este.
+  const yaAnotada = estaAnotada(id);
+  let salio = false;
   try {
-    recibo = await pagar();
+    recibo = await pagar((hash) => {
+      salio = true;
+      anotar(id, hash);
+    });
   } catch (e) {
     if (e instanceof PagoSinConfirmar) anotar(id, e.hash);
+    // La red la rechazó: no se cobró. Se saca la nota que dejó este intento.
+    if (e instanceof RechazadaPorLaRed && salio && !yaAnotada) quitar(id);
     // "Ya dejaste esta huella": se pagó en un intento anterior que no llegó a publicarse.
     // El contrato ya la tiene, así que se publica sin volver a pagar.
     if (e instanceof Error && e.message === YA_PAGADA) {
       avance("Esta huella ya estaba pagada. Publicando…");
+      // Se anota antes: si publicar falla ahora, se reintenta sola la próxima vez que se abra UMBRAL.
+      anotarSiFalta(id);
       const hash = await publicar(id);
       quitar(id);
       return { hash: hash ?? "", enlace: hash ? enlaceTx(hash) : "" } as T;
@@ -57,7 +68,7 @@ export async function continuarHuella(cuenta: string, obra: Huella, padre: strin
   // La huella hereda la sala de la obra (si la obra llegó invitada por una sala, la base lo exige).
   await guardarBorrador({ id, digest, autor: cuenta, artista: obra.artista, moneda, padre, sala: obra.sala ?? null }, doc);
   avance("Firmá en tu billetera…");
-  const recibo = await pagarYPublicar(id, () => continuar(cuenta, firmar, padre, doc, precio, moneda), avance);
+  const recibo = await pagarYPublicar(id, (alEnviar) => continuar(cuenta, firmar, padre, doc, precio, moneda, alEnviar), avance);
   return { ...recibo, id };
 }
 
@@ -97,25 +108,22 @@ export async function abrirObra(
     await subirArchivo("audios", audio_ruta, audio);
   }
   avance("Firmá en tu billetera…");
-  const recibo = await pagarYPublicar(id, () => dejarHuella(cuenta, firmar, completo, precio, moneda, sala), avance);
+  const recibo = await pagarYPublicar(id, (alEnviar) => dejarHuella(cuenta, firmar, completo, precio, moneda, sala, alEnviar), avance);
   return { ...recibo, id };
 }
 
 
-/** Firma para favoritos: se pide una vez y sirve unas horas (el servidor acepta 12). */
-export async function firmaDeFavoritos(cuenta: string): Promise<{ fecha: string; firma: string }> {
-  const clave = `umbral-firma-${cuenta}`;
-  try {
-    const guardada = JSON.parse(sessionStorage.getItem(clave) ?? "null") as { fecha: string; firma: string } | null;
-    if (guardada && Date.now() - Date.parse(guardada.fecha) < 11 * 3_600_000) return guardada;
-  } catch {
-    /* se vuelve a pedir */
-  }
+/** El mensaje que firma la billetera para un favorito. El servidor arma exactamente este texto
+ *  (supabase/functions/favoritos/firma.ts): si se cambia acá, hay que cambiarlo allá. */
+export const mensajeFavorito = (accion: "guardar" | "quitar", huella: string, cuenta: string, fecha: string) =>
+  `UMBRAL: ${accion} favorito\n${huella}\n${cuenta}\n${fecha}`;
+
+/** Firma para guardar o quitar UN favorito. Vale solo para esa acción sobre esa huella y por unos minutos:
+ *  no se guarda, se pide cada vez. */
+export async function firmaDeFavoritos(cuenta: string, accion: "guardar" | "quitar", huella: string): Promise<{ fecha: string; firma: string }> {
   const fecha = new Date().toISOString();
-  const firmada = await firmarMensaje(`UMBRAL: entrar a mis favoritos\n${cuenta}\n${fecha}`, cuenta);
+  const firmada = await firmarMensaje(mensajeFavorito(accion, huella, cuenta, fecha), cuenta);
   // Algunas billeteras devuelven hexadecimal, otras base64: el servidor acepta las dos.
   const firma = /^[0-9a-f]{128}$/i.test(firmada) ? firmada : Buffer.from(firmada, "base64").toString("base64");
-  const nueva = { fecha, firma };
-  sessionStorage.setItem(clave, JSON.stringify(nueva));
-  return nueva;
+  return { fecha, firma };
 }

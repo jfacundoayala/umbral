@@ -10,7 +10,7 @@ Facundo Ayala y Lucía Paz, equipo UMBRAL.
 
 | Dato | Para qué |
 |---|---|
-| La cuenta pública de tu billetera de Stellar | Saber quién expuso, continuó o apoyó cada obra y a quién le corresponde cobrar |
+| La cuenta pública de tu billetera de Stellar | Saber quién expuso cada obra, quién le dejó su huella o un aporte y a quién le corresponde cobrar |
 | El nombre que elegís mostrar | Mostrarlo junto a tu huella |
 | Los textos, fotos y audios que publicás | Mostrarlos en UMBRAL |
 | Tus favoritos | Mostrártelos cuando entrás con tu billetera |

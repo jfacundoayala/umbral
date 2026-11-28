@@ -28,9 +28,21 @@ function guardar(lista: Pendiente[]) {
   }
 }
 
-/** Anota una huella pagada antes de intentar publicarla. */
+/** Anota una huella pagada antes de intentar publicarla. Se llama apenas el pago sale hacia la red:
+ *  si la pestaña se cierra durante la espera, la huella se publica sola al volver. */
 export function anotar(id: string, hash: string) {
   guardar([...leer().filter((p) => p.id !== id), { id, hash, desde: Date.now() }]);
+}
+
+/** Anota una huella que ya está pagada en la red aunque acá no haya comprobante (por ejemplo, la pagó un intento
+ *  anterior). Si ya estaba anotada, no toca su comprobante. */
+export function anotarSiFalta(id: string) {
+  if (!leer().some((p) => p.id === id)) anotar(id, "");
+}
+
+/** `true` si esa huella ya estaba anotada (por un intento anterior). */
+export function estaAnotada(id: string): boolean {
+  return leer().some((p) => p.id === id);
 }
 
 export function quitar(id: string) {
@@ -46,7 +58,14 @@ export async function reintentarPendientes(): Promise<number> {
       continue;
     }
     try {
-      await publicar(p.id, p.hash);
+      try {
+        await publicar(p.id, p.hash);
+      } catch (e) {
+        // El comprobante guardado puede ser el de un segundo intento que la red rechazó (el primero sí pagó).
+        // Sin comprobante, el servidor igual comprueba en el contrato que la huella está pagada.
+        if (!p.hash || !(e instanceof Error) || !/comprobante/i.test(e.message)) throw e;
+        await publicar(p.id);
+      }
       quitar(p.id);
       publicadas++;
     } catch {

@@ -37,7 +37,7 @@ Cinco personas que no son del equipo prueban la app. Queremos saber qué entiend
 ## Los 3 pasos (para la persona que prueba)
 
 1. **Mirá.** Entrá a la app y elegí una obra que te llame la atención. Contanos de qué se trata y qué son los puntos que la rodean.
-2. **Dejá tu huella.** Escribí qué te despertó esa obra y publicalo. Antes de firmar, decinos cuánto vas a pagar y a quién le llega.
+2. **Dejá tu huella.** Contá qué sentiste al ver esa obra y publicalo. Antes de firmar, decinos cuánto vas a pagar y a quién le llega.
 3. **Apoyá.** Apoyá la obra con el monto que quieras. Después decinos cómo harías, si fueras la artista, para cobrar lo que juntó.
 
 Al final, una sola pregunta: "¿Para qué usarías esto?"

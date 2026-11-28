@@ -14,3 +14,10 @@ export class PagoSinConfirmar extends Error {
     this.hash = hash;
   }
 }
+
+/** La acción llegó a la red y la red la rechazó: seguro que no se cobró. */
+export class RechazadaPorLaRed extends Error {}
+
+/** La billetera firmó con una cuenta que no es la que entró a UMBRAL. */
+export const otraCuenta = (cuenta: string) =>
+  new Error(`Tu billetera está en otra cuenta. Cambiá a la cuenta ${cuenta.slice(0, 4)}…${cuenta.slice(-4)} y probá de nuevo.`);

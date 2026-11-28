@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../base", () => ({ publicar: vi.fn() }));
 
 import { publicar } from "../base";
-import { anotar, quitar, reintentarPendientes } from "../pendientes";
+import { anotar, anotarSiFalta, quitar, reintentarPendientes } from "../pendientes";
 
 const CLAVE = "umbral-pendientes";
 const HORA = 3_600_000;
@@ -74,6 +74,34 @@ describe("pendientes", () => {
     publicarMock.mockRejectedValueOnce(new Error("sin red")).mockResolvedValueOnce(undefined as never);
     expect(await reintentarPendientes()).toBe(1);
     expect(guardado().map((p) => p.id)).toEqual([ID1]);
+  });
+
+  it("si el comprobante guardado no sirve, publica sin comprobante", async () => {
+    // Un segundo intento que la red rechazó pisó el comprobante del pago bueno.
+    anotar(ID1, H2);
+    publicarMock.mockRejectedValueOnce(new Error("El pago quedó hecho, pero no se pudo publicar: Ese comprobante no es el de esta huella.")).mockResolvedValueOnce(null);
+    expect(await reintentarPendientes()).toBe(1);
+    expect(publicarMock).toHaveBeenNthCalledWith(1, ID1, H2);
+    expect(publicarMock).toHaveBeenNthCalledWith(2, ID1);
+    expect(guardado()).toEqual([]);
+  });
+
+  it("si falla por otra cosa, no insiste sin comprobante", async () => {
+    anotar(ID1, H1);
+    publicarMock.mockRejectedValue(new Error("sin red"));
+    expect(await reintentarPendientes()).toBe(0);
+    expect(publicarMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("anotarSiFalta guarda una huella pagada sin comprobante y no pisa uno que ya estaba", async () => {
+    anotarSiFalta(ID1);
+    expect(guardado()).toEqual([{ id: ID1, hash: "", desde: Date.now() }]);
+    anotar(ID2, H2);
+    anotarSiFalta(ID2);
+    expect(guardado().find((p) => p.id === ID2)?.hash).toBe(H2);
+    publicarMock.mockResolvedValue(null);
+    expect(await reintentarPendientes()).toBe(2);
+    expect(publicarMock).toHaveBeenCalledWith(ID1, "");
   });
 
   it("a los 7 días exactos todavía se reintenta", async () => {

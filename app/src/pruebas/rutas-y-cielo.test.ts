@@ -35,15 +35,14 @@ describe("rutas", () => {
 });
 
 describe("qué obras se ven en El cielo", () => {
-  it("se ven las de la colección del 28/11 y la de Mirta", () => {
-    expect(enElCielo({ id: OBRA_CON_SELLO, recibido: "2026-11-28T06:00:00Z" })).toBe(true);
-    expect(enElCielo({ id: "8d78f8c880d97a97b4cc6127719c086707843d79a933e3b1c59ec3e6753d551b", recibido: "2026-11-20T00:00:00Z" })).toBe(true);
+  it("se ven las del contrato final, desde el 28/11 a las 11:30 UTC", () => {
+    expect(enElCielo({ id: OBRA_CON_SELLO, recibido: "2026-11-28T11:34:36Z" })).toBe(true);
+    expect(enElCielo({ id: "a".repeat(64), recibido: "2026-11-29T00:00:00Z" })).toBe(true);
   });
 
-  it("no se ven las pruebas viejas ni las versiones reemplazadas", () => {
+  it("no se ven los ensayos ni los contratos anteriores", () => {
     expect(enElCielo({ id: "f".repeat(64), recibido: "2026-11-27T12:00:00Z" })).toBe(false);
-    // "Estuve en la puerta" con la tapa de anillos, reemplazada el 28/11.
-    expect(enElCielo({ id: "12541274d348295d720da7108ba583c63f1fdb4314a415f04b3c487dc9c0e4ac", recibido: "2026-11-28T07:00:00Z" })).toBe(false);
+    expect(enElCielo({ id: "b".repeat(64), recibido: "2026-11-28T09:41:06Z" })).toBe(false);
   });
 });
 

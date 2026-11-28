@@ -1,8 +1,8 @@
 // Recorridos de una persona que entra a UMBRAL. Solo leen: no firman, no pagan y no escriben en la base.
 import { expect, test, type Page } from "@playwright/test";
 
-const ENTRE_RAICES = "84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5";
-const CON_SELLO = "1b6a7197a9cd3f4d5f0d27d39cdfe37d042f3344650dd562b54939cac02a5bc6";
+const ENTRE_RAICES = "f23f895aa98d356b2870ec370e2b17d47ef7558592d2d7bc7a1ba13d9958b420";
+const CON_SELLO = "bd8d882f1fc3826cfdba82c3adc983be0bcd622085b5133adf6bd51acb591ce4";
 
 /** Junta los errores de la consola y de la página; al final de cada prueba tienen que ser cero. */
 function vigilar(page: Page) {
@@ -23,8 +23,8 @@ async function sinDesborde(page: Page) {
 test("la portada dice qué es UMBRAL y ofrece por dónde seguir", async ({ page }) => {
   const errores = vigilar(page);
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("no termina en la obra");
-  await expect(page.getByText("¿A qué venís?")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("no querés perder");
+  await expect(page.getByText("El museo donde el arte no termina en la obra.")).toBeVisible();
   await expect(page.getByRole("button", { name: /Vengo a mirar/ })).toBeVisible();
   await expect(page.getByRole("button", { name: /Quiero exponer mi obra/ })).toBeVisible();
   await sinDesborde(page);
@@ -90,7 +90,7 @@ test("la ficha muestra la obra, su constelación y la foto que se da vuelta", as
   }
   // Tocar una huella abre su texto para continuarla.
   await mapa.locator("[role=button][aria-label^='Huella de']").first().click({ force: true });
-  await expect(page.getByText(/Continuar esta huella/i)).toBeVisible();
+  await expect(page.getByText(/Dejá tu huella sobre esta/i)).toBeVisible();
   await sinDesborde(page);
   expect(errores).toEqual([]);
 });
@@ -109,7 +109,7 @@ test("Cuentas claras lee el 80/20 del contrato", async ({ page }) => {
 
 test("la placa con QR se ofrece solo en obras que existen en el mundo", async ({ page }) => {
   const errores = vigilar(page);
-  const placa = page.getByRole("link", { name: "Placa con QR para la obra física" });
+  const placa = page.getByRole("link", { name: /Imprimí una placa con QR/ });
   // Entre raíces es una talla en algarrobo: lleva placa.
   await page.goto(`/#/obra/${ENTRE_RAICES}`);
   await expect(page.getByRole("heading", { name: "Entre raíces" }).first()).toBeVisible();
@@ -152,7 +152,7 @@ test("las páginas legales cargan y una ruta inventada vuelve a la portada", asy
     await expect(page.getByRole("heading").first()).toBeVisible();
   }
   await page.goto("/#/no-existe");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("no termina en la obra");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("no querés perder");
   expect(errores).toEqual([]);
 });
 

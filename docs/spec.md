@@ -18,7 +18,7 @@ Cada cambio se anota al final, con fecha y motivo.
 
 ## 1. Qué somos
 
-UMBRAL — "Más allá de lo tangible". Un museo vivo en internet: un artista o un museo expone una obra, la gente la continúa con lo que esa obra le despertó, y todo queda unido en una constelación. Cada participación mueve dinero hacia quien creó.
+UMBRAL — "Más allá de lo tangible". Un museo vivo en internet: un artista o un museo expone una obra, la gente la continúa con lo que sintió al verla, y todo queda unido en una constelación. Cada participación mueve dinero hacia quien creó.
 
 ## 2. Qué problema resolvemos
 
@@ -29,8 +29,8 @@ UMBRAL — "Más allá de lo tangible". Un museo vivo en internet: un artista o 
 ## 3. Cómo lo resolvemos
 
 1. Leer es gratis y sin cuenta.
-2. Dejar una obra (una "huella") cuesta 2 USDC o 20 XLM.
-3. Continuar una huella cuesta 1 USDC o 10 XLM. Una parte va al artista que expuso la obra, siempre.
+2. Dejar una obra (una "huella") cuesta 2 USDC. Quien paga con XLM paga hoy 20 XLM.
+3. Continuar una huella cuesta 1 USDC (hoy 10 XLM si se paga con XLM). Una parte va al artista que expuso la obra, siempre.
 4. Quien quiera apoya con el monto que elija.
 5. El contrato anota a nombre del artista lo que le toca; el artista lo retira cuando quiere.
 6. La constelación muestra todo lo que una obra provocó.
@@ -50,7 +50,7 @@ No decimos que hay ni que no hay acuerdo con ninguna institución.
 
 - Las reglas del reparto son públicas y el saldo del artista no depende de que nosotros le paguemos.
 - El registro (quién, de qué huella nació, cuándo) lo comprueba cualquiera.
-- Stellar: mover 1 USDC cuesta una fracción de centavo y llega en segundos.
+- Stellar: cada acción paga a la red unos centavos (2 a 3 en la red de pruebas, aparte del precio) y llega en segundos.
 - Para la gente no tiene que ser técnico: se entra eligiendo una billetera en una ventana (Stellar Wallets Kit), y más adelante con correo. Las palabras son "huella", "continuar", "apoyar", "cobrar".
 
 ## 6. Modelo de negocio (decidido)
@@ -58,9 +58,9 @@ No decimos que hay ni que no hay acuerdo con ninguna institución.
 | Acción | Precio | UMBRAL | Autores |
 |---|---|---|---|
 | Leer | Gratis | — | — |
-| Dejar una huella | 2 USDC o 20 XLM | 100% | — |
-| Continuar la obra original | 1 USDC o 10 XLM | 20% | 80% al artista |
-| Continuar una respuesta | 1 USDC o 10 XLM | 20% | 80% al artista original. Quien respondió no cobra |
+| Dejar una huella | 2 USDC | 100% | — |
+| Continuar la obra original | 1 USDC | 20% | 80% al artista |
+| Continuar una respuesta | 1 USDC | 20% | 80% al artista original. Quien respondió no cobra |
 | Apoyar cualquier huella | Libre | 20% | 80% al artista de esa obra |
 
 ### La muestra con fecha de una sala (programada en el contrato; nombre a confirmar)
@@ -74,7 +74,7 @@ Nombre provisorio: convocatoria, apertura o temporada. Lo elige Lucía.
 - Al cerrar, la constelación queda sellada como la obra colectiva de esa muestra, con su comprobante público.
 - Lo que no se usó del fondo lo puede retirar la sala que lo cargó (`retirar_fondo`).
 
-Programado en el contrato: UMBRAL abre la muestra a pedido de la sala, dura como mucho 90 días, una sala no tiene dos a la vez, y la parte de la sala (de 0% a 40%, publicada al abrir la muestra) sale de la parte del artista sin bajarlo nunca del 30%. El reparto de la muestra vale para las obras de un artista solo si ese artista lo aceptó con su firma, viendo el porcentaje; sin su firma, ese artista queda afuera de la muestra: su obra no aparece ahí, no lleva el sello y no recibe la difusión de la sala; sigue en UMBRAL con el reparto de siempre. Una obra entra a una muestra cuando la sala la eligió y el artista firmó. El acuerdo entre la sala y UMBRAL es anterior y no depende de cada artista. El cierre sellado y el fondo mínimo no están programados.
+Programado en el contrato: UMBRAL abre la muestra a pedido de la sala, dura como mucho 180 días, una sala no tiene dos a la vez, y la parte de la sala (de 0% a 40%, publicada al abrir la muestra) sale de la parte del artista sin bajarlo nunca del 30%. El reparto de la muestra vale para las obras de un artista solo si ese artista lo aceptó con su firma, viendo el porcentaje; sin su firma, ese artista queda afuera de la muestra: su obra no aparece ahí, no lleva el sello y no recibe la difusión de la sala; sigue en UMBRAL con el reparto de siempre. Una obra entra a una muestra cuando la sala la eligió y el artista firmó. El acuerdo entre la sala y UMBRAL es anterior y no depende de cada artista. El cierre sellado y el fondo mínimo no están programados.
 
 Cómo se elige la parte de la sala, por lo que la sala aporta:
 
@@ -135,7 +135,7 @@ Los precios son una hipótesis: no están validados con gente real.
 - El aviso de una huella retirada dice si la retiró su autor o la moderación.
 - Cada vez que el fondo de una sala paga una huella, queda un aviso público.
 - El fondo de una sala solo paga la huella de las cuentas que el museo de esa sala invitó, una vez por cuenta.
-- El administrador puede reemplazar el código del contrato (`actualizar`) sin perder huellas, saldos ni fondos. En la red principal esa llave pasa a varias firmas, con aviso previo de cada cambio.
+- El administrador puede reemplazar el código del contrato sin perder huellas, saldos ni fondos, en dos pasos (`proponer_actualizacion` y `aplicar_actualizacion`): el cambio queda publicado y recién se puede aplicar cuando pasa el plazo de aviso (1 día en la red de pruebas). Lo mismo vale para la parte del artista, el tesoro y el administrador. En la red principal esa llave pasa a varias firmas.
 
 ## 10. Decisiones abiertas
 
