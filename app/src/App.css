@@ -370,3 +370,18 @@ main { min-height: calc(100svh - 160px); }
 .cuentas-avisos span { display: block; font-size: 12.5px; color: var(--tenue); }
 .reparto-ficha { border-top: 1px solid var(--niebla); margin-top: 14px; padding-top: 12px; font-size: 14px; }
 .reparto-ficha p { margin: 0 0 6px; }
+
+/* Estela del cursor en toda la web */
+.estela-global { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 40; }
+
+/* Obras que se mueven: se inclinan con el cursor, se giran y se deslizan al arrastrarlas */
+.movible { position: relative; display: block; cursor: grab; touch-action: pan-y; transform-origin: 50% 50%; will-change: transform; user-select: none; -webkit-user-select: none; box-shadow: var(--sombra-x, 0) var(--sombra-y, 0) var(--sombra-b, 0) rgba(30, 27, 24, 0.16); }
+.movible.moviendo { cursor: grabbing; z-index: 5; }
+.movible img { pointer-events: none; -webkit-user-drag: none; }
+.movible::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(circle at var(--brillo-x, 50%) var(--brillo-y, 50%), rgba(255, 255, 255, 0.28), transparent 55%); }
+.movible:hover::after, .movible.moviendo::after { opacity: 1; }
+.movible-portada { width: 100%; height: 100%; box-shadow: none; }
+.movible-portada::after { display: none; }
+.movible-foto { margin-bottom: 12px; }
+.movible-foto .foto { margin-bottom: 0; }
+@media (prefers-reduced-motion: reduce) { .movible { cursor: pointer; box-shadow: none; } }

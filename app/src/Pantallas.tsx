@@ -12,6 +12,7 @@ import "./Formularios.css";
 import { nuevaSal, PagoSinConfirmar } from "./sin-red";
 import type { Derechos, Documento, Firmar } from "./umbral";
 import { Isotipo } from "./Isotipo";
+import { Movible } from "./Movible";
 
 // Lo que habla con la red (stellar-sdk y la billetera) se baja recién cuando hace falta:
 // el cielo y la ficha se dibujan sin esperarlo.
@@ -138,6 +139,7 @@ export function Cielo() {
           <li key={o.id}>
             <a href={`#/obra/${o.id}`} className="tarjeta">
               {o.foto_ruta ? (
+                <Movible>
                 <img
                   src={urlTarjeta(o.id, o.foto_ruta)}
                   alt=""
@@ -149,6 +151,7 @@ export function Cielo() {
                     if (e.currentTarget.src !== firmada) e.currentTarget.src = firmada;
                   }}
                 />
+                </Movible>
               ) : (
                 <span className="sin-foto" aria-hidden="true">
                   <svg viewBox="-20 -20 40 40">
@@ -324,7 +327,11 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
         </>
       ) : esObra ? (
         <>
-          {h.foto_ruta && <img className="foto" src={urlFoto(h.foto_ruta)} alt={`Foto de la obra ${h.titulo ?? ""}`} />}
+          {h.foto_ruta && (
+            <Movible className="movible-foto">
+              <img className="foto" src={urlFoto(h.foto_ruta)} alt={`Foto de la obra ${h.titulo ?? ""}`} />
+            </Movible>
+          )}
           <h3>{h.titulo}</h3>
           {h.descripcion && <p>{h.descripcion}</p>}
           {h.audio_ruta && <Reproductor src={urlAudio(h.audio_ruta)} />}

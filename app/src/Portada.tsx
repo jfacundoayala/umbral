@@ -1,6 +1,6 @@
 // Portada (opción 2 de Lucía, 28/11): composición centrada, una obra suspendida entre órbitas finas
 // y una sola acción. Mirar es libre y no pide cuenta.
-import { useEffect, useRef } from "react";
+import { Movible } from "./Movible";
 import { ir } from "./comun";
 import { PortadaMas } from "./PortadaMas";
 
@@ -29,74 +29,18 @@ function Orbitas() {
   );
 }
 
-/** Estela suave que sigue al cursor sobre la portada. No corre si la persona pidió menos movimiento. */
-function useEstela() {
-  const portada = useRef<HTMLElement>(null);
-  const lienzo = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const p = portada.current;
-    const c = lienzo.current;
-    const ctx = c?.getContext("2d");
-    if (!p || !c || !ctx || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let rastro: { x: number; y: number; t: number }[] = [];
-    let activo = false;
-    const medir = () => {
-      const dpr = Math.min(devicePixelRatio || 1, 2);
-      c.width = p.clientWidth * dpr;
-      c.height = p.clientHeight * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    const dibujar = () => {
-      ctx.clearRect(0, 0, c.width, c.height);
-      const ahora = performance.now();
-      rastro = rastro.filter((q) => ahora - q.t < 900);
-      for (let l = -3; l <= 3; l++) {
-        ctx.beginPath();
-        rastro.forEach((q, n) => {
-          const edad = (ahora - q.t) / 900;
-          const yy = q.y + l * 5 * (0.3 + edad) + Math.sin(n * 0.5 + l) * 3 * edad;
-          if (n === 0) ctx.moveTo(q.x, yy);
-          else ctx.lineTo(q.x, yy);
-        });
-        ctx.strokeStyle = `rgba(49,75,73,${0.34 - Math.abs(l) * 0.07})`;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-      if (rastro.length) requestAnimationFrame(dibujar);
-      else activo = false;
-    };
-    const mover = (e: PointerEvent) => {
-      const r = p.getBoundingClientRect();
-      rastro.push({ x: e.clientX - r.left, y: e.clientY - r.top, t: performance.now() });
-      if (rastro.length > 60) rastro.shift();
-      if (!activo) {
-        activo = true;
-        requestAnimationFrame(dibujar);
-      }
-    };
-    medir();
-    addEventListener("resize", medir);
-    p.addEventListener("pointermove", mover);
-    return () => {
-      removeEventListener("resize", medir);
-      p.removeEventListener("pointermove", mover);
-    };
-  }, []);
-  return { portada, lienzo };
-}
-
 export default function Portada() {
-  const { portada, lienzo } = useEstela();
   return (
     <>
-      <section className="portada portada-centrada" ref={portada}>
-        <canvas className="estela" ref={lienzo} aria-hidden="true" />
+      <section className="portada portada-centrada">
         <p className="rotulo portada-rotulo">Museo vivo · Resistencia, Chaco</p>
         <h1>Más allá de lo tangible.</h1>
         <div className="portada-escena">
           <Orbitas />
           <button className="portada-obra" onClick={() => ir(`/obra/${OBRA_PORTADA}`)} aria-label="Ver la obra Entre raíces y sus huellas">
+            <Movible className="movible-portada">
             <img src="/portada/entre-raices.webp" width="510" height="510" alt="Entre raíces: dos formas curvas de madera entrelazadas sobre una base neutra." fetchPriority="high" />
+            </Movible>
           </button>
         </div>
         <p className="bajada">Un museo vivo donde las obras siguen creciendo con las personas.</p>
