@@ -10,6 +10,20 @@ Proyecto para el Hackathon Sin Coordenada — FLAT 2026 (BAF × Stellar).
 
 > **Funciona hoy en la red de pruebas de Stellar.** Cada pago y cada reparto pasa de verdad por el contrato, con su comprobante público.
 
+**UMBRAL en 4 líneas**
+
+- **Problema real.** Al 58% de los artistas visuales de Argentina no le alcanza lo que gana con su arte ([AVAA](https://artishockrevista.com/2021/01/11/avaa-avances-y-proyectos-para-el-2021)). En Resistencia, Capital Nacional de las Esculturas por la [Ley 26.157](https://servicios.infoleg.gob.ar/infolegInternet/anexos/120000-124999/121593/norma.htm), hay más de 600 esculturas en la calle y sus autores cobraron una sola vez.
+- **Arte, memoria y territorio.** La [Colección 001](#la-solución) junta seis obras de seis disciplinas, de la escultura a la receta de una abuela, y lo que la gente siente queda unido a cada obra.
+- **Producto y validación.** La [web](https://umbralmuseo.vercel.app) funciona hoy, se mira gratis y sin cuenta, y la prueban personas de afuera del equipo ([validación](#validación-con-personas-de-afuera)).
+- **Ejecución técnica.** Un contrato en Soroban cobra, reparte y registra en una sola transacción, con 99 pruebas del contrato, 136 de la app y [cada comprobante público](docs/txs.md).
+
+**Probalo en 1 minuto**
+
+1. Entrá a [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app) y abrí una obra.
+2. Escribí tu huella y tocá "Entrar con billetera".
+3. Elegí Albedo, que se usa desde el navegador sin instalar nada. Si tu cuenta es nueva, la web te carga saldo de prueba gratis.
+4. Firmá. Tu huella aparece en la constelación con su comprobante.
+
 | | |
 |---|---|
 | Demo en vivo | [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app) |
@@ -168,11 +182,15 @@ Antes, el 27/11, el mismo recorrido completo en el segundo contrato, con cobro d
 
 ## Validación con personas de afuera
 
-Las pruebas con personas de afuera del equipo se hacen el sábado 28/11 con la [guía de pruebas](docs/guia-pruebas.md).
+Cinco personas de afuera del equipo prueban la web solas, sin explicación, con la [guía de pruebas](docs/guia-pruebas.md).
 
-| Quién (rol) | Qué hizo | Qué dijo | Qué cambiamos |
-|---|---|---|---|
-| *(se completa con las pruebas)* | | | |
+| # | Quién (rol) | Qué logró | Dónde se trabó | Qué dijo, textual | Qué cambiamos |
+|---|---|---|---|---|---|
+| 1 | | | | | |
+| 2 | | | | | |
+| 3 | | | | | |
+| 4 | | | | | |
+| 5 | | | | | |
 
 ## Calidad
 
