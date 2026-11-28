@@ -1,0 +1,29 @@
+name: Verificar contrato
+
+# Recompila el contrato desde el código fuente publicado, dentro de la imagen
+# fijada, y compara byte a byte con lo que está en la red (SEP-58).
+on:
+  workflow_dispatch:
+    inputs:
+      contrato:
+        description: "Id del contrato (C...) en la red de pruebas"
+        required: false
+      wasm_hash:
+        description: "O el hash del wasm ya subido a la red"
+        required: false
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: stellar/stellar-cli@v30.0.1
+      - name: Instalar el plugin de verificación
+        run: cargo install --locked --git https://github.com/stellar-experimental/stellar-contract-verify-plugin
+      - name: Verificar
+        run: |
+          stellar plugin ls
+          if [ -n "${{ inputs.contrato }}" ]; then
+            stellar contract verify --id "${{ inputs.contrato }}" --network testnet --trust | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            stellar contract verify --wasm-hash "${{ inputs.wasm_hash }}" --network testnet --trust | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
