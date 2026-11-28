@@ -39,8 +39,8 @@ export default function Portada() {
         <p className="rotulo portada-rotulo">Más allá de lo tangible</p>
         <h1>El museo donde el arte no termina en la obra.</h1>
         <p className="bajada">
-          Abrís una obra y escribís lo que te hizo sentir: a eso le decimos <b>huella</b>. Queda junto a la obra, a la vista de todos, y el
-          artista recibe el 80% al momento.
+          <b>Mirá</b> una obra. <b>Dejá tu huella</b>: unas palabras con lo que te despertó. <b>Queda unida a la obra</b>, a la vista de
+          todos, y el 80% va a quien la hizo.
         </p>
         <p className="portada-pregunta">¿A qué venís?</p>
         <div className="portada-elegir">
