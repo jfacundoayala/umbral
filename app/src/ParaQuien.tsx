@@ -26,7 +26,7 @@ export const PARA = [
     rotulo: "Una noche en el museo",
     foto: "/para-quien/salas.webp",
     encuadre: "50% 60%",
-    credito: { autor: "Secretaría de Cultura de la Nación", licencia: "CC BY-SA 2.0", fuente: "https://commons.wikimedia.org/wiki/File:%22Mir%C3%B3_La_experiencia_de_mirar_%22_en_el_MNBA_(26131420309).jpg" },
+    credito: { autor: "Secretaría de Cultura de la Nación", licencia: "CC BY-SA 2.0", fuente: "https://commons.wikimedia.org/wiki/File:%22Mir%C3%B3_La_experiencia_de_mirar_%22_en_el_MNBA_(37859118806).jpg" },
   },
   {
     quien: "Público",
@@ -34,10 +34,10 @@ export const PARA = [
     accion: "Ver las obras",
     destino: "/cielo",
     obra: "",
-    rotulo: "Un día de lluvia",
+    rotulo: "Salir a sacar fotos",
     foto: "/para-quien/publico.webp",
-    encuadre: "50% 60%",
-    credito: { autor: "Kgbo", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Three_girls_with_umbrellas_after_rain_in_Brisbane_02.jpg" },
+    encuadre: "58% 50%",
+    credito: { autor: "Johnattan Rupire", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Caminata_Reto_naturalista_urbano_2025_en_Cusco_(66164).jpg" },
   },
 ] as const;
 
