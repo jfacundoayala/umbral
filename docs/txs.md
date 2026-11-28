@@ -68,7 +68,7 @@ Pagan en XLM, con dos cuentas de prueba nuevas: una artista y una persona del p�
 
 ## Colección del 28/11/2026
 
-Doce obras expuestas desde la web, cada una con su foto (y su audio cuando tiene) y 20 XLM. "La sopa paraguaya de Mirta" la expone Lucía P.
+Dieciocho obras expuestas desde la web, cada una con su foto (y su audio cuando tiene) y 20 XLM. "La sopa paraguaya de Mirta" la expone Lucía P.
 
 | Obra | Expone | Comprobante |
 |---|---|---|
@@ -84,6 +84,12 @@ Doce obras expuestas desde la web, cada una con su foto (y su audio cuando tiene
 | [La pava de la mañana](https://umbralmuseo.vercel.app/#/obra/9da2e812e6aa6c03814a44efcdd63bcad3b589758dd8fc0ffd52dd793f1e2094) | Ernesto Duarte | [acdc9479…](https://stellar.expert/explorer/testnet/tx/acdc94797d1d61ab0a87c3c4871bab878606ccdd48b5b497ae5fa0bb5f5eded3) |
 | [Carta a quienes todavía no llegaron](https://umbralmuseo.vercel.app/#/obra/609a3c9382621db501214c9174d340a540f48eb50dbf9cc84c853b7258781811) | Victoria Acosta | [f5cbf660…](https://stellar.expert/explorer/testnet/tx/f5cbf6601f19b4c355c3d183a4f8c010fba8e4170bdc04117b2cc4cbc562a350) |
 | [Cuando las puertas quedaban abiertas](https://umbralmuseo.vercel.app/#/obra/81a25c9fcaf2eea0093df4c63e3262b19c595745a6b14a3e5777df5f5e2e579a) | Marta Ríos | [50fd81d1…](https://stellar.expert/explorer/testnet/tx/50fd81d15ff8f1b6df45499b5cd92516fd13bf634162588f706ae7fa4e58fbd8) |
+| [El río que se mueve](https://umbralmuseo.vercel.app/#/obra/467bc2e4bade846e1f903792c86758080b10abb0d0297b0b8e7990b79cb0f589) | Tomás Aguirre | [9d0726f4…](https://stellar.expert/explorer/testnet/tx/9d0726f41f67c403311770000091125ba506c4fd0239ffb7ed20e3b5e5db7c0b) |
+| [Quebracho al atardecer](https://umbralmuseo.vercel.app/#/obra/c8986e17ee839fb2dcd914b3f3573e344d724abbf6e8ecfce7d0ae646f3a09df) | Graciela Ferreyra | [0ac2802a…](https://stellar.expert/explorer/testnet/tx/0ac2802a7ccd0ccff40b0226c1e951964cee2f4dbc5b890bf7a1a7dc0b505856) |
+| [Siesta](https://umbralmuseo.vercel.app/#/obra/6d081996f7d5df387359302e297f232b3ace442173b000f36b7137cf2bd396a3) | Pablo Gómez | [91c72dd3…](https://stellar.expert/explorer/testnet/tx/91c72dd3cc7eab91daaf9a6459654b2b9a58ba5baa6bb40350f605918a21bf2c) |
+| [Vereda de lapacho](https://umbralmuseo.vercel.app/#/obra/ba3226387ce391d99cc63acc9f902596e936bb4543f37e556cb41ebe05e119cb) | Sofía Ledesma | [50811adb…](https://stellar.expert/explorer/testnet/tx/50811adb7831417409cae2f9e24bfac02096ec826ce45bfb39db3a878c70de1e) |
+| [Cianotipo del patio](https://umbralmuseo.vercel.app/#/obra/b763135027f7e38cc8df4d812f6eb1571e968b618e792b5cb8341978b6813710) | Nicolás Vera | [4fa9d904…](https://stellar.expert/explorer/testnet/tx/4fa9d904bff26ce7234f5873afdc1cdef5dcd0619d57e176e1ac00693f13b147) |
+| [Guarda del mediodía](https://umbralmuseo.vercel.app/#/obra/004c75547fd4f26a7525eccc1cdde7f809cfda2153fdea6616d2ec5be3b7e266) | Inés Cabrera | [f89c8954…](https://stellar.expert/explorer/testnet/tx/f89c8954dac8b3fde8a9c0d66b31bcf7abb3cb767285d6e543c8791800ab21ac) |
 
 ### Huellas y apoyos
 
@@ -137,6 +143,25 @@ Pagados en la red de pruebas desde varias cuentas, a través de la app.
 | La sopa paraguaya de Mirta | Huella de Silvia | continúa a Hernán | [4f613206…](https://stellar.expert/explorer/testnet/tx/4f613206b071eb4be3d4324302a53f452f5dcf6bb48e43a80a84a086a20df70a) |
 | La sopa paraguaya de Mirta | Huella de Omar | continúa la obra | [51720e78…](https://stellar.expert/explorer/testnet/tx/51720e7860a9fc79dc4f5525a364d7c3ef1285b8674a499e310ea539aa7b9be2) |
 | La sopa paraguaya de Mirta | Huella de Rosa | continúa la obra | [4e453b7b…](https://stellar.expert/explorer/testnet/tx/4e453b7ba153309addb9be1870536f22eeb1a1d991efb1198e3dfd54b4763911) |
+| El río que se mueve | Huella de Lautaro | continúa la obra | [7749e322…](https://stellar.expert/explorer/testnet/tx/7749e322edab6f7a80c542c2ef8664cf8461690c8e91c3abc439e81bcfdc65e1) |
+| El río que se mueve | Huella de Mariana | continúa la obra | [a126b438…](https://stellar.expert/explorer/testnet/tx/a126b438edfa8d94726bca3653c800690a50f5b1b9beadf12fe9ca638b9de414) |
+| El río que se mueve | Huella de Ramón | continúa la obra | [f74d30d7…](https://stellar.expert/explorer/testnet/tx/f74d30d7b41a0b6fa22ae7572d502be8d32a9c05ec45e274063aaff82848f864) |
+| Quebracho al atardecer | Huella de Darío | continúa la obra | [9c065c1d…](https://stellar.expert/explorer/testnet/tx/9c065c1d2cba006162cc306bb5c00e9208005fb54212588ac1443d76444bf97a) |
+| Quebracho al atardecer | Huella de Abril | continúa la obra | [60de325c…](https://stellar.expert/explorer/testnet/tx/60de325cea67c0dcaba150db239c06d8bb18a47c84f918794e780a49ab0e8151) |
+| Quebracho al atardecer | Huella de Silvia | continúa la obra | [1c07ebc7…](https://stellar.expert/explorer/testnet/tx/1c07ebc7174ee8416e32f6fa4117817bf07b655b8549e1b19eb4b19f9e1b99c7) |
+| Quebracho al atardecer | Huella de Joaquín | continúa la obra | [65138ecd…](https://stellar.expert/explorer/testnet/tx/65138ecd6ef2b3067248527cbe643b4e5412710139c83460cec15b20adb3d9a7) |
+| Siesta | Huella de Carolina | continúa la obra | [7ba401a4…](https://stellar.expert/explorer/testnet/tx/7ba401a40e6209adfc403eff14598922a221237dd09f7cf58789f69f92063bf0) |
+| Siesta | Huella de Gustavo | continúa la obra | [647a9139…](https://stellar.expert/explorer/testnet/tx/647a9139cd68f705909f732f443fcedf7ee68d6ec17240acc6a3aa50b100132e) |
+| Siesta | Huella de Micaela | continúa la obra | [99047c86…](https://stellar.expert/explorer/testnet/tx/99047c8622bf67b250a90af509f4837b6efe021954443aa04e4f0597bce05ae1) |
+| Siesta | Apoyo de 2 XLM | a la obra | [7fb45eb5…](https://stellar.expert/explorer/testnet/tx/7fb45eb5cec53bd5020c10ed0af3794695e081744410772f4901d3f8403cfd1b) |
+| Vereda de lapacho | Huella de Valeria | continúa la obra | [8b99b9e2…](https://stellar.expert/explorer/testnet/tx/8b99b9e2317660751312a414082c0be0741233cc6bcde2ebeeb620d2111017ab) |
+| Vereda de lapacho | Huella de Federico | continúa la obra | [0f70a15c…](https://stellar.expert/explorer/testnet/tx/0f70a15c4db4733a37a45012aee6f3830bf4e3cc97b0ad7245bb46bebf40b1e5) |
+| Vereda de lapacho | Huella de Luz | continúa la obra | [81521ef0…](https://stellar.expert/explorer/testnet/tx/81521ef021478ccfcf6424396af58356b0ad525c287c88e52db9541cf74132dc) |
+| Cianotipo del patio | Huella de Ana | continúa la obra | [e4ec045a…](https://stellar.expert/explorer/testnet/tx/e4ec045a9c7e8ec5de68eb6158cb8eecfb5e72b958d76c097de7dbe76c90f5a1) |
+| Cianotipo del patio | Huella de Tobías | continúa la obra | [fdca7576…](https://stellar.expert/explorer/testnet/tx/fdca75760628d46c3f86d4b5c7bb67c91411f156ad3899a007277b1c5a2131b2) |
+| Guarda del mediodía | Huella de Norma | continúa la obra | [72740694…](https://stellar.expert/explorer/testnet/tx/727406947578bc1820c8f27770f5f23f46c2a267751e185cd8bc3f8a89e62ce1) |
+| Guarda del mediodía | Huella de Camila | continúa la obra | [5f3fc709…](https://stellar.expert/explorer/testnet/tx/5f3fc7096f8dd49f9e569884c54d29d147d0c31bffabd8fdaa30dd69b8636e58) |
+| Guarda del mediodía | Huella de Héctor | continúa la obra | [8fa5719d…](https://stellar.expert/explorer/testnet/tx/8fa5719d0c348560897a7d41666c4338d175d0918ee6d29c588b5a8ecf9a657a) |
 
 ### Versiones reemplazadas
 
