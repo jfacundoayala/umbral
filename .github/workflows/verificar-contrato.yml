@@ -22,13 +22,13 @@ jobs:
       - name: Verificar
         shell: bash
         run: |
-          # El contenedor compila con otro usuario: las carpetas que arma el plugin tienen que dejarlo escribir.
-          umask 000
-          stellar plugin ls
-          if [ -n "${{ inputs.contrato }}" ]; then
-            stellar contract verify --id "${{ inputs.contrato }}" --network testnet --trust --verbose 2>&1 | tee salida.txt
-          else
-            stellar contract verify --wasm-hash "${{ inputs.wasm_hash }}" --network testnet --trust --verbose 2>&1 | tee salida.txt
-          fi
+          # La imagen compila con el usuario 1000 y el plugin arma una carpeta privada:
+          # se corre el plugin con un usuario de ese mismo número para que el contenedor pueda leerla.
+          sudo cp "$(command -v stellar)" "$(command -v stellar-contract-verify)" /usr/local/bin/
+          id -u 1000 >/dev/null 2>&1 || sudo useradd --uid 1000 --create-home verificador
+          USUARIO="$(id -nu 1000)"
+          sudo usermod -aG docker "$USUARIO"
+          if [ -n "${{ inputs.contrato }}" ]; then ARG="--id ${{ inputs.contrato }}"; else ARG="--wasm-hash ${{ inputs.wasm_hash }}"; fi
+          sudo -u "$USUARIO" -H sg docker -c "cd ~ && stellar contract verify $ARG --network testnet --trust --verbose" 2>&1 | tee salida.txt
           grep -E "Verified|Source SHA-256|Build image" salida.txt >> "$GITHUB_STEP_SUMMARY"
           grep -q "Verified" salida.txt
