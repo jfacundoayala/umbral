@@ -321,7 +321,7 @@
     ],
     [
       [
-        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4",
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON",
         {
           "function": {
             "contract_fn": {
@@ -329,7 +329,7 @@
               "function_name": "dejar_huella",
               "args": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON"
                 },
                 {
                   "bytes": "6666666666666666666666666666666666666666666666666666666666666666"
@@ -357,7 +357,7 @@
                   "function_name": "transfer",
                   "args": [
                     {
-                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON"
                     },
                     {
                       "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
@@ -557,26 +557,6 @@
               "key": {
                 "ledger_key_nonce": {
                   "nonce": "115220454072064130"
-                }
-              },
-              "durability": "temporary",
-              "val": "void"
-            }
-          },
-          "ext": "v0"
-        },
-        "live_until": 6311999
-      },
-      {
-        "entry": {
-          "last_modified_ledger_seq": 0,
-          "data": {
-            "contract_data": {
-              "ext": "v0",
-              "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4",
-              "key": {
-                "ledger_key_nonce": {
-                  "nonce": "3126073502131104533"
                 }
               },
               "durability": "temporary",
@@ -854,6 +834,128 @@
                     "symbol": "Huella"
                   },
                   {
+                    "bytes": "ae7b8f92385a27800f528806478bce265b052996d2b31288ec1bcd6493f9c196"
+                  }
+                ]
+              },
+              "durability": "persistent",
+              "val": {
+                "map": [
+                  {
+                    "key": {
+                      "symbol": "activa"
+                    },
+                    "val": {
+                      "bool": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "admite_respuestas"
+                    },
+                    "val": {
+                      "bool": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "apoyos"
+                    },
+                    "val": {
+                      "u32": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "artista"
+                    },
+                    "val": {
+                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "autor"
+                    },
+                    "val": {
+                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "creada"
+                    },
+                    "val": {
+                      "u64": "0"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "digest"
+                    },
+                    "val": {
+                      "bytes": "6666666666666666666666666666666666666666666666666666666666666666"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "padre"
+                    },
+                    "val": "void"
+                  },
+                  {
+                    "key": {
+                      "symbol": "presencial"
+                    },
+                    "val": {
+                      "bool": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "raiz"
+                    },
+                    "val": {
+                      "bytes": "ae7b8f92385a27800f528806478bce265b052996d2b31288ec1bcd6493f9c196"
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "respuestas"
+                    },
+                    "val": {
+                      "u32": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "symbol": "sala"
+                    },
+                    "val": {
+                      "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ext": "v0"
+        },
+        "live_until": 2073600
+      },
+      {
+        "entry": {
+          "last_modified_ledger_seq": 0,
+          "data": {
+            "contract_data": {
+              "ext": "v0",
+              "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARQG5",
+              "key": {
+                "vec": [
+                  {
+                    "symbol": "Huella"
+                  },
+                  {
                     "bytes": "c4047c73c54c43beac6914ea6c4c604859211544f6a7d02cbf8d7e4b36460c49"
                   }
                 ]
@@ -945,128 +1047,6 @@
                     },
                     "val": {
                       "u32": 1
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "sala"
-                    },
-                    "val": {
-                      "bytes": "fd3c59dbed2d39ebb857eb5e837d6eca541a3753012fc3660233a2dad6785718"
-                    }
-                  }
-                ]
-              }
-            }
-          },
-          "ext": "v0"
-        },
-        "live_until": 2073600
-      },
-      {
-        "entry": {
-          "last_modified_ledger_seq": 0,
-          "data": {
-            "contract_data": {
-              "ext": "v0",
-              "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARQG5",
-              "key": {
-                "vec": [
-                  {
-                    "symbol": "Huella"
-                  },
-                  {
-                    "bytes": "ea90450bc02fe3fbfa206afc1a62d17d426caf39def667f5855a3a0445bba98d"
-                  }
-                ]
-              },
-              "durability": "persistent",
-              "val": {
-                "map": [
-                  {
-                    "key": {
-                      "symbol": "activa"
-                    },
-                    "val": {
-                      "bool": true
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "admite_respuestas"
-                    },
-                    "val": {
-                      "bool": true
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "apoyos"
-                    },
-                    "val": {
-                      "u32": 0
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "artista"
-                    },
-                    "val": {
-                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "autor"
-                    },
-                    "val": {
-                      "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "creada"
-                    },
-                    "val": {
-                      "u64": "0"
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "digest"
-                    },
-                    "val": {
-                      "bytes": "6666666666666666666666666666666666666666666666666666666666666666"
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "padre"
-                    },
-                    "val": "void"
-                  },
-                  {
-                    "key": {
-                      "symbol": "presencial"
-                    },
-                    "val": {
-                      "bool": false
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "raiz"
-                    },
-                    "val": {
-                      "bytes": "ea90450bc02fe3fbfa206afc1a62d17d426caf39def667f5855a3a0445bba98d"
-                    }
-                  },
-                  {
-                    "key": {
-                      "symbol": "respuestas"
-                    },
-                    "val": {
-                      "u32": 0
                     }
                   },
                   {
@@ -1305,6 +1285,26 @@
               "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON",
               "key": {
                 "ledger_key_nonce": {
+                  "nonce": "3126073502131104533"
+                }
+              },
+              "durability": "temporary",
+              "val": "void"
+            }
+          },
+          "ext": "v0"
+        },
+        "live_until": 6311999
+      },
+      {
+        "entry": {
+          "last_modified_ledger_seq": 0,
+          "data": {
+            "contract_data": {
+              "ext": "v0",
+              "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON",
+              "key": {
+                "ledger_key_nonce": {
                   "nonce": "5806905060045992000"
                 }
               },
@@ -1465,7 +1465,7 @@
                       "symbol": "amount"
                     },
                     "val": {
-                      "i128": "9980000000"
+                      "i128": "10000000000"
                     }
                   },
                   {
@@ -1621,7 +1621,7 @@
                       "symbol": "amount"
                     },
                     "val": {
-                      "i128": "9960000000"
+                      "i128": "9940000000"
                     }
                   },
                   {

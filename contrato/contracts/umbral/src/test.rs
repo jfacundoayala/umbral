@@ -307,24 +307,28 @@ fn una_sala_patrocina_la_primera_huella_de_cada_visitante() {
     assert_eq!(m.c.fondo(&sala, &m.moneda), P_HUELLA);
     assert_eq!(m.c.obtener(&m.c.id_de(&m.ana, &h(&m.env, 101))).sala, Some(sala.clone()));
 
-    // La segunda huella de Ana en la misma sala la paga ella.
-    let pagada = m.c.dejar_huella(&m.ana, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone()));
-    assert!(!pagada);
-    assert_eq!(m.tk.balance(&m.ana), 1_000 * XLM - P_HUELLA);
+    // Ana ya gastó su invitación: una segunda huella en la misma sala no
+    // entra (ya no tiene vínculo con la sala) y no se le cobra nada.
+    let r = m.c.try_dejar_huella(&m.ana, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
+    assert_eq!(m.tk.balance(&m.ana), 1_000 * XLM);
     assert_eq!(m.c.fondo(&sala, &m.moneda), P_HUELLA);
 
-    // Beto usa lo que queda del fondo; a Caro ya no le alcanza y paga ella.
+    // Beto usa lo que queda del fondo; a Caro ya no le alcanza y no paga ella.
     assert!(m.c.dejar_huella(&m.beto, &h(&m.env, 103), &true, &m.moneda, &MAX, &Some(sala.clone())));
     assert_eq!(m.c.fondo(&sala, &m.moneda), 0);
-    assert!(!m.c.dejar_huella(&m.caro, &h(&m.env, 104), &true, &m.moneda, &MAX, &Some(sala.clone())));
-    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM - P_HUELLA);
+    let r = m.c.try_dejar_huella(&m.caro, &h(&m.env, 104), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::FondoInsuficiente)));
+    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM);
+    assert!(m.c.invitada(&sala, &m.caro));
     assert_eq!(m.tk.balance(&m.c.address), 0);
 }
 
 #[test]
 fn una_continuacion_queda_en_la_sala_de_la_huella_original() {
     let m = mundo();
-    let (_museo, sala) = sala_con_fondo(&m, 0);
+    let (_museo, sala) = sala_con_fondo(&m, P_HUELLA);
+    m.c.invitar(&sala, &m.ana);
     m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone()));
     m.c.comentar(&m.beto, &h(&m.env, 102), &m.c.id_de(&m.ana, &h(&m.env, 101)), &true, &m.moneda, &MAX);
     assert_eq!(m.c.obtener(&m.c.id_de(&m.beto, &h(&m.env, 102))).sala, Some(sala));
@@ -447,8 +451,12 @@ fn renovar_extiende_la_vigencia_sin_tocar_el_dato() {
 fn sin_invitacion_del_museo_el_fondo_no_paga() {
     let m = mundo();
     let (_museo, sala) = sala_con_fondo(&m, 5 * P_HUELLA);
-    // Caro no fue invitada: aunque haya fondo, paga ella y el fondo queda igual.
-    assert!(!m.c.dejar_huella(&m.caro, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone())));
+    // Caro no fue invitada: aunque haya fondo, no puede nombrar la sala. El
+    // fondo queda igual y, sin sala, paga ella como siempre.
+    let r = m.c.try_dejar_huella(&m.caro, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
+    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM);
+    assert!(!m.c.dejar_huella(&m.caro, &h(&m.env, 101), &true, &m.moneda, &MAX, &None));
     assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM - P_HUELLA);
     assert_eq!(m.c.fondo(&sala, &m.moneda), 5 * P_HUELLA);
     // No se puede invitar a una sala que no existe.
@@ -457,7 +465,8 @@ fn sin_invitacion_del_museo_el_fondo_no_paga() {
     m.c.invitar(&sala, &m.beto);
     assert!(m.c.dejar_huella(&m.beto, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone())));
     assert!(!m.c.invitada(&sala, &m.beto));
-    assert!(!m.c.dejar_huella(&m.beto, &h(&m.env, 103), &true, &m.moneda, &MAX, &Some(sala.clone())));
+    let r = m.c.try_dejar_huella(&m.beto, &h(&m.env, 103), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
 }
 
 #[test]
@@ -581,10 +590,11 @@ fn con_montos_impares_no_se_pierde_ni_aparece_ninguna_unidad() {
     m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &None);
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &MAX);
     m.c.apoyar(&m.caro, &obra, &m.moneda, &1);
-    // De 3 unidades: 1 al artista y 2 a Umbral. Del apoyo de 1: todo al artista.
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2);
-    assert_eq!(m.tk.balance(&m.c.address), 2);
-    assert_eq!(m.tk.balance(&m.tesoro), 1 + 2);
+    // De 3 unidades: 1 al artista y 2 a Umbral. Del apoyo de 1: todo a Umbral
+    // (el redondeo siempre queda de su lado).
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 1);
+    assert_eq!(m.tk.balance(&m.c.address), 1);
+    assert_eq!(m.tk.balance(&m.tesoro), 1 + 2 + 1);
     let pagado = (1_000 * XLM - m.tk.balance(&m.ana))
         + (1_000 * XLM - m.tk.balance(&m.beto))
         + (1_000 * XLM - m.tk.balance(&m.caro));
@@ -724,8 +734,11 @@ const DIA_S: u64 = 86_400;
 /// Una sala con una obra de Ana adentro, con los números del SPEC.
 fn sala_con_obra() -> (Mundo, Address, BytesN<32>, BytesN<32>) {
     let m = mundo_spec();
-    let (museo, sala) = sala_con_fondo(&m, 0);
-    m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    // El museo invita a Ana y pone justo lo que cuesta su obra: así la obra
+    // tiene un vínculo real con la sala y el fondo queda en cero.
+    let (museo, sala) = sala_con_fondo(&m, m.c.precios(&m.moneda).huella);
+    m.c.invitar(&sala, &m.ana);
+    assert!(m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone())));
     let obra = m.c.id_de(&m.ana, &h(&m.env, 101));
     (m, museo, sala, obra)
 }
@@ -1466,15 +1479,15 @@ fn el_identificador_de_la_sala_lo_calcula_el_contrato() {
 #[test]
 fn la_huella_pagada_por_el_fondo_queda_marcada_como_presencial() {
     let m = mundo_spec();
-    let (_museo, sala) = sala_con_fondo(&m, 4 * USDC);
+    let (museo, sala) = sala_con_fondo(&m, 4 * USDC);
     m.c.invitar(&sala, &m.ana);
     m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone()));
-    // Beto nombra la sala pero paga él: no prueba presencia.
-    m.c.dejar_huella(&m.beto, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    // El museo deja una obra en su sala y la paga él: no prueba presencia.
+    assert!(!m.c.dejar_huella(&museo, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone())));
     let obra = m.c.id_de(&m.ana, &h(&m.env, 101));
     m.c.comentar(&m.caro, &h(&m.env, 103), &obra, &true, &m.moneda, &MAX);
     assert!(m.c.obtener(&obra).presencial);
-    assert!(!m.c.obtener(&m.c.id_de(&m.beto, &h(&m.env, 102))).presencial);
+    assert!(!m.c.obtener(&m.c.id_de(&museo, &h(&m.env, 102))).presencial);
     assert!(!m.c.obtener(&m.c.id_de(&m.caro, &h(&m.env, 103))).presencial);
 }
 
@@ -1754,4 +1767,477 @@ fn una_actualizacion_real_se_aplica_despues_del_plazo_y_conserva_los_datos() {
     assert_eq!(m.c.cobrar(&m.ana, &m.moneda), USDC * 8 / 10);
     m.c.comentar(&m.caro, &h(&m.env, 103), &obra, &true, &m.moneda, &MAX);
     assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
+}
+
+// ---------- Arreglos de sala, invitaciones y redondeo ----------
+
+/// Lo que el contrato tiene en custodia tiene que ser exactamente lo que debe:
+/// los saldos a cobrar más lo que queda en los fondos.
+fn custodia_cierra(m: &Mundo, saldos: &[&Address], salas: &[&BytesN<32>]) {
+    let mut debe: i128 = 0;
+    for cuenta in saldos {
+        debe += m.c.saldo(cuenta, &m.moneda);
+    }
+    for sala in salas {
+        debe += m.c.fondo(sala, &m.moneda);
+    }
+    assert_eq!(m.tk.balance(&m.c.address), debe);
+}
+
+// B. Invitado sin fondo no paga de su bolsillo.
+
+#[test]
+fn un_invitado_sin_fondo_no_paga_de_su_bolsillo() {
+    let m = mundo();
+    let (museo, sala) = sala_con_fondo(&m, P_HUELLA - 1);
+    m.c.invitar(&sala, &m.ana);
+
+    // Al fondo le falta una unidad: falla en vez de cobrarle a Ana.
+    let r = m.c.try_dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::FondoInsuficiente)));
+    assert_eq!(m.tk.balance(&m.ana), 1_000 * XLM);
+    assert_eq!(m.tk.balance(&m.tesoro), 0);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), P_HUELLA - 1);
+    assert!(m.c.invitada(&sala, &m.ana));
+    assert_eq!(m.c.try_obtener(&m.c.id_de(&m.ana, &h(&m.env, 101))), Err(Ok(Error::NoExiste)));
+
+    // Cuando el fondo alcanza, la misma invitación sirve.
+    m.c.patrocinar(&museo, &sala, &m.moneda, &1);
+    assert!(m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone())));
+    assert_eq!(m.tk.balance(&m.ana), 1_000 * XLM);
+    assert_eq!(m.tk.balance(&m.tesoro), P_HUELLA);
+    custodia_cierra(&m, &[&m.ana], &[&sala]);
+}
+
+#[test]
+fn un_invitado_no_paga_si_el_fondo_esta_en_otra_moneda() {
+    let m = mundo();
+    let otra = nueva_moneda(&m.env, &[&m.ana]);
+    m.c.fijar_precios(&otra, &Precios { huella: P_HUELLA, comentario: P_COMENTARIO });
+    let otra_tk = token::TokenClient::new(&m.env, &otra);
+    // El fondo está en la primera moneda; Ana intenta en la segunda.
+    let (_museo, sala) = sala_con_fondo(&m, 3 * P_HUELLA);
+    m.c.invitar(&sala, &m.ana);
+    let r = m.c.try_dejar_huella(&m.ana, &h(&m.env, 101), &true, &otra, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::FondoInsuficiente)));
+    assert_eq!(otra_tk.balance(&m.ana), 1_000 * XLM);
+    assert!(m.c.invitada(&sala, &m.ana));
+    // Sin sala, paga ella como siempre y la invitación queda sin usar.
+    assert!(!m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &otra, &MAX, &None));
+    assert_eq!(otra_tk.balance(&m.ana), 1_000 * XLM - P_HUELLA);
+    assert!(m.c.invitada(&sala, &m.ana));
+}
+
+// E. Nadie dice que su obra es de una sala sin un vínculo real.
+
+#[test]
+fn sin_vinculo_con_la_sala_no_se_puede_nombrarla() {
+    let m = mundo();
+    let (_museo, sala) = sala_con_fondo(&m, 5 * P_HUELLA);
+    let r = m.c.try_dejar_huella(&m.caro, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
+    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 5 * P_HUELLA);
+    assert_eq!(m.c.try_obtener(&m.c.id_de(&m.caro, &h(&m.env, 101))), Err(Ok(Error::NoExiste)));
+
+    // Una invitación a otra sala no sirve para esta.
+    let otro_museo = Address::generate(&m.env);
+    token::StellarAssetClient::new(&m.env, &m.moneda).mint(&otro_museo, &(1_000 * XLM));
+    let otra_sala = m.c.abrir_sala(&otro_museo, &h(&m.env, 201));
+    m.c.invitar(&otra_sala, &m.caro);
+    let r = m.c.try_dejar_huella(&m.caro, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
+    // Y el museo de otra sala tampoco puede nombrar esta.
+    let r = m.c.try_dejar_huella(&otro_museo, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
+    assert_eq!(m.tk.balance(&otro_museo), 1_000 * XLM);
+}
+
+#[test]
+fn el_museo_y_el_artista_con_muestra_aceptada_nombran_la_sala_y_pagan_ellos() {
+    use soroban_sdk::testutils::Ledger as _;
+    let m = mundo();
+    let (museo, sala) = sala_con_fondo(&m, 5 * P_HUELLA);
+    let museo_antes = m.tk.balance(&museo);
+
+    // El museo dueño de la sala: paga él, el fondo no se toca.
+    assert!(!m.c.dejar_huella(&museo, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone())));
+    assert_eq!(m.tk.balance(&museo), museo_antes - P_HUELLA);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 5 * P_HUELLA);
+
+    // Ana todavía no aceptó la muestra: no puede.
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000);
+    m.c.abrir_muestra(&sala, &(1_000 + DIA_S), &(1_000 + 3 * DIA_S), &2_000);
+    let r = m.c.try_dejar_huella(&m.ana, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
+
+    // La acepta (aunque no haya empezado) y ya puede; paga ella.
+    m.c.aceptar_muestra(&m.ana, &sala, &1, &(1_000 + DIA_S), &(1_000 + 3 * DIA_S), &2_000);
+    assert!(!m.c.dejar_huella(&m.ana, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone())));
+    assert_eq!(m.tk.balance(&m.ana), 1_000 * XLM - P_HUELLA);
+    let obra = m.c.obtener(&m.c.id_de(&m.ana, &h(&m.env, 102)));
+    assert_eq!(obra.sala, Some(sala.clone()));
+    assert!(!obra.presencial);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 5 * P_HUELLA);
+
+    // Terminada la muestra, el acuerdo ya no la vincula con la sala.
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000 + 4 * DIA_S);
+    let r = m.c.try_dejar_huella(&m.ana, &h(&m.env, 103), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
+    assert_eq!(m.tk.balance(&m.ana), 1_000 * XLM - P_HUELLA);
+}
+
+// D. El artista puede salirse de una muestra que aceptó.
+
+#[test]
+fn el_artista_se_sale_de_la_muestra_y_vuelve_el_reparto_de_siempre() {
+    extern crate std;
+    use soroban_sdk::{testutils::{Events as _, Ledger as _}, Event as _};
+    let (m, museo, sala, obra) = sala_con_obra();
+    let yo = m.c.address.clone();
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000);
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + 7 * DIA_S), &2_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1, &1_000, &(1_000 + 7 * DIA_S), &2_000);
+    m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 5 / 10);
+    assert_eq!(m.c.saldo(&museo, &m.moneda), USDC * 2 / 10);
+
+    // cerrar_muestra es del museo o del administrador: el artista no puede.
+    assert_eq!(m.c.try_cerrar_muestra(&m.ana, &sala), Err(Ok(Error::NoAutorizado)));
+
+    m.c.salir_de_muestra(&m.ana, &sala);
+    assert_eq!(m.env.auths()[0].0, m.ana);
+    assert_eq!(
+        m.env.events().all().filter_by_contract(&yo),
+        std::vec![MuestraAbandonada { sala: sala.clone(), artista: m.ana.clone() }.to_xdr(&m.env, &yo)]
+    );
+    assert!(!m.c.acepto_muestra(&sala, &m.ana));
+    // La muestra de la sala sigue igual para los demás.
+    assert_eq!(m.c.muestra(&sala).unwrap().hasta, 1_000 + 7 * DIA_S);
+
+    // Desde ese momento: 80 para el artista, nada para la sala.
+    m.c.comentar(&m.caro, &h(&m.env, 103), &obra, &true, &m.moneda, &USDC);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 5 / 10 + USDC * 8 / 10);
+    assert_eq!(m.c.saldo(&museo, &m.moneda), USDC * 2 / 10);
+    // Ya sin acuerdo, tampoco puede sumar obras nuevas a esa sala.
+    let r = m.c.try_dejar_huella(&m.ana, &h(&m.env, 104), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::NoAutorizado)));
+
+    // Puede volver a aceptar la misma muestra.
+    m.c.aceptar_muestra(&m.ana, &sala, &1, &1_000, &(1_000 + 7 * DIA_S), &2_000);
+    assert!(m.c.acepto_muestra(&sala, &m.ana));
+}
+
+#[test]
+fn salir_de_una_muestra_sin_acuerdo_o_sin_firma_falla() {
+    use soroban_sdk::{testutils::{Ledger as _, MockAuth, MockAuthInvoke}, IntoVal};
+    let (m, _museo, sala, _obra) = sala_con_obra();
+    // Sala que no existe, y sala sin acuerdo de esa cuenta.
+    assert_eq!(m.c.try_salir_de_muestra(&m.ana, &h(&m.env, 250)), Err(Ok(Error::SalaNoExiste)));
+    assert_eq!(m.c.try_salir_de_muestra(&m.ana, &sala), Err(Ok(Error::MuestraInvalida)));
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000);
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &2_000);
+    assert_eq!(m.c.try_salir_de_muestra(&m.ana, &sala), Err(Ok(Error::MuestraInvalida)));
+    m.c.aceptar_muestra(&m.ana, &sala, &1, &1_000, &(1_000 + DIA_S), &2_000);
+    // Beto no tiene acuerdo, aunque Ana sí.
+    assert_eq!(m.c.try_salir_de_muestra(&m.beto, &sala), Err(Ok(Error::MuestraInvalida)));
+
+    // Beto firma la salida de Ana: no vale.
+    let r = m
+        .c
+        .mock_auths(&[MockAuth {
+            address: &m.beto,
+            invoke: &MockAuthInvoke {
+                contract: &m.c.address,
+                fn_name: "salir_de_muestra",
+                args: (m.ana.clone(), sala.clone()).into_val(&m.env),
+                sub_invokes: &[],
+            },
+        }])
+        .try_salir_de_muestra(&m.ana, &sala);
+    assert!(r.is_err());
+    assert!(m.c.acepto_muestra(&sala, &m.ana));
+
+    // Salir dos veces: la segunda ya no tiene acuerdo.
+    m.env.mock_all_auths();
+    m.c.salir_de_muestra(&m.ana, &sala);
+    assert_eq!(m.c.try_salir_de_muestra(&m.ana, &sala), Err(Ok(Error::MuestraInvalida)));
+}
+
+// I. Redondeo parejo: lo que sobra queda del lado de Umbral.
+
+#[test]
+fn en_un_apoyo_el_redondeo_queda_del_lado_de_umbral() {
+    let m = mundo();
+    let obra = m.c.id_de(&m.ana, &h(&m.env, 101));
+    m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &None);
+    // 7 unidades: el 80% es 5,6. El artista recibe 5 y Umbral 2.
+    m.c.apoyar(&m.caro, &obra, &m.moneda, &7);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 5);
+    assert_eq!(m.tk.balance(&m.tesoro), P_HUELLA + 2);
+    // 4 unidades: 3,2. El artista recibe 3 y Umbral 1.
+    m.c.apoyar(&m.caro, &obra, &m.moneda, &4);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 5 + 3);
+    assert_eq!(m.tk.balance(&m.tesoro), P_HUELLA + 2 + 1);
+    // No se pierde ni aparece nada.
+    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM - 11);
+    custodia_cierra(&m, &[&m.ana], &[]);
+}
+
+#[test]
+fn un_apoyo_de_una_sola_unidad_no_falla_y_va_entero_a_umbral() {
+    let m = mundo();
+    let obra = m.c.id_de(&m.ana, &h(&m.env, 101));
+    m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &None);
+    m.c.apoyar(&m.caro, &obra, &m.moneda, &1);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 0);
+    assert_eq!(m.tk.balance(&m.c.address), 0);
+    assert_eq!(m.tk.balance(&m.tesoro), P_HUELLA + 1);
+    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM - 1);
+    assert_eq!(m.c.obtener(&obra).apoyos, 1);
+    // No queda un saldo en cero anotado: no hay nada para cobrar.
+    assert_eq!(m.c.try_cobrar(&m.ana, &m.moneda), Err(Ok(Error::NadaParaCobrar)));
+    // Con 5 unidades ya le tocan 4 al artista.
+    m.c.apoyar(&m.caro, &obra, &m.moneda, &5);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 4);
+    assert_eq!(m.tk.balance(&m.tesoro), P_HUELLA + 1 + 1);
+}
+
+// A. El encuentro en persona también le paga a quien hizo la obra.
+
+#[test]
+fn un_invitado_comenta_y_el_fondo_paga_con_el_reparto_de_siempre() {
+    extern crate std;
+    use soroban_sdk::{testutils::Events as _, Event as _};
+    let m = mundo_spec();
+    let yo = m.c.address.clone();
+    // Fondo: 2 USDC para la obra de Ana y 3 más.
+    let (_museo, sala) = sala_con_fondo(&m, 5 * USDC);
+    m.c.invitar(&sala, &m.ana);
+    m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    let obra = m.c.id_de(&m.ana, &h(&m.env, 101));
+    let comentario = m.c.id_de(&m.beto, &h(&m.env, 102));
+    let tesoro_antes = m.tk.balance(&m.tesoro);
+
+    m.c.invitar(&sala, &m.beto);
+    m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
+    assert_eq!(
+        m.env.events().all().filter_by_contract(&yo),
+        std::vec![
+            FondoUsado { sala: sala.clone(), cuenta: m.beto.clone(), moneda: m.moneda.clone(), monto: USDC }
+                .to_xdr(&m.env, &yo),
+            SaldoAcreditado { beneficiario: m.ana.clone(), moneda: m.moneda.clone(), monto: USDC * 8 / 10 }
+                .to_xdr(&m.env, &yo),
+            HuellaDejada {
+                id: comentario.clone(),
+                autor: m.beto.clone(),
+                artista: m.ana.clone(),
+                digest: h(&m.env, 102),
+                padre: Some(obra.clone()),
+                sala: Some(sala.clone()),
+            }
+            .to_xdr(&m.env, &yo),
+        ]
+    );
+
+    // Beto no pagó; el fondo bajó 1 USDC; Ana tiene su 80% y Umbral el 20%.
+    assert_eq!(m.tk.balance(&m.beto), 1_000 * XLM);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 2 * USDC);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
+    assert_eq!(m.tk.balance(&m.tesoro) - tesoro_antes, USDC * 2 / 10);
+    assert!(!m.c.invitada(&sala, &m.beto));
+    assert!(m.c.obtener(&comentario).presencial);
+    assert_eq!(m.c.obtener(&obra).respuestas, 1);
+    custodia_cierra(&m, &[&m.ana], &[&sala]);
+
+    // La invitación se gastó: el siguiente comentario lo paga Beto.
+    m.c.comentar(&m.beto, &h(&m.env, 103), &obra, &true, &m.moneda, &USDC);
+    assert_eq!(m.tk.balance(&m.beto), 1_000 * XLM - USDC);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 2 * USDC);
+    assert!(!m.c.obtener(&m.c.id_de(&m.beto, &h(&m.env, 103))).presencial);
+
+    // También vale sobre una respuesta: la sala es la de la obra raíz.
+    m.c.invitar(&sala, &m.caro);
+    m.c.comentar(&m.caro, &h(&m.env, 104), &comentario, &true, &m.moneda, &USDC);
+    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), USDC);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 3 * (USDC * 8 / 10));
+    assert!(m.c.obtener(&m.c.id_de(&m.caro, &h(&m.env, 104))).presencial);
+    custodia_cierra(&m, &[&m.ana], &[&sala]);
+
+    // Ana cobra todo y el contrato se queda solo con el fondo.
+    assert_eq!(m.c.cobrar(&m.ana, &m.moneda), 3 * (USDC * 8 / 10));
+    assert_eq!(m.tk.balance(&m.c.address), USDC);
+}
+
+#[test]
+fn la_contabilidad_cierra_cuando_el_fondo_paga_un_comentario_en_muestra() {
+    use soroban_sdk::testutils::Ledger as _;
+    let (m, museo, sala, obra) = sala_con_obra();
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000);
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + 7 * DIA_S), &2_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1, &1_000, &(1_000 + 7 * DIA_S), &2_000);
+    // Un precio impar, para que haya redondeo: 1 USDC y 3 unidades.
+    let precio = USDC + 3;
+    m.c.fijar_precios(&m.moneda, &Precios { huella: 2 * USDC, comentario: precio });
+    m.c.patrocinar(&museo, &sala, &m.moneda, &(3 * USDC));
+    m.c.invitar(&sala, &m.beto);
+    let tesoro_antes = m.tk.balance(&m.tesoro);
+    let contrato_antes = m.tk.balance(&m.c.address);
+    assert_eq!(contrato_antes, 3 * USDC);
+
+    m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &MAX);
+
+    // Mismo reparto que un comentario pago en muestra: 50 / 20 / 30.
+    let para_ana = precio * 5 / 10;
+    let para_sala = precio * 2 / 10;
+    let para_umbral = precio - para_ana - para_sala;
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), para_ana);
+    assert_eq!(m.c.saldo(&museo, &m.moneda), para_sala);
+    assert_eq!(m.tk.balance(&m.tesoro) - tesoro_antes, para_umbral);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 3 * USDC - precio);
+    assert_eq!(m.tk.balance(&m.beto), 1_000 * XLM);
+    // Del contrato solo salió lo de Umbral.
+    assert_eq!(contrato_antes - m.tk.balance(&m.c.address), para_umbral);
+    // Saldo del contrato == suma de saldos + fondo restante.
+    custodia_cierra(&m, &[&m.ana, &museo], &[&sala]);
+
+    // Un comentario pago por Caro reparte igual y la cuenta sigue cerrando.
+    m.c.comentar(&m.caro, &h(&m.env, 103), &obra, &true, &m.moneda, &MAX);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * para_ana);
+    assert_eq!(m.c.saldo(&museo, &m.moneda), 2 * para_sala);
+    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM - precio);
+    custodia_cierra(&m, &[&m.ana, &museo], &[&sala]);
+
+    // Todos retiran lo suyo y el contrato queda en cero.
+    m.c.cobrar(&m.ana, &m.moneda);
+    m.c.cobrar(&museo, &m.moneda);
+    m.c.retirar_fondo(&sala, &m.moneda, &(3 * USDC - precio));
+    assert_eq!(m.tk.balance(&m.c.address), 0);
+}
+
+#[test]
+fn el_comentario_de_un_invitado_sin_fondo_lo_paga_el_y_la_invitacion_sigue() {
+    let (m, museo, sala, obra) = sala_con_obra();
+    // El fondo quedó en cero después de la obra de Ana.
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 0);
+    m.c.invitar(&sala, &m.beto);
+    m.c.patrocinar(&museo, &sala, &m.moneda, &(USDC - 1));
+    let tesoro_antes = m.tk.balance(&m.tesoro);
+
+    // Al fondo le falta una unidad: Beto no queda trabado, paga él como
+    // siempre, y la invitación le queda para otra vez.
+    m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &MAX);
+    assert_eq!(m.tk.balance(&m.beto), 1_000 * XLM - USDC);
+    assert_eq!(m.tk.balance(&m.tesoro) - tesoro_antes, USDC * 2 / 10);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), USDC - 1);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
+    assert!(m.c.invitada(&sala, &m.beto));
+    assert_eq!(m.c.obtener(&obra).respuestas, 1);
+    assert!(!m.c.obtener(&m.c.id_de(&m.beto, &h(&m.env, 102))).presencial);
+    custodia_cierra(&m, &[&m.ana], &[&sala]);
+
+    // Con el fondo completo, la misma invitación sirve.
+    m.c.patrocinar(&museo, &sala, &m.moneda, &1);
+    m.c.comentar(&m.beto, &h(&m.env, 103), &obra, &true, &m.moneda, &MAX);
+    assert_eq!(m.tk.balance(&m.beto), 1_000 * XLM - USDC);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 0);
+    assert!(!m.c.invitada(&sala, &m.beto));
+    assert!(m.c.obtener(&m.c.id_de(&m.beto, &h(&m.env, 103))).presencial);
+    custodia_cierra(&m, &[&m.ana], &[&sala]);
+}
+
+#[test]
+fn un_invitado_que_comenta_su_propia_obra_paga_de_su_bolsillo() {
+    let (m, museo, sala, obra) = sala_con_obra();
+    // Hay fondo de sobra y el museo vuelve a invitar a Ana.
+    m.c.patrocinar(&museo, &sala, &m.moneda, &(3 * USDC));
+    m.c.invitar(&sala, &m.ana);
+    let ana_antes = m.tk.balance(&m.ana);
+    let tesoro_antes = m.tk.balance(&m.tesoro);
+
+    // Ana comenta su propia obra: el fondo no se usa para pagarle a ella.
+    m.c.comentar(&m.ana, &h(&m.env, 102), &obra, &true, &m.moneda, &MAX);
+    assert_eq!(m.tk.balance(&m.ana), ana_antes - USDC);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 3 * USDC);
+    assert!(m.c.invitada(&sala, &m.ana));
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
+    assert_eq!(m.tk.balance(&m.tesoro) - tesoro_antes, USDC * 2 / 10);
+    let comentario = m.c.id_de(&m.ana, &h(&m.env, 102));
+    assert!(!m.c.obtener(&comentario).presencial);
+    custodia_cierra(&m, &[&m.ana], &[&sala]);
+
+    // Tampoco sobre una respuesta de otro en su obra: la artista sigue siendo ella.
+    m.c.comentar(&m.beto, &h(&m.env, 103), &obra, &true, &m.moneda, &MAX);
+    let de_beto = m.c.id_de(&m.beto, &h(&m.env, 103));
+    m.c.comentar(&m.ana, &h(&m.env, 104), &de_beto, &true, &m.moneda, &MAX);
+    assert_eq!(m.tk.balance(&m.ana), ana_antes - 2 * USDC);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 3 * USDC);
+    assert!(m.c.invitada(&sala, &m.ana));
+    custodia_cierra(&m, &[&m.ana], &[&sala]);
+}
+
+#[test]
+fn el_museo_con_invitacion_y_sin_fondo_publica_pagando() {
+    use soroban_sdk::testutils::Ledger as _;
+    let m = mundo();
+    let (museo, sala) = sala_con_fondo(&m, P_HUELLA - 1);
+    let museo_antes = m.tk.balance(&museo);
+
+    // El museo se invitó a sí mismo y el fondo no alcanza: publica igual,
+    // pagando él, sin marca de presencial y sin gastar la invitación.
+    m.c.invitar(&sala, &museo);
+    assert!(!m.c.dejar_huella(&museo, &h(&m.env, 101), &true, &m.moneda, &MAX, &Some(sala.clone())));
+    assert_eq!(m.tk.balance(&museo), museo_antes - P_HUELLA);
+    assert_eq!(m.tk.balance(&m.tesoro), P_HUELLA);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), P_HUELLA - 1);
+    assert!(m.c.invitada(&sala, &museo));
+    assert!(!m.c.obtener(&m.c.id_de(&museo, &h(&m.env, 101))).presencial);
+    custodia_cierra(&m, &[&museo], &[&sala]);
+
+    // Lo mismo para una artista con muestra aceptada e invitación.
+    m.env.ledger().with_mut(|l| l.timestamp = 1_000);
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &2_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1, &1_000, &(1_000 + DIA_S), &2_000);
+    m.c.invitar(&sala, &m.ana);
+    assert!(!m.c.dejar_huella(&m.ana, &h(&m.env, 102), &true, &m.moneda, &MAX, &Some(sala.clone())));
+    assert_eq!(m.tk.balance(&m.ana), 1_000 * XLM - P_HUELLA);
+    assert!(m.c.invitada(&sala, &m.ana));
+
+    // Con la invitación como único vínculo, sigue fallando sin cobrar.
+    m.c.invitar(&sala, &m.beto);
+    let r = m.c.try_dejar_huella(&m.beto, &h(&m.env, 103), &true, &m.moneda, &MAX, &Some(sala.clone()));
+    assert_eq!(r, Err(Ok(Error::FondoInsuficiente)));
+    assert_eq!(m.tk.balance(&m.beto), 1_000 * XLM);
+
+    // Cuando el fondo alcanza, al museo también le paga el fondo.
+    m.c.patrocinar(&museo, &sala, &m.moneda, &1);
+    assert!(m.c.dejar_huella(&museo, &h(&m.env, 104), &true, &m.moneda, &MAX, &Some(sala.clone())));
+    assert!(!m.c.invitada(&sala, &museo));
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 0);
+    custodia_cierra(&m, &[&museo, &m.ana], &[&sala]);
+}
+
+#[test]
+fn sin_invitacion_a_esa_sala_el_comentario_se_paga_como_siempre() {
+    let (m, museo, sala, obra) = sala_con_obra();
+    m.c.patrocinar(&museo, &sala, &m.moneda, &(3 * USDC));
+
+    // Caro no fue invitada: paga ella, el fondo no se toca.
+    m.c.comentar(&m.caro, &h(&m.env, 102), &obra, &true, &m.moneda, &MAX);
+    assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM - USDC);
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 3 * USDC);
+    assert!(!m.c.obtener(&m.c.id_de(&m.caro, &h(&m.env, 102))).presencial);
+
+    // Beto tiene invitación a esta sala, pero comenta una obra de afuera:
+    // paga él y la invitación queda sin usar.
+    m.c.invitar(&sala, &m.beto);
+    m.c.dejar_huella(&m.caro, &h(&m.env, 110), &true, &m.moneda, &MAX, &None);
+    let afuera = m.c.id_de(&m.caro, &h(&m.env, 110));
+    m.c.comentar(&m.beto, &h(&m.env, 111), &afuera, &true, &m.moneda, &MAX);
+    assert_eq!(m.tk.balance(&m.beto), 1_000 * XLM - USDC);
+    assert!(m.c.invitada(&sala, &m.beto));
+    assert_eq!(m.c.fondo(&sala, &m.moneda), 3 * USDC);
+    assert!(!m.c.obtener(&m.c.id_de(&m.beto, &h(&m.env, 111))).presencial);
+    custodia_cierra(&m, &[&m.ana, &m.caro], &[&sala]);
 }

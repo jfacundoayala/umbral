@@ -134,7 +134,7 @@ pub struct Huella {
     /// Sala de museo a la que pertenece, si pertenece a alguna.
     pub sala: Option<BytesN<32>>,
     /// `true` solo si la pagó el fondo de la sala por una invitación del
-    /// museo: prueba que la persona estuvo ahí.
+    /// museo (una huella o una continuación): prueba que la persona estuvo ahí.
     pub presencial: bool,
     pub admite_respuestas: bool,
     pub activa: bool,
@@ -349,6 +349,15 @@ pub struct MuestraAceptada {
     pub parte_sala_bps: u32,
 }
 
+/// Un artista se salió de la muestra de una sala: su acuerdo ya no vale.
+#[contractevent]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct MuestraAbandonada {
+    #[topic]
+    pub sala: BytesN<32>,
+    pub artista: Address,
+}
+
 /// El museo de una sala invitó a un visitante a dejar una huella.
 #[contractevent]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -358,7 +367,7 @@ pub struct VisitanteInvitado {
     pub cuenta: Address,
 }
 
-/// El fondo de una sala pagó la huella de una cuenta invitada.
+/// El fondo de una sala pagó la huella o la continuación de una cuenta invitada.
 #[contractevent]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FondoUsado {
@@ -698,8 +707,25 @@ impl Umbral {
         Ok(())
     }
 
+    /// El artista se sale de la muestra de una sala que había aceptado. Desde
+    /// ese momento sus obras de esa sala vuelven al reparto de siempre. Puede
+    /// volver a aceptarla con `aceptar_muestra`. Falla si no tiene acuerdo.
+    pub fn salir_de_muestra(env: Env, artista: Address, sala: BytesN<32>) -> Result<(), Error> {
+        artista.require_auth();
+        Self::museo_de(env.clone(), sala.clone())?;
+        let clave = Clave::Acuerdo(sala.clone(), artista.clone());
+        if !env.storage().persistent().has(&clave) {
+            return Err(Error::MuestraInvalida);
+        }
+        env.storage().persistent().remove(&clave);
+        Self::extender_sala(&env, &sala);
+        MuestraAbandonada { sala, artista }.publish(&env);
+        Ok(())
+    }
+
     /// El museo que abrió la sala invita a una cuenta: el fondo de la sala le
-    /// paga una huella, una sola vez por invitación. Solo el museo decide a
+    /// paga una huella en la sala o una continuación sobre una obra de la
+    /// sala (que no sea suya), una sola vez por invitación. Solo el museo decide a
     /// quién invita, así nadie puede vaciar el fondo creando cuentas. Una
     /// invitación ya usada se puede renovar para otro encuentro.
     pub fn invitar(env: Env, sala: BytesN<32>, cuenta: Address) -> Result<(), Error> {
@@ -718,7 +744,8 @@ impl Umbral {
     }
 
     /// Cualquiera (el museo o quien lo apoye) pone plata en el fondo de una
-    /// sala. Ese fondo paga una huella a cada visitante que el museo invitó.
+    /// sala. Ese fondo le paga a cada visitante que el museo invitó una
+    /// huella en la sala o una continuación sobre una obra de la sala.
     pub fn patrocinar(
         env: Env,
         quien: Address,
@@ -784,9 +811,15 @@ impl Umbral {
     // ---------- Acciones de los usuarios ----------
 
     /// Deja una huella nueva. El precio completo va al museo Umbral.
-    /// Si la huella va a una sala con fondo y el museo invitó a esa cuenta,
-    /// paga el fondo y no el autor, y la huella queda marcada como
-    /// presencial. Devuelve `true` si la pagó el fondo.
+    /// Para nombrar una sala hace falta un vínculo real con ella: una
+    /// invitación sin usar, ser el museo que la abrió o haber aceptado su
+    /// muestra (en curso o por empezar). Si no, falla con `NoAutorizado`.
+    /// Con invitación y fondo suficiente paga el fondo de la sala y no el
+    /// autor, y la huella queda marcada como presencial. Si el fondo no
+    /// alcanza y la invitación es su único vínculo, falla con
+    /// `FondoInsuficiente` en vez de cobrarle; el museo y el artista con
+    /// muestra aceptada pagan ellos y la invitación queda sin gastar.
+    /// Devuelve `true` si la pagó el fondo.
     /// El identificador lo calcula el contrato (ver `id_de`).
     /// `precio_max`: lo máximo que acepta pagar quien firma. Si el precio
     /// cambió y es mayor, la acción falla en vez de cobrar de más.
@@ -809,13 +842,24 @@ impl Umbral {
 
         let mut patrocinada = false;
         if let Some(s) = sala.clone() {
-            Self::museo_de(env.clone(), s.clone())?;
+            let museo = Self::museo_de(env.clone(), s.clone())?;
             Self::extender_sala(&env, &s);
-            patrocinada = Self::usar_patrocinio(&env, &s, &autor, &moneda, precios.huella);
+            let invitada = Self::invitacion_disponible(&env, &s, &autor);
+            if invitada && Self::fondo_alcanza(&env, &s, &moneda, precios.huella) {
+                Self::usar_patrocinio(&env, &s, &autor, &moneda, precios.huella)?;
+                patrocinada = true;
+            } else if autor != museo && !Self::acuerdo_vigente(&env, &s, &autor) {
+                // Si su único vínculo es la invitación y el fondo no alcanza,
+                // no se le cobra de su bolsillo. Sin invitación, sin ser el
+                // museo y sin muestra aceptada, la obra no puede decir que es
+                // de esa sala.
+                return Err(if invitada { Error::FondoInsuficiente } else { Error::NoAutorizado });
+            }
+            // El museo o el artista con muestra aceptada pagan como siempre.
         }
-        if !patrocinada {
-            Self::cobrar_y_repartir(&env, &autor, &moneda, precios.huella, None, None)?;
-        }
+        // Lo que pagó el fondo ya está en el contrato: sale de ahí.
+        let pagador = if patrocinada { None } else { Some(&autor) };
+        Self::cobrar_y_repartir(&env, pagador, &moneda, precios.huella, None, None)?;
         let artista = autor.clone();
         let raiz = id.clone();
         Self::guardar_nueva(
@@ -830,6 +874,10 @@ impl Umbral {
     /// artista que abrió la obra (sea cual sea el nivel de la cadena) y el
     /// resto va a Umbral. Quien escribió la huella continuada no cobra.
     /// Falla si la huella continuada o la obra raíz fueron retiradas.
+    /// Si la obra es de una sala, el museo invitó a quien comenta, el fondo
+    /// alcanza y no es su propia obra, paga el fondo de la sala (con el
+    /// mismo reparto) y la continuación queda marcada como presencial. Si
+    /// falta algo de eso, paga quien comenta y la invitación no se gasta.
     /// `precio_max`: lo máximo que acepta pagar quien firma.
     pub fn comentar(
         env: Env,
@@ -854,10 +902,26 @@ impl Umbral {
             return Err(Error::NoAdmiteRespuestas);
         }
 
+        // Encuentro en persona: si la obra es de una sala, el museo invitó a
+        // quien comenta, el fondo alcanza y no es su propia obra, paga el
+        // fondo de la sala. El reparto es el mismo. Si falta algo de eso,
+        // paga quien comenta y la invitación queda sin gastar.
+        let mut patrocinada = false;
+        if let Some(s) = original.sala.clone() {
+            if autor != original.artista
+                && Self::invitacion_disponible(&env, &s, &autor)
+                && Self::fondo_alcanza(&env, &s, &moneda, precios.comentario)
+            {
+                Self::extender_sala(&env, &s);
+                Self::usar_patrocinio(&env, &s, &autor, &moneda, precios.comentario)?;
+                patrocinada = true;
+            }
+        }
+        let pagador = if patrocinada { None } else { Some(&autor) };
         let museo = Self::museo_en_muestra(&env, &original.sala, &original.artista);
         Self::cobrar_y_repartir(
             &env,
-            &autor,
+            pagador,
             &moneda,
             precios.comentario,
             Some(&original.artista),
@@ -873,7 +937,7 @@ impl Umbral {
             padre: Some(padre),
             raiz: original.raiz.clone(),
             sala: original.sala.clone(),
-            presencial: false,
+            presencial: patrocinada,
             admite_respuestas,
         };
         Self::guardar_nueva(&env, id, nueva);
@@ -882,8 +946,8 @@ impl Umbral {
 
     /// Apoyo voluntario de monto libre sobre cualquier huella activa de una
     /// obra activa. El 80% queda a nombre del artista que abrió la obra (lo
-    /// retira con `cobrar`) y el 20% va a Umbral. Quien escribió una
-    /// respuesta no cobra.
+    /// retira con `cobrar`) y el 20% va a Umbral, que también se queda con
+    /// lo que sobra del redondeo. Quien escribió una respuesta no cobra.
     pub fn apoyar(
         env: Env,
         quien: Address,
@@ -900,15 +964,19 @@ impl Umbral {
         let mut huella = Self::obtener(env.clone(), id.clone())?;
         Self::exigir_activa(&env, &id, &huella)?;
 
-        let para_umbral = Self::parte_de(monto, APOYO_UMBRAL_BPS)?;
-        let para_artista = monto - para_umbral;
+        // Primero la parte del artista; el redondeo queda del lado de Umbral,
+        // como en el resto del contrato.
+        let para_artista = Self::parte_de(monto, TOTAL_BPS - APOYO_UMBRAL_BPS)?;
+        let para_umbral = monto - para_artista;
         let cliente = token::TokenClient::new(&env, &moneda);
+        if para_artista > 0 {
+            cliente.transfer(&quien, &env.current_contract_address(), &para_artista);
+            Self::sumar_saldo(&env, &huella.artista, &moneda, para_artista);
+        }
         if para_umbral > 0 {
             let tesoro: Address = env.storage().instance().get(&Clave::Tesoro).unwrap();
             cliente.transfer(&quien, &tesoro, &para_umbral);
         }
-        cliente.transfer(&quien, &env.current_contract_address(), &para_artista);
-        Self::sumar_saldo(&env, &huella.artista, &moneda, para_artista);
 
         huella.apoyos = huella.apoyos.checked_add(1).ok_or(Error::Desborde)?;
         Self::guardar(&env, &id, &huella);
@@ -1247,32 +1315,75 @@ impl Umbral {
         Ok(monto.checked_mul(bps as i128).ok_or(Error::Desborde)? / (TOTAL_BPS as i128))
     }
 
-    /// Si el fondo de la sala alcanza y la cuenta tiene una invitación sin
-    /// usar, paga el precio desde el fondo a Umbral y devuelve `true`.
+    /// Si una cuenta tiene una invitación sin usar en una sala. Si la
+    /// invitación existe, renueva su vigencia.
+    fn invitacion_disponible(env: &Env, sala: &BytesN<32>, cuenta: &Address) -> bool {
+        let clave = Clave::Invitacion(sala.clone(), cuenta.clone());
+        let disponible: Option<bool> = env.storage().persistent().get(&clave);
+        if disponible.is_some() {
+            env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
+        }
+        disponible.unwrap_or(false)
+    }
+
+    /// Si el artista aceptó la muestra que la sala tiene cargada y esa
+    /// muestra todavía no terminó (en curso o por empezar). Renueva la
+    /// vigencia de la muestra y del acuerdo que lee.
+    fn acuerdo_vigente(env: &Env, sala: &BytesN<32>, artista: &Address) -> bool {
+        let clave_muestra = Clave::Muestra(sala.clone());
+        let m: Muestra = match env.storage().persistent().get(&clave_muestra) {
+            Some(m) => m,
+            None => return false,
+        };
+        Self::extender_hasta(env, &clave_muestra, m.hasta);
+        let clave_acuerdo = Clave::Acuerdo(sala.clone(), artista.clone());
+        let aceptada: Muestra = match env.storage().persistent().get(&clave_acuerdo) {
+            Some(a) => a,
+            None => return false,
+        };
+        Self::extender_hasta(env, &clave_acuerdo, aceptada.hasta);
+        aceptada == m && env.ledger().timestamp() <= m.hasta
+    }
+
+    /// Si el fondo de la sala en esa moneda alcanza para `precio`. Si el
+    /// fondo existe, renueva su vigencia.
+    fn fondo_alcanza(env: &Env, sala: &BytesN<32>, moneda: &Address, precio: i128) -> bool {
+        let clave = Clave::Fondo(sala.clone(), moneda.clone());
+        let fondo: Option<i128> = env.storage().persistent().get(&clave);
+        if fondo.is_some() {
+            env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
+        }
+        fondo.unwrap_or(0) >= precio
+    }
+
+    /// Gasta la invitación de la cuenta y descuenta `precio` del fondo de la
+    /// sala. La plata no se mueve: ya está en el contrato y la reparte quien
+    /// llama. Falla con `FondoInsuficiente` si el fondo no alcanza, y con
+    /// `NoAutorizado` si la cuenta no tiene una invitación sin usar.
     fn usar_patrocinio(
         env: &Env,
         sala: &BytesN<32>,
         autor: &Address,
         moneda: &Address,
         precio: i128,
-    ) -> bool {
+    ) -> Result<(), Error> {
+        if precio <= 0 {
+            return Err(Error::PrecioInvalido);
+        }
         let invitacion = Clave::Invitacion(sala.clone(), autor.clone());
         let disponible: bool = env.storage().persistent().get(&invitacion).unwrap_or(false);
+        if !disponible {
+            return Err(Error::NoAutorizado);
+        }
         let clave = Clave::Fondo(sala.clone(), moneda.clone());
         let fondo: i128 = env.storage().persistent().get(&clave).unwrap_or(0);
-        if precio <= 0 || fondo < precio || !disponible {
-            return false;
+        if fondo < precio {
+            return Err(Error::FondoInsuficiente);
         }
         env.storage().persistent().set(&clave, &(fondo - precio));
         env.storage().persistent().extend_ttl(&clave, UMBRAL_VIDA, VIDA);
         env.storage().persistent().set(&invitacion, &false);
         env.storage().persistent().extend_ttl(&invitacion, UMBRAL_VIDA, VIDA);
-        let tesoro: Address = env.storage().instance().get(&Clave::Tesoro).unwrap();
-        token::TokenClient::new(env, moneda).transfer(
-            &env.current_contract_address(),
-            &tesoro,
-            &precio,
-        );
         FondoUsado {
             sala: sala.clone(),
             cuenta: autor.clone(),
@@ -1280,7 +1391,7 @@ impl Umbral {
             monto: precio,
         }
         .publish(env);
-        true
+        Ok(())
     }
 
     fn sumar_saldo(env: &Env, autor: &Address, moneda: &Address, monto: i128) {
@@ -1352,9 +1463,12 @@ impl Umbral {
     /// el contrato a su nombre (la retira con `cobrar`) y el resto va a Umbral.
     /// Se guarda en vez de pagarse directo para que un artista que no puede
     /// recibir esa moneda no haga fallar la acción de otra persona.
+    /// Con `pagador` en `None`, el monto ya está en el contrato (lo pagó el
+    /// fondo de una sala): las partes del artista y de la sala solo se anotan
+    /// y lo de Umbral sale del contrato.
     fn cobrar_y_repartir(
         env: &Env,
-        pagador: &Address,
+        pagador: Option<&Address>,
         moneda: &Address,
         monto: i128,
         artista: Option<&Address>,
@@ -1383,9 +1497,10 @@ impl Umbral {
             }
             (None, _) => (0, 0),
         };
-        let al_contrato = parte + parte_sala;
-        if al_contrato > 0 {
-            cliente.transfer(pagador, &env.current_contract_address(), &al_contrato);
+        let yo = env.current_contract_address();
+        let al_contrato = parte.checked_add(parte_sala).ok_or(Error::Desborde)?;
+        if let (Some(p), true) = (pagador, al_contrato > 0) {
+            cliente.transfer(p, &yo, &al_contrato);
         }
         if let (Some(a), true) = (artista, parte > 0) {
             Self::sumar_saldo(env, a, moneda, parte);
@@ -1397,7 +1512,7 @@ impl Umbral {
         let resto = monto - al_contrato;
         if resto > 0 {
             let tesoro: Address = env.storage().instance().get(&Clave::Tesoro).unwrap();
-            cliente.transfer(pagador, &tesoro, &resto);
+            cliente.transfer(pagador.unwrap_or(&yo), &tesoro, &resto);
         }
         Ok(())
     }
