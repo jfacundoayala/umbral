@@ -848,6 +848,44 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
     return true;
   };
 
+  // La vista previa se dibuja en dos lugares: al costado en la compu y, en pantallas angostas,
+  // justo antes de firmar, para ver cómo queda la obra antes de pagar.
+  const previa = (
+    <>
+      <p className="rotulo">Así se va a ver</p>
+      <article className="ficha-museo">
+        {vista ? (
+          <img className="ficha-foto" src={vista} alt="Vista previa de la foto" />
+        ) : (
+          <div className="ficha-foto vacia" aria-hidden="true">
+            <IconoFoto />
+            <span>Sin foto</span>
+          </div>
+        )}
+        <div className="ficha-texto">
+          <h2 className={titulo.trim() ? "h3" : "h3 a-completar"}>{titulo.trim() || "Título de la obra"}</h2>
+          <p className={`ficha-autor${nombre.trim() ? "" : " a-completar"}`}>{nombre.trim() || "Autor o autora"}</p>
+          {descripcion.trim() && <p className="ficha-desc">{descripcion.trim()}</p>}
+          {oido && <Reproductor src={oido} />}
+          <dl className="ficha-datos">
+            <div>
+              <dt>Derechos</dt>
+              <dd>{derechos ? NOMBRE_DERECHOS[derechos] : "Sin elegir"}</dd>
+            </div>
+            <div>
+              <dt>Exponer</dt>
+              <dd>
+                {pagaLaSala ? "Paga la sala" : textoPrecio}
+                <small>va a UMBRAL</small>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </article>
+      <p className="previa-nota">Después, cada continuación y cada apoyo te deja el 80%.</p>
+    </>
+  );
+
   return (
     <section className="hoja exponer">
       <div className="form-cabeza">
@@ -941,6 +979,9 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
               </fieldset>
             </Paso>
             <Paso n={4} titulo="Firmar y publicar">
+              <div className="previa previa-angosta" role="group" aria-label="Vista previa de la ficha">
+                {previa}
+              </div>
               <label className="check permiso">
                 <input type="checkbox" checked={permiso} onChange={(e) => setPermiso(e.target.checked)} />
                 <span>Acepto que cualquiera vea la obra y la continúe.</span>
@@ -973,37 +1014,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
           </ol>
         </form>
         <aside className="previa" aria-label="Vista previa de la ficha">
-          <p className="rotulo">Así se va a ver</p>
-          <article className="ficha-museo">
-            {vista ? (
-              <img className="ficha-foto" src={vista} alt="Vista previa de la foto" />
-            ) : (
-              <div className="ficha-foto vacia" aria-hidden="true">
-                <IconoFoto />
-                <span>Sin foto</span>
-              </div>
-            )}
-            <div className="ficha-texto">
-              <h2 className={titulo.trim() ? "h3" : "h3 a-completar"}>{titulo.trim() || "Título de la obra"}</h2>
-              <p className={`ficha-autor${nombre.trim() ? "" : " a-completar"}`}>{nombre.trim() || "Autor o autora"}</p>
-              {descripcion.trim() && <p className="ficha-desc">{descripcion.trim()}</p>}
-              {oido && <Reproductor src={oido} />}
-              <dl className="ficha-datos">
-                <div>
-                  <dt>Derechos</dt>
-                  <dd>{derechos ? NOMBRE_DERECHOS[derechos] : "Sin elegir"}</dd>
-                </div>
-                <div>
-                  <dt>Exponer</dt>
-                  <dd>
-                    {pagaLaSala ? "Paga la sala" : textoPrecio}
-                    <small>va a UMBRAL</small>
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </article>
-          <p className="previa-nota">Después, cada continuación y cada apoyo te deja el 80%.</p>
+          {previa}
         </aside>
       </div>
     </section>

@@ -583,3 +583,10 @@ p, li, dd, label { max-width: 62ch; }
 @media (prefers-reduced-motion: reduce) { .movible-vuelta .canto, .movible-vuelta .capa { display: none; } }
 .sello-moneda .cara-dorso .sv-texto, .sello-moneda .cara-dorso .sv-modo { fill: #6E341A; }
 @media (max-width: 560px) { .portada-centrada { padding-top: 16px; } .portada-pregunta { margin: 14px 0 8px; } .elegir-sub { font-size: 15px; } .portada-centrada .bajada { margin-top: 10px; } }
+
+/* Ficha en la compu: la constelación acompaña mientras se lee y se baja por las huellas,
+   así no queda la columna izquierda vacía. La raya entre columnas pasa al lado derecho para que llegue hasta abajo. */
+@media (min-width: 861px) {
+  .cielo-obra { position: sticky; top: 0; align-self: start; border-right: 0; }
+  .ficha-obra > aside { border-left: 1px solid var(--mineral); }
+}
