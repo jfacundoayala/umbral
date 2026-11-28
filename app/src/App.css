@@ -503,17 +503,17 @@ main { min-height: calc(100svh - 160px); }
 .cc-estrella { fill: #F7EBD6; transform-box: fill-box; transform-origin: center; animation: pv-titilar 3s ease-in-out infinite; }
 @keyframes cc-dibujar { 0% { stroke-dashoffset: 1; } 40%, 80% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
 
-.sello-moneda svg { filter: drop-shadow(var(--sombra-x, 0px) calc(var(--sombra-y, 8px) + 6px) 10px rgba(46, 22, 10, .45)); }
-.sello-moneda::after { inset: 2.5%; opacity: .55; mix-blend-mode: soft-light; background: radial-gradient(circle at var(--brillo-x, 38%) var(--brillo-y, 32%), rgba(255, 246, 225, .95), rgba(255, 246, 225, 0) 45%); }
+.sello-moneda svg { filter: drop-shadow(var(--sombra-x, 0px) calc(var(--sombra-y, 8px) + 6px) 10px rgba(11, 22, 19, .45)); }
+.sello-moneda::after { inset: 2.5%; opacity: .55; mix-blend-mode: soft-light; background: radial-gradient(circle at var(--brillo-x, 38%) var(--brillo-y, 32%), rgba(242, 237, 227, .95), rgba(242, 237, 227, 0) 45%); }
 .sello-moneda:hover::after, .sello-moneda.moviendo::after { opacity: .9; }
-.sello-moneda .sv-giro-texto { fill: #B87445; font-size: 10.5px; }
-.sello-moneda .sv-texto { fill: #B87445; }
-.sello-moneda .sv-modo { fill: #9A5A33; font-weight: 600; }
-.sello-moneda .sv-punto { fill: #7A3B1E; }
-.sello-moneda .sv-onda { stroke: #FFE7C4; stroke-width: 1.2; }
-.sello-moneda .sv-latido { stroke: #FFF3DD; }
-.sello-moneda .sv-latido-2 { stroke: #7A3B1E; }
-.sello-moneda svg:focus-visible { outline-color: var(--terracota, #B8683E); }
+.sello-moneda .sv-giro-texto { fill: #5C7C77; font-size: 10.5px; }
+.sello-moneda .sv-texto { fill: #5C7C77; }
+.sello-moneda .sv-modo { fill: #3E5C58; font-weight: 600; }
+.sello-moneda .sv-punto { fill: #243A37; }
+.sello-moneda .sv-onda { stroke: #F2EDE3; stroke-width: 1.2; }
+.sello-moneda .sv-latido { stroke: #F2EDE3; }
+.sello-moneda .sv-latido-2 { stroke: #243A37; }
+.sello-moneda svg:focus-visible { outline-color: var(--terracota, #4F6F6B); }
 .sello-moneda.sello-vivo-chico { width: 56px; height: 56px; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -565,9 +565,9 @@ p, li, dd, label { max-width: 62ch; }
 .vuelta-cuadro .canto-arr, .vuelta-cuadro .canto-aba { left: 0; right: 0; height: var(--grosor); background: linear-gradient(#8A6B4A, #5A4430); }
 .vuelta-cuadro .canto-arr { top: calc(var(--grosor) / -2); transform: rotateX(90deg); }
 .vuelta-cuadro .canto-aba { bottom: calc(var(--grosor) / -2); transform: rotateX(-90deg); }
-/* Moneda: discos de bronce apilados forman el canto. */
-.vuelta-moneda .capa { position: absolute; inset: 3.4%; border-radius: 50%; background: #8A4B2A; }
-.vuelta-moneda .capa:nth-child(odd) { background: #6E3A1F; }
+/* Moneda: discos apilados forman el canto. */
+.vuelta-moneda .capa { position: absolute; inset: 3.4%; border-radius: 50%; background: #2E4744; }
+.vuelta-moneda .capa:nth-child(odd) { background: #1F3431; }
 .vuelta-moneda .cara-dorso svg { display: block; width: 100%; height: auto; overflow: visible; }
 
 /* Dorso de la obra: la tela cruda sobre el bastidor y la etiqueta del museo. */
@@ -581,7 +581,7 @@ p, li, dd, label { max-width: 62ch; }
 .etiqueta span { display: block; color: var(--tenue); }
 .pista-vuelta { display: flex; align-items: center; gap: 8px; }
 @media (prefers-reduced-motion: reduce) { .movible-vuelta .canto, .movible-vuelta .capa { display: none; } }
-.sello-moneda .cara-dorso .sv-texto, .sello-moneda .cara-dorso .sv-modo { fill: #6E341A; }
+.sello-moneda .cara-dorso .sv-texto, .sello-moneda .cara-dorso .sv-modo { fill: #1F3431; }
 @media (max-width: 560px) { .portada-centrada { padding-top: 16px; } .portada-pregunta { margin: 14px 0 8px; } .elegir-sub { font-size: 15px; } .portada-centrada .bajada { margin-top: 10px; } }
 
 /* Ficha en la compu: la constelación acompaña mientras se lee y se baja por las huellas,
