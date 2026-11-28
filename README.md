@@ -36,6 +36,8 @@ UMBRAL sirve para cualquier artista o museo. Para mostrarlo elegimos un caso que
 - Lo que los vecinos y visitantes sienten frente a cada escultura no queda en ningún lado.
 - El catálogo ya existe: la Fundación Urunday tiene la plataforma Museo a Cielo Abierto, con fichas y mapa. UMBRAL no lo reemplaza: suma las voces de la gente y un pago que vuelve al escultor.
 
+La primera colección del museo es **Una ciudad que resuena · Colección 001**, curada por Lucía: seis obras de seis disciplinas (escultura, textil, memoria familiar, arte sonoro, objeto y cestería). Cinco son obras de muestra y una es una historia real: *La sopa paraguaya de Mirta*, la receta de su abuela, que llegó desde Paraguay a los diez años. Muestra que el valor de lo que se comparte no depende de tener una trayectoria.
+
 ## Cómo funciona
 
 1. Cualquiera entra y mira todo, gratis y sin cuenta.
@@ -234,10 +236,28 @@ Detalle en los [términos de uso](docs/terminos.md) y la [política de privacida
 - Un museo piloto, empezando por las esculturas de Resistencia.
 - Pasar a la red principal de Stellar con USDC real, después de una revisión externa del contrato.
 
+## UMBRAL ABIERTO: del piloto a la Bienal
+
+> La exposición es temporal. La experiencia puede continuar.
+
+UMBRAL ABIERTO es el nombre de los encuentros del museo, también fuera de la pantalla: muestras temporales y colecciones hechas junto con museos, salas, artistas y comunidades. Cada obra física lleva su placa con QR; quien la escanea ve su constelación sin cuenta y puede dejar su huella. Cuando la muestra se desmonta, la colección y sus huellas siguen en el museo digital.
+
+Es una hoja de ruta, no un acuerdo: no consultamos todavía a ninguna institución.
+
+| Etapa | Objetivo |
+|---|---|
+| Hackathon | Mostrar la plataforma y la visión, con la Colección 001 rotulada como muestra. |
+| Piloto propio | Un UMBRAL ABIERTO chico, con personas reales y obras autorizadas. |
+| Primera colaboración | Proponer una colección a un museo de Resistencia. Nos gustaría trabajar con el Museo de Medios de Comunicación y el Museo del Hombre Chaqueño, que conservan la autoridad sobre sus piezas. |
+| Bienal | Pedir un espacio en una futura Bienal Internacional de Escultura del Chaco (la de 2026 fue en julio). |
+| Otras ciudades | Repetirlo con la identidad de cada lugar. |
+
+Con comunidades y saberes tradicionales, las decisiones se toman con quienes los portan: autoría, consentimiento y qué se publica se acuerdan antes.
+
 ## Equipo
 
 - **Facundo Ayala** — contrato y desarrollo.
-- **Lucía Paz** — identidad, experiencia y pantallas.
+- **Lucía Paz** — dirección creativa: identidad, experiencia, pantallas y curaduría. El proceso está en su [bitácora de diseño](docs/diseno/bitacora-2026-11-27.md).
 
 ## Derechos
 
