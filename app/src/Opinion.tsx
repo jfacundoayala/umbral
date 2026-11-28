@@ -33,7 +33,7 @@ export function Opinion({ desde }: { desde: Desde }) {
   if (estado === "listo") {
     return (
       <section className="hoja opinion">
-        <h2>Gracias</h2>
+        <h1 className="titulo">Gracias</h1>
         <p role="status">Recibimos tu opinión. Nos ayuda a mejorar UMBRAL.</p>
         <p><a className="btn" href="#/cielo">Volver al cielo</a></p>
       </section>
@@ -43,7 +43,7 @@ export function Opinion({ desde }: { desde: Desde }) {
   return (
     <section className="hoja opinion">
       <div className="form-cabeza">
-        <h2>Contanos qué te pareció</h2>
+        <h1 className="titulo">Contanos qué te pareció</h1>
         <p className="sub">
           Es opcional y toma un minuto. No pide tu billetera ni tu cuenta. Lo usamos solo para mejorar UMBRAL y, si marcás la casilla del final, para citarte en la entrega del hackatón. No escribas tu correo, teléfono ni documento.
         </p>

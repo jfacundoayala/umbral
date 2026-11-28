@@ -68,7 +68,7 @@ export function Placa({ id, sesion }: { id: string; sesion: Sesion }) {
     return (
       <section className="hoja placa-pedido">
         <button className="volver" onClick={() => ir(`/obra/${id}`)}>← Volver a la obra</button>
-        <h2>Placa de “{obra.titulo}”</h2>
+        <h1 className="titulo">Placa de “{obra.titulo}”</h1>
         <p>
           La placa va al lado de la obra física: en la calle, en una plaza o en una sala. Quien la tiene enfrente escanea el código y deja su huella desde el celular.
         </p>

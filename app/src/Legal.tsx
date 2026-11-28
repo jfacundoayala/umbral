@@ -40,7 +40,7 @@ function Markdown({ texto }: { texto: string }) {
     const titulo = l.match(/^(#{1,3})\s+(.*)/);
     if (titulo) {
       const n = titulo[1].length;
-      bloques.push(n === 1 ? <h2 key={i}>{enLinea(titulo[2])}</h2> : <h3 key={i}>{enLinea(titulo[2])}</h3>);
+      bloques.push(n === 1 ? <h1 key={i} className="titulo">{enLinea(titulo[2])}</h1> : <h2 key={i} className="subtitulo">{enLinea(titulo[2])}</h2>);
       i++;
       continue;
     }

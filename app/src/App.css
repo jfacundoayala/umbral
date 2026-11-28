@@ -52,11 +52,11 @@ nav a:hover, nav a[aria-current="page"] { color: var(--petroleo); border-color: 
 .btn:disabled { opacity: .4; cursor: not-allowed; }
 
 .rotulo { font-size: 14.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--petroleo); margin: 0 0 8px; }
-h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 4vw, 54px); line-height: 1.05; letter-spacing: -.015em; margin: 0 0 8px; }
+h2, h1.titulo { font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 4vw, 54px); line-height: 1.05; letter-spacing: -.015em; margin: 0 0 8px; }
 h3 { font-family: var(--serif); font-weight: 500; font-size: clamp(26px, 2.4vw, 32px); line-height: 1.15; margin: 0 0 8px; }
 .sub { font-size: 17px; margin: 0 0 14px; max-width: 40em; }
 
-/* ---------- Portada (igual a web/index.html) ---------- */
+/* ---------- Portada ---------- */
 .portada { position: relative; min-height: calc(100svh - 90px); display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: center; padding: 40px var(--margen); overflow: hidden; }
 .fondo, .estela { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .estela { z-index: 1; }
@@ -237,7 +237,7 @@ textarea { min-height: 90px; resize: vertical; }
 .derechos small { font-size: 15px; line-height: 1.45; color: #4a4a4a; }
 .pie { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 18px var(--margen); border-top: 1px solid var(--mineral); font-size: 15.5px; margin-top: 40px; }
 .pie span { flex: 1 1 auto; }
-.legal h3 { margin-top: 26px; font-size: 24px; }
+.legal h3, .legal h2.subtitulo { margin-top: 26px; font-size: 24px; }
 .legal li { margin-bottom: 6px; }
 .tabla { overflow-x: auto; margin: 0 0 14px; }
 .tabla table { border-collapse: collapse; font-size: 16px; min-width: 520px; }
@@ -275,7 +275,7 @@ textarea { min-height: 90px; resize: vertical; }
   .orden button, .volver { min-height: 40px; padding: 8px 14px; }
   .monto input { min-height: 42px; }
   .lectura h3 { overflow-wrap: anywhere; }
-  .cielo-obra h2 { overflow-wrap: anywhere; }
+  .cielo-obra h2, .cielo-obra h1.titulo { overflow-wrap: anywhere; }
 }
 .punto .toque { fill: transparent; stroke: none; }
 @media (max-width: 560px) {
@@ -301,7 +301,7 @@ main { min-height: calc(100svh - 160px); }
   .solo-escritorio { display: none; }
   .solo-celular { display: inline-block; margin-top: 6px; }
   .obra-cabeza { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
-  .obra-cabeza h2 { margin: 0; }
+  .obra-cabeza h2, .obra-cabeza h1.titulo { margin: 0; }
   .obra-mini { display: block; flex: none; width: 76px; height: 76px; padding: 0; border: 1px solid var(--mineral); background: transparent; cursor: pointer; }
   .obra-mini img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .obra-autoria { display: block; margin: 4px 0 0; font-size: 16px; color: var(--tinta); }
@@ -496,8 +496,8 @@ main { min-height: calc(100svh - 160px); }
 .pmas-cierre { position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 120%, #3E5E5B, var(--petroleo) 55%, #22312F); color: var(--marfil); }
 .pmas-cierre > :not(.cierre-cielo) { position: relative; z-index: 1; }
 .pmas-cierre h2 { color: var(--marfil); }
-.pmas-cierre .entrar { background: var(--terracota, #B8683E); color: var(--marfil); box-shadow: 0 14px 34px -16px rgba(0, 0, 0, .6); }
-.pmas-cierre .entrar:hover { background: #A35A33; }
+.pmas-cierre .entrar { background: #8F4E2B; color: var(--marfil); box-shadow: 0 14px 34px -16px rgba(0, 0, 0, .6); }
+.pmas-cierre .entrar:hover { background: #7A4224; }
 .cierre-cielo { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .cc-linea { stroke: #E9D9BE; stroke-width: 1; opacity: .5; stroke-dasharray: 1; stroke-dashoffset: 1; animation: cc-dibujar 7s ease-in-out infinite; }
 .cc-estrella { fill: #F7EBD6; transform-box: fill-box; transform-origin: center; animation: pv-titilar 3s ease-in-out infinite; }

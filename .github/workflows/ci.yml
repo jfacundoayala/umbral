@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  app:
+    name: App (tipos, lint, tests y build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  contrato:
+    name: Contrato (tests de Soroban)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contrato
+    steps:
+      - uses: actions/checkout@v4
+      # rustup toma la versión de rust-toolchain.toml al correr cargo.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: contrato
+      - run: cargo test --locked

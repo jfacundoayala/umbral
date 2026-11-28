@@ -114,7 +114,7 @@ export function Cielo() {
   return (
     <section className="hoja">
       <p className="rotulo">El cielo</p>
-      <h2>Obras expuestas</h2>
+      <h1 className="titulo">Obras expuestas</h1>
       <p className="sub">Cada obra es una estrella. Las que más huellas tienen brillan primero.</p>
       <div className="orden" role="group" aria-label="Ordenar">
         <button aria-pressed={orden === "huellas"} onClick={() => setOrden("huellas")}>
@@ -264,7 +264,7 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
             </button>
           )}
           <div>
-            <h2>{obra.estado === "retirada" ? "Obra retirada" : obra.titulo}</h2>
+            <h1 className="titulo">{obra.estado === "retirada" ? "Obra retirada" : obra.titulo}</h1>
             {obra.estado !== "retirada" && obra.nombre && <p className="obra-autoria">de {obra.nombre}</p>}
           </div>
         </div>
@@ -795,7 +795,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
     <section className="hoja exponer">
       <div className="form-cabeza">
         <p className="rotulo">Exponer una obra</p>
-        <h2>Tu obra, en el cielo</h2>
+        <h1 className="titulo">Tu obra, en el cielo</h1>
         <p className="sub">La obra queda firmada a tu nombre en la red. Cada vez que alguien la continúe o la apoye, te llega el 80%.</p>
       </div>
       {sala && (
@@ -1028,7 +1028,7 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
     <section className="hoja cobro">
       <div className="form-cabeza">
         <p className="rotulo">Cobrar</p>
-        <h2>Lo que juntaron tus obras</h2>
+        <h1 className="titulo">Lo que juntaron tus obras</h1>
         <p className="sub">Solo cobran quienes exponen obras: el 80% de cada continuación y de cada apoyo. Lo retirás cuando quieras.</p>
       </div>
       {!cuenta ? (

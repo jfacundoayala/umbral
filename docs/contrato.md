@@ -42,7 +42,7 @@ El servidor usa `HuellaDejada` para confirmar que un comprobante es el de esa hu
 
 ## Pruebas
 
-55 pruebas automáticas (`cd contrato && cargo test`). Cubren repartos, piso del artista, muestras y firmas, invitaciones y fondos, montos absurdos, precios que suben, unidades que no se pierden y vigencia.
+56 pruebas automáticas (`cd contrato && cargo test`). Cubren repartos, piso del artista, muestras y firmas, invitaciones y fondos, montos absurdos, precios que suben, unidades que no se pierden y vigencia.
 
 ## Compilar igual que lo desplegado
 

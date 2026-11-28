@@ -1,8 +1,7 @@
-# UMBRAL — Fuente de la verdad
+# UMBRAL — Especificación
 
-Este documento manda. Si otro archivo o una auditoría dice otra cosa, vale lo que dice acá.
-Solo se cambia si Facundo o Lucía lo deciden, y el cambio se anota al final con fecha y motivo.
-Una auditoría puede proponer cambios; no los decide.
+Qué es UMBRAL, qué se decidió y qué funciona hoy. Si otro documento dice otra cosa, vale lo que dice acá.
+Cada cambio se anota al final, con fecha y motivo.
 
 Última actualización: 27/11/2026.
 
@@ -14,7 +13,7 @@ Una auditoría puede proponer cambios; no los decide.
 4. El dinero de cada artista queda anotado a su nombre en el contrato y lo retira él, sin pedirnos permiso.
 5. A la red va un código del contenido, nunca el contenido.
 6. Sirve para cualquier artista o museo: obras, objetos, esculturas, artesanías; artistas conocidos, locales, artesanos o under. Las esculturas de Resistencia son el ejemplo de la demo.
-7. La identidad visual es la de `estetica/opcion-19.jpg`.
+7. La identidad visual es la de [docs/identidad/identidad.jpg](identidad/identidad.jpg).
 8. No prometemos lo que no hacemos: lo simulado se avisa.
 
 ## 1. Qué somos
@@ -60,9 +59,9 @@ No decimos que hay ni que no hay acuerdo con ninguna institución.
 |---|---|---|---|
 | Leer | Gratis | — | — |
 | Dejar una huella | 2 USDC o 20 XLM | 100% | — |
-| Continuar la obra original | 1 USDC o 10 XLM | 30% | 70% al artista |
-| Continuar una respuesta | 1 USDC o 10 XLM | 30% | 70% al artista original. Quien respondió no cobra |
-| Apoyar cualquier huella | Libre | 30% | 70% al artista de esa obra |
+| Continuar la obra original | 1 USDC o 10 XLM | 20% | 80% al artista |
+| Continuar una respuesta | 1 USDC o 10 XLM | 20% | 80% al artista original. Quien respondió no cobra |
+| Apoyar cualquier huella | Libre | 20% | 80% al artista de esa obra |
 
 ### La muestra con fecha de una sala (programada en el contrato; nombre a confirmar)
 
@@ -102,18 +101,17 @@ Los precios son una hipótesis: no están validados con gente real.
 
 | Parte | Estado |
 |---|---|
-| Contrato (Soroban, soroban-sdk 30) | Hecho. 55 pruebas pasan. Desplegado en la red de pruebas: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`. |
-| App simulada (`web/app.html`) | Hecha, con dinero de mentira en el navegador. |
-| Portada (`web/index.html`) | Hecha con la identidad. |
-| App real (`app/`) | Hecha: portada, cielo de obras, constelación, ficha, exponer, continuar, apoyar, cobrar y favoritos. Probada de punta a punta en la red de pruebas el 27/11/2026 (abrir 20 XLM, continuar 10, apoyar 5, la artista cobró 10,5 y su saldo quedó en 0). Guion en `docs/demo-jurado.md`, guía para quienes prueban en `docs/guia-pruebas.md`. También: audio, sello "Estuve ahí", placa con QR firmada y constelación en 3D. 63 pruebas de la app. |
+| Contrato (Soroban, soroban-sdk 30) | Hecho. 56 pruebas pasan. Desplegado en la red de pruebas: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`. |
+| Maqueta navegable (`docs/diseno/prototipo/`) | Hecha con la identidad anterior y dinero de mentira. Quedó como registro del proceso. |
+| App real (`app/`) | Hecha: portada, cielo de obras, constelación, ficha, exponer, continuar, apoyar, cobrar y favoritos. Probada de punta a punta en la red de pruebas el 27/11/2026 (abrir 20 XLM, continuar 10, apoyar 5, la artista cobró 10,5 y su saldo quedó en 0). Guion en `docs/demo-jurado.md`, guía para quienes prueban en `docs/guia-pruebas.md`. También: audio, sello "Estuve ahí", placa con QR firmada y constelación en 3D. 78 pruebas de la app y 14 recorridos en el navegador. |
 | Servidor: retirar | Hecho: borra el contenido de una huella solo si en la red figura retirada. Probado. |
 | Base de datos (Supabase, proyecto `umbral`) | Hecha: `supabase/esquema.sql` aplicado. 30 pruebas de reglas de acceso pasan. |
 | Servidor: publicar | Hecho: publica una huella solo si el pago está en la red y el contenido coincide con el código. Probado con un pago real en la red de pruebas. |
 | Servidor: favoritos | Hecho: guarda o quita un favorito solo con la firma de la billetera (SEP-53). Probado. |
 | Comprobantes en la red de pruebas | Hechos: 19 transacciones en `docs/txs.md`. |
-| Web publicada | Hecha: [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app), publicada el 27/11/2026 con el OK de Facundo. Con 6 obras de muestra. |
+| Web publicada | Hecha: [umbralmuseo.vercel.app](https://umbralmuseo.vercel.app), publicada el 27/11/2026. Con 19 obras y sus huellas en la red de pruebas. |
 | Prueba con gente real | Falta. |
-| Video y entrega | Falta. Vence el sábado 28/11 a las 23:59. Revisar si además de Stellar Apex se entrega en Circli (evento Vértice, pestaña Hack, donde está el proyecto del equipo). |
+| Video y entrega | Vence el sábado 28/11/2026 a las 23:59. |
 
 ## 8. Identidad
 
@@ -146,7 +144,7 @@ Los precios son una hipótesis: no están validados con gente real.
 3. Nombre y logo finales (Lucía).
 4. Para quién lo contamos en el video (Lucía y Facundo). Opción en estudio: los escultores de Resistencia y la gente que pasa frente a sus obras. El caso de las esculturas nació para validar identidad cultural y territorio; falta decidir si es el centro o un ejemplo. La decisión se toma con investigación que la respalde.
 5. Qué obras usa la demo (Lucía y Facundo). Opciones: obras argentinas de dominio público abiertas por un "Museo de ejemplo" (lista con licencias verificadas), obras reales con permiso de su artista o museo (esculturas de Resistencia, Museo de Medios), u obras ficticias. Nada se carga hasta decidirlo.
-6. Mostrar "el 70% va a la artista" antes de pagar: solo si lo recomiendan los mentores. El precio se muestra siempre.
+6. Mostrar "el 80% va a la artista" antes de pagar: solo si lo recomiendan los mentores. El precio se muestra siempre.
 7. Si decimos "Museo vivo", "Más allá de lo tangible" o las dos (Lucía).
 8. Cómo funciona el encuentro presencial (pop-up) y qué ventaja tiene ir en persona (Lucía). Hoy el contrato permite que una sala invite huellas pagadas por su fondo.
 
@@ -156,7 +154,7 @@ Mainnet, dinero real, NFT, reventa, app de celular, menores de 18.
 
 ## Registro de cambios
 
-- 27/11/2026 — Se escribe esta versión. Reemplaza al SPEC anterior (guardado en `docs/anteriores/`). Contrato pasa a soroban-sdk 30, suma avisos de reparto y de cambio de reglas, y 26 pruebas.
+- 27/11/2026 — Se escribe esta versión. Reemplaza a la versión anterior. Contrato pasa a soroban-sdk 30, suma avisos de reparto y de cambio de reglas, y 26 pruebas.
 - 27/11/2026 — Decisiones cerradas por Facundo: el contrato calcula el identificador; piso de 30% para los autores; contrato fijo; el fondo de sala solo paga a invitados del museo. Los eventos de sala entran en el modelo. 29 pruebas.
 - 27/11/2026 — Se agrega el núcleo. El reparto interno de tareas sale de este documento.
 - 27/11/2026 — Ingreso con Stellar Wallets Kit. Nueva versión de la muestra con fecha. `docs/cuidado.md` pasa a versión 2 y se suma `docs/arquitectura.md`. Los documentos viejos salen del repositorio.
@@ -179,3 +177,5 @@ Mainnet, dinero real, NFT, reventa, app de celular, menores de 18.
 - 27/11/2026 — App: audio en las obras y sello "Estuve ahí" en pantalla, probados en la red. Quien expone una obra declara sus derechos (autoría, dominio público o autorización); la base lo exige y entra en el código del contenido. En Argentina no hay libertad de panorama: una escultura en la calle necesita permiso de su autor. Se suman `docs/terminos.md`, `docs/privacidad.md` (datos en San Pablo, Brasil) y `docs/contrato.md`. La marca "UMBRAL" sola está tomada en el INPI en las clases 41 y 35: se presenta con este nombre y la marca se decide antes de producción. Clientes que pagan: artistas independientes y salas. Video de 2 minutos con la voz de Facundo y sin música. Equipo: Facundo Ayala y Lucía Paz.
 - 27/11/2026 — Auditoría: la firma del artista vale solo para la muestra exacta que vio (fechas y parte de la sala); el museo puede retirar lo que no se usó del fondo; el administrador puede actualizar el código del contrato. Rust fijo en 1.100.0 para compilar igual que lo desplegado. 55 pruebas. Hace falta desplegar el contrato de nuevo para que valga.
 - 27/11/2026 — Con el OK de Facundo, segundo contrato desplegado en la red de pruebas con los arreglos de la auditoría: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`. Se rehicieron las transacciones del guion (19, con el retiro del fondo de la sala) en `docs/txs.md`. El primer contrato queda en la red y la app ya no lo usa. El fondo de una sala ya no queda trabado: el museo puede retirar lo que no se usó.
+- 28/11/2026 — Decisión de Facundo: el reparto de lanzamiento pasa a 80% para el artista y 20% para UMBRAL, al continuar y al apoyar. En una muestra no cambia: UMBRAL 30%, la sala hasta 40% y el artista nunca menos del 30%.
+- 28/11/2026 — Este documento pasa a `docs/spec.md`. La maqueta navegable con la identidad anterior pasa a `docs/diseno/prototipo/`.

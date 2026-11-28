@@ -35,7 +35,7 @@ export function Cuentas() {
   return (
     <section className="hoja angosta cuentas">
       <p className="rotulo">Cuentas claras</p>
-      <h2>A dónde va cada huella</h2>
+      <h1 className="titulo">A dónde va cada huella</h1>
       <p className="sub">Todo lo que se paga en UMBRAL queda escrito en la red. Esto no lo escribimos a mano: se lee ahora del contrato.</p>
       {error && <p className="aviso-error" role="alert">No pudimos leer todo de la red. Probá de nuevo en un rato.</p>}
 

@@ -44,7 +44,7 @@ export function MiCodigo({ sesion, sala }: { sesion: Sesion; sala?: string }) {
   return (
     <section className="hoja encuentro">
       <div className="form-cabeza">
-        <h2>Mi código para el encuentro</h2>
+        <h1 className="titulo">Mi código para el encuentro</h1>
         <p className="sub">Mostráselo a la sala en la puerta. Lo escanean y te invitan: tu obra la paga la sala y queda con el sello "Estuve ahí".</p>
       </div>
       {!sesion.cuenta ? (
@@ -155,7 +155,7 @@ export function Puerta({ sesion, sala }: { sesion: Sesion; sala: string }) {
   return (
     <section className="hoja encuentro">
       <div className="form-cabeza">
-        <h2>Invitar en la puerta</h2>
+        <h1 className="titulo">Invitar en la puerta</h1>
         <p className="sub">Escaneá el código de quien está en la sala. Queda invitada: su obra la paga el fondo de la sala y lleva el sello "Estuve ahí".</p>
       </div>
       {museo === undefined ? (

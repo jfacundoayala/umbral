@@ -4,18 +4,17 @@
 
 | Pieza | Dónde está | Qué hace | Estado |
 |---|---|---|---|
-| Contrato | `contrato/` | Cobra, reparte y registra cada huella en Stellar | Hecho, 55 pruebas, desplegado en la red de pruebas |
-| App | `app/` | Las pantallas reales: entrar, ver la constelación, abrir, continuar, apoyar, cobrar | Hecha, 70 pruebas, publicada |
-| Maqueta | `web/` | Portada y app simulada, para decidir pantallas sin gastar nada | Hecha |
+| Contrato | `contrato/` | Cobra, reparte y registra cada huella en Stellar | Hecho, 56 pruebas, desplegado en la red de pruebas |
+| App | `app/` | Las pantallas reales: entrar, ver la constelación, abrir, continuar, apoyar, cobrar | Hecha, 78 pruebas y 14 recorridos en el navegador, publicada |
+| Maqueta | `docs/diseno/prototipo/` | Portada y app simulada con la identidad anterior, para decidir pantallas sin gastar nada | Hecha, como registro |
 | Base de datos | `supabase/esquema.sql` | Guarda textos, fotos, audios y favoritos. A la red solo va un código | Hecha y probada |
 | Servidor | `supabase/functions/` | `publicar` comprueba el pago en la red; `retirar` refleja un retiro hecho en la red; `favoritos` comprueba la firma | Hecho y probado |
-| Documentos | `SPEC.md`, `README.md`, `docs/` | Fuente de la verdad, presentación, evidencia, cuidado | Al día |
+| Documentos | `README.md`, `docs/` | Presentación, especificación, evidencia, cuidado | Al día |
 
 ## Carpetas
 
 ```
-SPEC.md            Fuente de la verdad. Manda sobre todo lo demás.
-README.md          Presentación para el jurado. Sale del SPEC.
+README.md          Presentación del proyecto.
 contrato/          Contrato en Rust (Soroban) y sus pruebas.
 app/               App en React + Vite + TypeScript.
   src/config.ts      Red, contrato y moneda. Nada secreto.
@@ -23,8 +22,10 @@ app/               App en React + Vite + TypeScript.
   src/umbral.ts      Acciones: dejar, continuar, apoyar, cobrar, saldo.
   src/contrato/      Cliente generado desde el contrato. No se edita a mano.
 supabase/          Esquema de la base y funciones del servidor.
-web/               Portada y maqueta navegable.
-docs/              Transacciones, cuidado de las personas, arquitectura e identidad.
+docs/              Especificación, transacciones, cuidado de las personas, arquitectura e identidad.
+  spec.md            Qué es, qué se decidió y qué funciona hoy. Manda sobre los demás documentos.
+  diseno/prototipo/  Portada y maqueta navegable con la identidad anterior.
+.github/workflows/ Pruebas automáticas de la app y el contrato.
 ```
 
 ## Qué pasa cuando alguien continúa una huella

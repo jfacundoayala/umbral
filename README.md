@@ -169,9 +169,9 @@ Las pruebas con personas de afuera del equipo se hacen el sábado 28/11 con la [
 
 | Qué | Cómo |
 |---|---|
-| Contrato | 55 pruebas automáticas: repartos, piso del artista, muestras, firmas, montos absurdos, precios que suben, unidades que no se pierden. |
+| Contrato | 56 pruebas automáticas: repartos, piso del artista, muestras, firmas, montos absurdos, precios que suben, unidades que no se pierden. |
 | Base de datos | 30 pruebas de las reglas de acceso: el navegador no publica sin pago, no cambia ni borra, no ve borradores ajenos, no sube archivos fuera de lugar. |
-| App | 70 pruebas automáticas (firma de la placa, fotos que se achican antes de firmarse, avisos) y una prueba de punta a punta en la red de pruebas: exponer, continuar, apoyar y cobrar. Lighthouse en celular: accesibilidad, buenas prácticas y SEO 100. |
+| App | 78 pruebas automáticas (firma de la placa, fotos que se achican antes de firmarse, avisos), 14 recorridos en el navegador en celular y escritorio, y una prueba de punta a punta en la red de pruebas: exponer, continuar, apoyar y cobrar. Lighthouse en celular: accesibilidad, buenas prácticas y SEO 100. |
 | Servidor | Publicar sin pago, con un comprobante ajeno o repetido: rechazado. Favoritos con firma ajena o vencida: rechazado. |
 | Almacenamiento en la red | Solo un código de 32 bytes por huella; los artistas acumulan saldo y lo retiran juntos. La vigencia se renueva en cada acción y cualquiera puede renovarla. |
 
@@ -201,12 +201,13 @@ La base se crea con [supabase/esquema.sql](supabase/esquema.sql) y las funciones
 ## Estructura
 
 ```
-SPEC.md       Fuente de la verdad: qué es, qué se decidió y qué es real hoy
-contrato/     Contrato Soroban y sus pruebas
-app/          App web (React + Vite + TypeScript)
-supabase/     Esquema de la base y funciones del servidor
-web/          Portada y maqueta navegable
-docs/         Arquitectura, transacciones, cuidado de las personas e identidad
+contrato/          Contrato Soroban y sus pruebas
+app/               App web (React + Vite + TypeScript) y sus pruebas
+supabase/          Esquema de la base y funciones del servidor
+docs/              Especificación, arquitectura, transacciones, cuidado de las personas e identidad
+  spec.md          Qué es, qué se decidió y qué funciona hoy
+  diseno/          Bitácora de diseño, bocetos y la maqueta navegable
+.github/workflows/ Pruebas automáticas en cada cambio (app y contrato)
 ```
 
 ## Cuidado de las personas
