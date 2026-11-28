@@ -64,14 +64,14 @@ export function Cuentas() {
         )}
       </p>
 
-      <h3>Quién paga qué</h3>
+      <h2 className="h3">Quién paga qué</h2>
       <ul>
         <li><b>El público</b> mira gratis. Si una obra lo toca, deja su huella o la apoya.</li>
         <li><b>Las salas y los padrinos</b> ponen un fondo para los encuentros en persona: quien va deja su obra sin pagar y se lleva el sello Estuve ahí.</li>
         <li><b>Cada obra</b> puede tener su placa con QR, firmada por quien la expuso, para poner al lado de la pieza: conecta el objeto con su registro en la red.</li>
       </ul>
 
-      <h3>Reglas que el contrato cumple</h3>
+      <h2 className="h3">Reglas que el contrato cumple</h2>
       <ul>
         <li>Lo que junta un artista solo lo retira el artista, con su firma.</li>
         <li>El fondo de una sala solo lo retira su museo.</li>
@@ -79,10 +79,10 @@ export function Cuentas() {
         <li>La parte del artista nunca baja del 30%.</li>
       </ul>
 
-      <h3>Lo que todavía puede cambiar (y cómo lo vamos a cerrar)</h3>
+      <h2 className="h3">Lo que todavía puede cambiar (y cómo lo vamos a cerrar)</h2>
       <p>Hoy UMBRAL puede cambiar el % general, siempre entre 30% y 100%, y actualizar el código del contrato. Lo contamos acá para que no haya sorpresas. Antes de la red real, el % va a quedar fijo en cada obra desde que se expone, y cada cambio va a necesitar la firma de varias personas y un aviso con días de anticipación.</p>
 
-      <h3>Avisos</h3>
+      <h2 className="h3">Avisos</h2>
       <ul className="cuentas-avisos">
         {AVISOS.map((a) => (
           <li key={a.texto}><span>{a.fecha}</span>{a.texto}</li>

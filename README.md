@@ -171,7 +171,8 @@ Las pruebas con personas de afuera del equipo se hacen el sábado 28/11 con la [
 |---|---|
 | Contrato | 56 pruebas automáticas: repartos, piso del artista, muestras, firmas, montos absurdos, precios que suben, unidades que no se pierden. |
 | Base de datos | 30 pruebas de las reglas de acceso: el navegador no publica sin pago, no cambia ni borra, no ve borradores ajenos, no sube archivos fuera de lugar. |
-| App | 78 pruebas automáticas (firma de la placa, fotos que se achican antes de firmarse, avisos), 14 recorridos en el navegador en celular y escritorio, y una prueba de punta a punta en la red de pruebas: exponer, continuar, apoyar y cobrar. Lighthouse en celular: accesibilidad, buenas prácticas y SEO 100. |
+| App | 84 pruebas automáticas (firma de la placa, fotos que se achican antes de firmarse, avisos), 14 recorridos en el navegador en celular y escritorio, y una prueba de punta a punta en la red de pruebas: exponer, continuar, apoyar y cobrar. Los recorridos se corren con `cd app && npm run e2e:web` (Playwright). |
+| Web publicada | Lighthouse 12 el 28/11, antes de los arreglos (rendimiento / accesibilidad / buenas prácticas / SEO), en celular: portada 98/96/100/100, cielo 90/100/100/100, ficha 90/100/100/100, cuentas 93/100/100/100. En escritorio, rendimiento de 97 a 99. Después de los arreglos, axe-core da 0 problemas en 7 pantallas, en celular y en escritorio (la portada bajaba a 96 por el contraste de un botón, ya corregido). El detalle y lo que se arregló después están en la [auditoría web](docs/auditorias/2026-11-28-web.md). |
 | Servidor | Publicar sin pago, con un comprobante ajeno o repetido: rechazado. Favoritos con firma ajena o vencida: rechazado. |
 | Almacenamiento en la red | Solo un código de 32 bytes por huella; los artistas acumulan saldo y lo retiran juntos. La vigencia se renueva en cada acción y cualquiera puede renovarla. |
 

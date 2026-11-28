@@ -53,7 +53,7 @@ nav a:hover, nav a[aria-current="page"] { color: var(--petroleo); border-color: 
 
 .rotulo { font-size: 14.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--petroleo); margin: 0 0 8px; }
 h2, h1.titulo { font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 4vw, 54px); line-height: 1.05; letter-spacing: -.015em; margin: 0 0 8px; }
-h3 { font-family: var(--serif); font-weight: 500; font-size: clamp(26px, 2.4vw, 32px); line-height: 1.15; margin: 0 0 8px; }
+h3, h2.h3 { font-family: var(--serif); font-weight: 500; font-size: clamp(26px, 2.4vw, 32px); line-height: 1.15; letter-spacing: normal; margin: 0 0 8px; }
 .sub { font-size: 17px; margin: 0 0 14px; max-width: 40em; }
 
 /* ---------- Portada ---------- */
@@ -274,7 +274,7 @@ textarea { min-height: 90px; resize: vertical; }
   .ayuda-fondos .btn { width: 100%; }
   .orden button, .volver { min-height: 40px; padding: 8px 14px; }
   .monto input { min-height: 42px; }
-  .lectura h3 { overflow-wrap: anywhere; }
+  .lectura h3, .lectura h2.h3 { overflow-wrap: anywhere; }
   .cielo-obra h2, .cielo-obra h1.titulo { overflow-wrap: anywhere; }
 }
 .punto .toque { fill: transparent; stroke: none; }
@@ -363,7 +363,7 @@ main { min-height: calc(100svh - 160px); }
 .cuentas-reparto span { font-size: 17.5px; color: var(--tenue); }
 .cuentas-lista { padding-left: 18px; }
 .cuentas-enlaces { display: flex; flex-wrap: wrap; gap: 8px 18px; }
-.cuentas h3 { font-family: var(--serif); font-size: 26px; font-weight: 500; margin: 28px 0 8px; }
+.cuentas h3, .cuentas h2.h3 { font-family: var(--serif); font-size: 26px; font-weight: 500; margin: 28px 0 8px; }
 .cuentas-avisos { list-style: none; padding: 0; }
 .cuentas-avisos li { border-left: 2px solid var(--petroleo); padding: 2px 0 2px 12px; margin-bottom: 10px; }
 .cuentas-avisos span { display: block; font-size: 15.5px; color: var(--tenue); }

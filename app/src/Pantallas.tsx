@@ -17,6 +17,16 @@ import { SelloVivo } from "./SelloVivo";
 // Lo que habla con la red (stellar-sdk y la billetera) se baja recién cuando hace falta:
 // el cielo y la ficha se dibujan sin esperarlo.
 const red = () => import("./umbral");
+/** Espera a que la página termine de cargar y el navegador quede libre. */
+const enCalma = () =>
+  new Promise<void>((listo) => {
+    const esperar = () => ("requestIdleCallback" in window ? requestIdleCallback(() => listo(), { timeout: 2500 }) : setTimeout(listo, 1200));
+    if (document.readyState === "complete") esperar();
+    else addEventListener("load", esperar, { once: true });
+  });
+/** Para lo que se lee de la red al abrir una pantalla (precios, reparto, sello): el cliente del contrato
+ *  se baja después de mostrar la obra, así no compite con la foto. Lo que dispara la persona usa `red()`. */
+const redLuego = () => enCalma().then(red);
 const acciones = () => import("./acciones");
 const firmar: Firmar = async (xdr) => (await import("./billetera")).firmar(xdr);
 
@@ -72,7 +82,7 @@ function usePrecios(moneda: string) {
   const [error, setError] = useState(false);
   useEffect(() => {
     let vivo = true;
-    red()
+    redLuego()
       .then((r) => r.preciosVigentes(moneda))
       .then((p) => vivo && (setPrecios(p), setError(false)))
       .catch(() => vivo && setError(true));
@@ -203,7 +213,7 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
   useEffect(() => {
     if (!salaObra || !txObra || !idObra) return;
     let vivo = true;
-    red()
+    redLuego()
       .then((r) => Promise.all([r.pagadaPorSala(txObra), r.museoDe(salaObra)]))
       .then(([pagada, museo]) => vivo && pagada && museo && setSello({ obra: idObra, museo }))
       .catch(() => undefined);
@@ -322,7 +332,7 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
       )}
       {h.estado === "retirada" ? (
         <>
-          <h3>{esObra ? "Obra retirada" : "Huella retirada"}</h3>
+          <h2 className="h3">{esObra ? "Obra retirada" : "Huella retirada"}</h2>
           <p className="sub">Quien la escribió la retiró. Su contenido se borró; el comprobante sigue en la red.</p>
         </>
       ) : esObra ? (
@@ -348,7 +358,7 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
             </Movible>
           )}
           {h.foto_ruta && <p className="pista-zoom">Arrastrala de costado para darla vuelta y ver su dorso. Doble clic o doble toque para acercar.</p>}
-          <h3>{h.titulo}</h3>
+          <h2 className="h3">{h.titulo}</h2>
           {h.descripcion && <p>{h.descripcion}</p>}
           {h.audio_ruta && <Reproductor src={urlAudio(h.audio_ruta)} />}
         </>
@@ -374,7 +384,7 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
 function RepartoFicha({ nombre }: { nombre: string | null }) {
   const [autor, setAutor] = useState<number | null>(null);
   useEffect(() => {
-    red().then((m) => m.repartoVigente()).then((r) => setAutor(r.autor)).catch(() => setAutor(null));
+    redLuego().then((m) => m.repartoVigente()).then((r) => setAutor(r.autor)).catch(() => setAutor(null));
   }, []);
   if (autor === null) return null;
   return (
@@ -592,7 +602,7 @@ function useInvitacion(sala: string | undefined, cuenta: string | null, moneda: 
   useEffect(() => {
     if (!sala) return;
     let vivo = true;
-    red()
+    redLuego()
       .then((r) => Promise.all([r.museoDe(sala), cuenta ? r.invitacion(sala, cuenta, moneda) : Promise.resolve({ invitada: false, fondo: 0n })]))
       .then(([museo, inv]) => vivo && setDatos({ museo, ...inv }))
       .catch(() => vivo && setDatos({ museo: null, invitada: false, fondo: 0n }));
@@ -618,7 +628,7 @@ function Paso({ n, titulo, children }: { n: number; titulo: string; children: Re
     <li className="paso">
       <div className="paso-cabeza">
         <span className="paso-n" aria-hidden="true">{n}</span>
-        <h3>{titulo}</h3>
+        <h2 className="h3">{titulo}</h2>
       </div>
       <div className="paso-cuerpo">{children}</div>
     </li>
@@ -929,7 +939,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
               </div>
             )}
             <div className="ficha-texto">
-              <h3 className={titulo.trim() ? "" : "a-completar"}>{titulo.trim() || "Título de la obra"}</h3>
+              <h2 className={titulo.trim() ? "h3" : "h3 a-completar"}>{titulo.trim() || "Título de la obra"}</h2>
               <p className={`ficha-autor${nombre.trim() ? "" : " a-completar"}`}>{nombre.trim() || "Autor o autora"}</p>
               {descripcion.trim() && <p className="ficha-desc">{descripcion.trim()}</p>}
               {oido && <Reproductor src={oido} />}
@@ -1017,7 +1027,7 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
         <li key={p.titulo}>
           <span className="cobro-dibujo">{p.dibujo}</span>
           <span className="cobro-n" aria-hidden="true">0{i + 1}</span>
-          <h3>{p.titulo}</h3>
+          <h2 className="h3">{p.titulo}</h2>
           <p>{p.texto}</p>
         </li>
       ))}

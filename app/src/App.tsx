@@ -74,7 +74,7 @@ export default function App() {
   return (
     <>
       <Estela />
-      <div className="aviso">Red de pruebas de Stellar: los fondos son de prueba y no tienen valor real.</div>
+      <aside className="aviso" aria-label="Aviso">Red de pruebas de Stellar: los fondos son de prueba y no tienen valor real.</aside>
       <header>
         <a className="marca" href="#/" aria-label="UMBRAL, inicio">
           <Isotipo className="marca-iso" grosor={1.4} />
