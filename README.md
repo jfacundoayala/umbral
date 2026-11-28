@@ -59,7 +59,7 @@ De ese problema nació algo más grande. **Un museo donde lo que no querés perd
 
 ¿Por qué alguien pagaría por dejar unas palabras? Por lo mismo que algo se comparte miles de veces en una red social. Porque le gustó, porque se sintió identificado, por empatía. Acá ese gesto no se pierde al otro día y le llega a quien lo subió, que se queda con el 80% de cada huella.
 
-La primera colección del museo es **Una ciudad que resuena · Colección 001**, curada por Lucía: seis obras de seis disciplinas (escultura, textil, memoria familiar, arte sonoro, objeto y cestería). A su lado hay memorias que suenan, como la lluvia en un techo de chapa o la pava de la mañana, y cartas. Una de las obras es la historia de Lucía: *La sopa paraguaya de Mirta*, la receta de su abuela, que llegó desde Paraguay a los diez años. Muestra que el valor de lo que se comparte no depende de tener una trayectoria.
+La primera colección del museo es **Una ciudad que resuena · Colección 001**, curada por Lucía: seis obras de seis disciplinas (escultura, textil, memoria familiar, arte sonoro, objeto y cestería). A su lado hay memorias que suenan, como la lluvia en un techo de chapa o la pava de la mañana, y cartas. Una de las obras es la historia de Lucía: *La sopa paraguaya de Mirta*, la receta de su abuela, que llegó desde Paraguay a los diez años. Es una historia real y se publica con su permiso. Muestra que el valor de lo que se comparte no depende de tener una trayectoria.
 
 ## Cómo funciona
 
