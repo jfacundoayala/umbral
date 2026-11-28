@@ -105,7 +105,7 @@ export default function Portada() {
               <span className="rec-mas" aria-hidden="true">+</span>
               <span>
                 <span className="rec-titulo">Lo tuyo va acá</span>
-                <span className="rec-de">Una foto, un texto o un audio.</span>
+                <span className="rec-de">Sacale una foto a lo que quieras, una obra, tu perro, la lluvia. La subís y queda firmada a tu nombre, a la vista de todos.</span>
               </span>
             </a>
           </li>

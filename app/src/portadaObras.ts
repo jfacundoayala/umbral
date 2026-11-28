@@ -15,14 +15,14 @@ export type ObraDePortada = {
   imagen?: string;
 };
 
-/** Seis obras distintas: arte, un museo real, una receta de familia, un paisaje, una carta y un sonido. */
+/** Seis obras distintas y de la vida de la gente: una escultura, la calle, una receta de familia, un perro, una carta y la lluvia. */
 export const OBRAS_DE_PORTADA: ObraDePortada[] = [
   { id: "f23f895aa98d356b2870ec370e2b17d47ef7558592d2d7bc7a1ba13d9958b420", disciplina: "Escultura", titulo: "Entre raíces", imagen: "/portada/entre-raices.webp" },
-  { disciplina: "Museo", titulo: "La escalinata del museo", imagen: "/portada/museo-la-plata.webp" },
-  { id: "728ede139ed0b4310bf1f80758422b25312be7c1ee99a4a33a87665918652024", disciplina: "Memoria familiar", titulo: "La sopa paraguaya de Mirta" },
-  { disciplina: "Paisaje", titulo: "Atardecer en el estero", imagen: "/portada/esteros-ibera.webp" },
-  { id: "55e4a1423a6e61f967359d880b941ebe79031d054b85421fe07ca29124c68b0d", disciplina: "Carta", titulo: "Carta a quienes todavía no llegaron" },
-  { id: "18a0cb534fc26730a976616bbb2ab71ef1c96b25c88a8552bf9199d64160c972", disciplina: "Arte sonoro", titulo: "Lluvia en el techo de chapa" },
+  { id: "5f87ba7f0a4d2d43675ed60214cafd5afd4ded768abc605204f90d46e43f6acc", disciplina: "En la calle", titulo: "Vereda de lapacho" },
+  { id: "728ede139ed0b4310bf1f80758422b25312be7c1ee99a4a33a87665918652024", disciplina: "Receta de familia", titulo: "La sopa paraguaya de Mirta" },
+  { id: "a4b90b637d00f19b1a7cfc4d74285cba9dc61b595c3d587aaad5efd80c3c7e95", disciplina: "Un perro", titulo: "Frida" },
+  { id: "55e4a1423a6e61f967359d880b941ebe79031d054b85421fe07ca29124c68b0d", disciplina: "Una carta", titulo: "Carta a quienes todavía no llegaron" },
+  { id: "18a0cb534fc26730a976616bbb2ab71ef1c96b25c88a8552bf9199d64160c972", disciplina: "La lluvia", titulo: "Lluvia en el techo de chapa" },
 ];
 
 /** La obra que se usa de ejemplo en "Cómo funciona" (por su título). */

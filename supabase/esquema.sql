@@ -565,3 +565,340 @@ create policy opiniones_insertar
     and privado.texto_permitido(cambiaria)
     and privado.texto_permitido(apodo)
   );
+
+-- ---------------------------------------------------------------------------
+-- Límites de pagos y seguridad (28/11/2026). Aplicado el 28/11.
+-- Se corre entero, de una vez (va en una sola transacción). No contiene claves.
+--
+-- A. Borradores sin firma: el límite ya no se cuenta solo por cuenta (cualquiera
+--    podía dejar 5 borradores a nombre de otra cuenta y frenarla una hora), sino
+--    por cuenta y por origen del pedido.
+-- B. La vista huellas_publicas pasa a respetar las reglas de la tabla
+--    (security_invoker). Para eso el retiro limpia la fila en la base.
+-- C. Borradores pagados: antes de que la limpieza de 7 días los borre, la base
+--    le pide a la función `publicar` que los publique. `publicar` lee el
+--    contrato: si la huella está pagada, queda publicada y ya no se borra.
+--    Sirve también para quien pagó y cerró la pestaña y no volvió.
+--
+-- Antes de aplicar C hay que cargar dos ajustes (ver el final del archivo).
+-- ---------------------------------------------------------------------------
+begin;
+
+-- ===========================================================================
+-- A. Borradores: límite por cuenta y por origen
+-- ===========================================================================
+
+-- De dónde vino el pedido, sin guardar la dirección en claro. Solo vive mientras
+-- la fila es un borrador: al publicarse o retirarse se borra (ver B).
+alter table public.huellas add column if not exists origen text null;
+comment on column public.huellas.origen is
+  'Solo en borradores: código (md5) de la dirección desde la que llegó el pedido. Sirve para el límite de borradores. Se vacía al publicar o retirar.';
+
+create index if not exists huellas_pendientes_origen_idx
+  on public.huellas (origen, recibido)
+  where estado = 'pendiente';
+
+-- La dirección la pone la puerta de entrada de Supabase en las cabeceras del pedido.
+-- (Guía "Securing your API" de Supabase: x-forwarded-for, primer valor.)
+create or replace function privado.origen_del_pedido()
+returns text
+language sql
+stable
+set search_path = ''
+as $$
+  select pg_catalog.md5(
+    coalesce(
+      nullif(pg_catalog.btrim(x.h ->> 'cf-connecting-ip'), ''),
+      nullif(pg_catalog.btrim(pg_catalog.split_part(x.h ->> 'x-forwarded-for', ',', 1)), ''),
+      'sin-origen'
+    )
+  )
+  from (
+    select nullif(pg_catalog.current_setting('request.headers', true), '')::json as h
+  ) as x;
+$$;
+revoke execute on function privado.origen_del_pedido() from public, anon, authenticated;
+
+-- El origen lo pone siempre la base: lo que mande el navegador en esa columna se pisa.
+create or replace function public.huellas_poner_origen()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  new.origen := privado.origen_del_pedido();
+  return new;
+end;
+$$;
+revoke execute on function public.huellas_poner_origen() from public, anon, authenticated;
+
+drop trigger if exists huellas_poner_origen on public.huellas;
+create trigger huellas_poner_origen
+before insert on public.huellas
+for each row execute function public.huellas_poner_origen();
+
+-- Borradores de esa cuenta DESDE ESE ORIGEN en la última hora. Los que otra
+-- persona deje a su nombre desde otro lado no le cuentan.
+create or replace function privado.pendientes_de(p_autor text, p_origen text)
+returns integer
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select count(*)::integer
+  from public.huellas as h
+  where h.autor = p_autor
+    and h.origen is not distinct from p_origen
+    and h.estado = 'pendiente'
+    and h.recibido > pg_catalog.now() - interval '1 hour';
+$$;
+revoke execute on function privado.pendientes_de(text, text) from public;
+grant execute on function privado.pendientes_de(text, text) to anon, authenticated;
+
+-- Borradores de ese origen, de cualquier cuenta, en la última hora. Frena a
+-- quien cambia de cuenta para llenar la base. Un borrador pagado deja de
+-- contar apenas se publica, así que una sala con mucha gente no llega al tope.
+create or replace function privado.pendientes_del_origen(p_origen text)
+returns integer
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select count(*)::integer
+  from public.huellas as h
+  where h.origen is not distinct from p_origen
+    and h.estado = 'pendiente'
+    and h.recibido > pg_catalog.now() - interval '1 hour';
+$$;
+revoke execute on function privado.pendientes_del_origen(text) from public;
+grant execute on function privado.pendientes_del_origen(text) to anon, authenticated;
+
+-- La misma regla de antes, con los dos límites nuevos en lugar de pendientes_de(autor).
+drop policy if exists huellas_insertar_pendientes on public.huellas;
+create policy huellas_insertar_pendientes
+  on public.huellas
+  for insert
+  to anon, authenticated
+  with check (
+    estado = 'pendiente'
+    and tx_hash is null
+    and (padre is null or (privado.texto_permitido(nombre) and privado.texto_permitido(texto)))
+    and privado.pendientes_de(autor, origen) < 5
+    and privado.pendientes_del_origen(origen) < 40
+    and (
+      (padre is null and artista = autor and raiz is null)
+      or exists (
+        select 1
+        from public.huellas as p
+        where p.id = huellas.padre
+          and p.estado = 'publicada'
+          and p.artista = huellas.artista
+          and p.sala is not distinct from huellas.sala
+      )
+    )
+  );
+
+-- La versión vieja (solo por cuenta) ya no la usa nadie.
+drop function if exists privado.pendientes_de(text);
+
+-- ===========================================================================
+-- B. La vista pública respeta las reglas de la tabla
+-- ===========================================================================
+
+-- Las que ya estaban retiradas: se les cambia la sal ahora, ANTES de crear el
+-- disparador (que después no deja tocar la sal de una retirada). El contenido
+-- ya lo había borrado `retirar`; se repasa igual.
+update public.huellas
+  set sal = pg_catalog.replace(pg_catalog.gen_random_uuid()::text, '-', ''),
+      nombre = '—', titulo = null, descripcion = null, texto = null,
+      foto_ruta = null, audio_ruta = null, enlace = null
+  where estado = 'retirada';
+
+-- Al dejar de ser borrador se vacía el origen. Al retirarse, la base misma borra
+-- el contenido y cambia la sal (con la sal vieja, un texto corto se podría
+-- adivinar contra el código que quedó en la red). Antes esto dependía de la
+-- función `retirar` y de que la vista ocultara la sal.
+create or replace function public.huellas_antes_actualizar()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if new.estado <> 'pendiente' then
+    new.origen := null;
+  end if;
+  if new.estado = 'retirada' then
+    new.nombre := '—';
+    new.titulo := null;
+    new.descripcion := null;
+    new.texto := null;
+    new.foto_ruta := null;
+    new.audio_ruta := null;
+    new.enlace := null;
+    if old.estado is distinct from 'retirada' then
+      new.sal := pg_catalog.replace(pg_catalog.gen_random_uuid()::text, '-', '');
+    else
+      new.sal := old.sal;
+    end if;
+  end if;
+  return new;
+end;
+$$;
+revoke execute on function public.huellas_antes_actualizar() from public, anon, authenticated;
+
+drop trigger if exists huellas_antes_actualizar on public.huellas;
+create trigger huellas_antes_actualizar
+before update on public.huellas
+for each row execute function public.huellas_antes_actualizar();
+
+-- Cualquiera puede leer publicadas y retiradas. De una retirada queda solo lo
+-- que ya es público en la red: id, código, comprobante, cuentas y fechas.
+drop policy if exists huellas_leer_publicadas on public.huellas;
+create policy huellas_leer_publicadas
+  on public.huellas
+  for select
+  to anon, authenticated
+  using (estado in ('publicada', 'retirada'));
+
+-- Misma vista, mismas columnas. Ahora corre con los permisos de quien consulta.
+-- Las columnas ocultas de las retiradas quedan como segunda barrera.
+alter view public.huellas_publicas set (security_invoker = true);
+comment on view public.huellas_publicas is
+  'Vista security_invoker=true: muestra publicadas y retiradas según la regla huellas_leer_publicadas. En las retiradas no hay contenido (lo borra el disparador huellas_antes_actualizar) y además la vista lo oculta.';
+
+-- ===========================================================================
+-- C. Borradores pagados: publicarlos antes de que la limpieza los borre
+-- ===========================================================================
+
+create extension if not exists pg_net;
+
+-- Dos datos que la base necesita para llamar a `publicar`: la dirección del
+-- proyecto y la clave pública (la misma que usa la web; no es secreta).
+create table if not exists privado.ajustes (
+  clave text primary key,
+  valor text not null
+);
+alter table privado.ajustes enable row level security;
+revoke all on table privado.ajustes from public, anon, authenticated;
+grant all on table privado.ajustes to service_role;
+
+-- Pide publicar los borradores que pueden estar pagados:
+--   · los recientes (entre 10 minutos y 3 horas): pagó y cerró la pestaña;
+--   · los que están por borrarse (más de 5 días): última oportunidad.
+-- `publicar` no le cree a nadie: lee el contrato y publica solo si la huella
+-- está pagada. Si no lo está, contesta que no y el borrador sigue su curso.
+-- Devuelve cuántos pedidos mandó. Sin los ajustes cargados, no hace nada.
+create or replace function privado.reintentar_borradores()
+returns integer
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_url text;
+  v_clave text;
+  v_mandados integer := 0;
+  v_id text;
+begin
+  select a.valor into v_url from privado.ajustes as a where a.clave = 'url_proyecto';
+  select a.valor into v_clave from privado.ajustes as a where a.clave = 'clave_publica';
+  if v_url is null or v_clave is null then
+    return 0;
+  end if;
+
+  for v_id in
+    (
+      select h.id
+      from public.huellas as h
+      where h.estado = 'pendiente'
+        and h.tx_hash is null
+        and h.recibido < pg_catalog.now() - interval '10 minutes'
+        and h.recibido > pg_catalog.now() - interval '3 hours'
+      order by h.recibido desc
+      limit 40
+    )
+    union
+    (
+      select h.id
+      from public.huellas as h
+      where h.estado = 'pendiente'
+        and h.tx_hash is null
+        and h.recibido < pg_catalog.now() - interval '5 days'
+      order by h.recibido
+      limit 40
+    )
+  loop
+    perform net.http_post(
+      url := v_url || '/functions/v1/publicar',
+      headers := pg_catalog.jsonb_build_object(
+        'Content-Type', 'application/json',
+        'apikey', v_clave,
+        'Authorization', 'Bearer ' || v_clave
+      ),
+      body := pg_catalog.jsonb_build_object('id', v_id),
+      timeout_milliseconds := 20000
+    );
+    v_mandados := v_mandados + 1;
+  end loop;
+  return v_mandados;
+end;
+$$;
+revoke execute on function privado.reintentar_borradores() from public, anon, authenticated;
+
+select cron.schedule(
+  'umbral-publicar-pagadas',
+  '7,37 * * * *',
+  $$select privado.reintentar_borradores()$$
+);
+
+-- La limpieza queda igual (7 días). Para entonces cada borrador ya pasó unas
+-- 96 veces por `publicar`: si estaba pagado, ya no es borrador.
+
+commit;
+
+-- ---------------------------------------------------------------------------
+-- DESPUÉS de aplicar: cargar los dos ajustes (a mano, no van en el repositorio).
+--
+--   insert into privado.ajustes (clave, valor) values
+--     ('url_proyecto', 'https://<ref-del-proyecto>.supabase.co'),
+--     ('clave_publica', '<la clave pública del proyecto>')
+--   on conflict (clave) do update set valor = excluded.valor;
+--
+-- COMPROBACIONES (cada una dice qué tiene que dar):
+--
+-- 1. La vista sigue leyendo como anónimo y no muestra borradores:
+--      set local role anon;
+--      select estado, count(*) from public.huellas_publicas group by 1;   -- solo publicada y retirada
+--      select count(*) from public.huellas where estado = 'pendiente';    -- 0
+--      reset role;
+-- 2. Ninguna retirada conserva contenido:
+--      select count(*) from public.huellas
+--      where estado = 'retirada' and (titulo is not null or texto is not null or descripcion is not null
+--        or foto_ruta is not null or audio_ruta is not null or enlace is not null or nombre <> '—');   -- 0
+-- 3. El origen llega de verdad (hacer UN borrador desde la web y mirar):
+--      select origen, count(*) from public.huellas where estado = 'pendiente' group by 1;
+--    Si todos dan lo mismo que
+--      select md5('sin-origen');
+--    la cabecera no está llegando: el límite por origen pasa a ser uno solo para todos (40 por hora).
+--    En ese caso avisar antes de dejarlo así.
+-- 4. Ningún origen queda guardado fuera de los borradores:
+--      select count(*) from public.huellas where estado <> 'pendiente' and origen is not null;   -- 0
+-- 5. El reintento manda pedidos y `publicar` contesta:
+--      select privado.reintentar_borradores();
+--      select status_code, content::text from net._http_response order by created desc limit 5;
+--    402 = no estaba pagada (normal). 200 = se publicó. 401 = la clave pública está mal cargada.
+-- 6. Los dos trabajos están programados:
+--      select jobname, schedule from cron.job where jobname like 'umbral-%';
+--
+-- PARA VOLVER ATRÁS: correr de nuevo las secciones de esquema.sql que definen
+-- privado.pendientes_de(text), la regla huellas_insertar_pendientes, la regla
+-- huellas_leer_publicadas y la vista huellas_publicas, y
+--   select cron.unschedule('umbral-publicar-pagadas');
+--   drop trigger huellas_poner_origen on public.huellas;
+--   drop trigger huellas_antes_actualizar on public.huellas;
+-- (La sal de las retiradas no vuelve: ya no hacía falta.)
+-- ---------------------------------------------------------------------------
