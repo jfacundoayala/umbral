@@ -2,7 +2,9 @@
 
 **Más allá de lo tangible.**
 
-Un museo vivo en internet. Artistas y museos exponen una obra, la gente deja lo que esa obra le despertó, y otros lo continúan. Alrededor de cada obra crece una constelación de huellas. Cada huella se paga en Stellar y el 80% va al artista.
+UMBRAL guarda lo que no querés perder. Una obra, un objeto, un recuerdo: lo exponés, queda sellado en la red y quienes lo ven le dejan su huella. Alrededor de cada obra crece una constelación. Es para artistas, salas y público, en museos, galerías y encuentros, en persona o virtuales.
+
+Mirar es gratis. Cada huella se paga en Stellar: el 80% va a quien hizo la obra y el 20% sostiene UMBRAL.
 
 Proyecto para el Hackathon Sin Coordenada — FLAT 2026 (BAF × Stellar).
 
