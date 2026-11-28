@@ -11,8 +11,8 @@ import Reproductor from "./Reproductor";
 import "./Formularios.css";
 import { nuevaSal, PagoSinConfirmar } from "./sin-red";
 import type { Derechos, Documento, Firmar } from "./umbral";
-import { Isotipo } from "./Isotipo";
 import { Movible } from "./Movible";
+import { SelloVivo } from "./SelloVivo";
 
 // Lo que habla con la red (stellar-sdk y la billetera) se baja recién cuando hace falta:
 // el cielo y la ficha se dibujan sin esperarlo.
@@ -305,7 +305,7 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
       </div>
       {museo && (
         <div className="sello" title="La sala la invitó y su fondo pagó la obra. Se puede ver en el comprobante.">
-          <Isotipo className="sello-marca" grosor={1.3} />
+          <SelloVivo chico className="sello-marca" />
           <span className="sello-raya" aria-hidden="true" />
           <p>
             <span className="sello-cero">UMBRAL ABIERTO</span>
@@ -328,10 +328,11 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
       ) : esObra ? (
         <>
           {h.foto_ruta && (
-            <Movible className="movible-foto">
+            <Movible className="movible-foto" zoom>
               <img className="foto" src={urlFoto(h.foto_ruta)} alt={`Foto de la obra ${h.titulo ?? ""}`} />
             </Movible>
           )}
+          {h.foto_ruta && <p className="pista-zoom">Arrastrala para girarla. Doble clic o doble toque para acercar.</p>}
           <h3>{h.titulo}</h3>
           {h.descripcion && <p>{h.descripcion}</p>}
           {h.audio_ruta && <Reproductor src={urlAudio(h.audio_ruta)} />}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { OBRA_CON_SELLO, obras, urlFoto, urlTarjeta, type Huella } from "./base";
 import { ir } from "./comun";
-import { Isotipo } from "./Isotipo";
+import { SelloVivo } from "./SelloVivo";
 
 const PASOS = [
   ["Mirá gratis", "Recorré el cielo y abrí cualquier obra. No hace falta cuenta."],
@@ -135,18 +135,7 @@ export function PortadaMas() {
       </section>
 
       <section className="pmas-bloque pmas-encuentro" aria-labelledby="pmas-enc">
-        <div className="pmas-sello" role="img" aria-label="Sello Estuve ahí, presencial, de UMBRAL ABIERTO">
-          <svg className="pmas-sello-arcos" viewBox="0 0 320 320" aria-hidden="true">
-            <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M31 132 C15 75 66 27 127 19 M200 25 C267 37 308 83 300 144 M298 215 C279 273 221 302 164 300 M97 292 C48 273 21 240 21 207" />
-              <path opacity=".65" d="M22 95 C49 44 85 36 112 33 M221 42 C260 55 283 91 287 115 M284 243 C252 284 210 289 185 289 M84 279 C51 260 35 234 32 225" />
-            </g>
-          </svg>
-          <span className="pmas-sello-arriba">UMBRAL ABIERTO</span>
-          <Isotipo className="pmas-sello-iso" grosor={1.3} />
-          <span className="pmas-sello-texto">Estuve ahí</span>
-          <span className="pmas-sello-modo">Presencial</span>
-        </div>
+        <SelloVivo className="pmas-sello-vivo" />
         <div>
           <p className="rotulo">Encuentros</p>
           <h2 id="pmas-enc">Estuve ahí</h2>
