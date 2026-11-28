@@ -187,6 +187,15 @@ Las pruebas con personas de afuera del equipo se hacen el sábado 28/11 con la [
 | SDK de JavaScript y Stellar CLI | Cliente generado desde el contrato compilado |
 | Stellar Expert | Comprobante público de cada acción |
 
+## Cómo usamos Raven
+
+Raven nos acompañó como equipo durante todo el hackathon:
+
+- **Diseño del proyecto e integración con Stellar.** Lo consultamos para decidir cómo armar el proyecto y qué componentes de Stellar usar: el contrato en Soroban, los pagos en USDC y XLM y las billeteras.
+- **Análisis de proyectos parecidos.** Buscamos proyectos similares dentro y fuera de la red Stellar y los analizamos con un FODA: fortalezas, debilidades, qué convenía replicar y qué evitar. Con eso medimos nuestra solución y definimos la diferencia: UMBRAL no vende obras, vende participación.
+- **Curaduría.** Lo usamos para curar todas las obras de "Una ciudad que resuena · Colección 001".
+- **Auditoría técnica.** Le consultamos mucho sobre el contrato, los permisos y el reparto, y nos guiamos por sus respuestas. También le pedimos una simulación de jurado con la rúbrica. De ahí salieron cambios concretos: esta sección, la verificación del contrato y la explicación del paso al contrato nuevo.
+
 ## Cómo correrlo
 
 ```bash
@@ -265,8 +274,7 @@ Con comunidades y saberes tradicionales, las decisiones se toman con quienes los
 
 ## Equipo
 
-- **Facundo Ayala** — contrato y desarrollo.
-- **Lucía Paz** — dirección creativa: identidad, experiencia, pantallas y curaduría. El proceso está en su [bitácora de diseño](docs/diseno/bitacora-2026-11-27.md).
+Facundo Ayala y Lucía Paz. El proceso de diseño está en la [bitácora](docs/diseno/bitacora-2026-11-27.md).
 
 ## Derechos
 
