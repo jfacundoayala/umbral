@@ -22,5 +22,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Importa la firma del servidor (fuera de app/), que no se sube a Vercel. Vitest la prueba igual.
+  "exclude": ["src/pruebas/favoritos.test.ts"]
 }
