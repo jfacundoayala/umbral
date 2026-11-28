@@ -45,7 +45,14 @@ export type Orden = "huellas" | "nuevas";
  *  sus comprobantes están en docs/txs.md. */
 const DESDE_COLECCION = "2026-11-28T05:30:00Z";
 const MIRTA = "8d78f8c880d97a97b4cc6127719c086707843d79a933e3b1c59ec3e6753d551b";
-export const enElCielo = (h: Pick<Huella, "id" | "recibido">) => h.id === MIRTA || new Date(h.recibido) >= new Date(DESDE_COLECCION);
+/** Versiones de la colección que se reemplazaron por otra con tapa nueva. */
+const REEMPLAZADAS = new Set([
+  "de9f1d6046fbb3531c9c8f046cf39fa901157932584c6ae2b63d40ccc179b912", // Lluvia
+  "c2718482c1b2a223252a64beacd1968826ae90bc96910c6b55fbf55ac73a7e72", // Costanera
+  "9da2e812e6aa6c03814a44efcdd63bcad3b589758dd8fc0ffd52dd793f1e2094", // Pava
+]);
+export const enElCielo = (h: Pick<Huella, "id" | "recibido">) =>
+  !REEMPLAZADAS.has(h.id) && (h.id === MIRTA || new Date(h.recibido) >= new Date(DESDE_COLECCION));
 
 /** La obra de prueba que muestra el sello "Estuve ahí" (encuentro en persona en la red de pruebas). */
 export const OBRA_CON_SELLO = "12541274d348295d720da7108ba583c63f1fdb4314a415f04b3c487dc9c0e4ac";
