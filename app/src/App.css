@@ -439,3 +439,35 @@ main { min-height: calc(100svh - 160px); }
 .portada-pasos span { width: 26px; height: 26px; border: 1px solid var(--petroleo); border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-size: 15px; color: var(--petroleo); }
 .donde { margin: 6px 0 0; font-size: 13px; letter-spacing: .04em; color: var(--tenue); }
 @media (max-width: 560px) { .portada-pasos { flex-direction: column; align-items: flex-start; text-align: left; } }
+
+/* Cómo funciona con vida */
+.pasos-vivos .pv-paso { border-top: 0; padding: 22px 22px 26px; border-radius: 18px; opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1), box-shadow .3s; }
+.pasos-vivos.a-la-vista .pv-paso { opacity: 1; transform: none; }
+.pv-paso-0 { background: linear-gradient(160deg, #E4E9E5, #F2EDE3 70%); color: var(--petroleo); }
+.pv-paso-1 { background: linear-gradient(160deg, #F1E0D3, #F2EDE3 70%); color: #8E4A2A; }
+.pv-paso-2 { background: linear-gradient(160deg, #F0E5C9, #F2EDE3 70%); color: #6E5A2C; }
+.pv-paso:hover { box-shadow: 0 18px 40px -22px rgba(30, 27, 24, .35); }
+.pv-paso h3 { color: var(--tinta); }
+.pv-paso .pmas-n { border-color: currentColor; color: currentColor; background: #F7F2E8; }
+.pv-ilus { width: 100%; max-width: 220px; margin: 0 0 6px -6px; box-shadow: none; border-radius: 50%; }
+.pv-ilus::after { display: none; }
+.pv-ilus svg { display: block; width: 100%; height: auto; overflow: visible; }
+.pv-orbita-lenta { transform-origin: 0 0; animation: sv-girar 26s linear infinite; }
+.pv-iris { fill: #B8683E; transform-box: fill-box; transform-origin: center; animation: pv-mirar 6s ease-in-out infinite; }
+.pv-pupila { animation: pv-mirar 6s ease-in-out infinite; }
+.pv-titila { fill: currentColor; transform-box: fill-box; transform-origin: center; animation: pv-titilar 2.6s ease-in-out infinite; }
+.pv-trazo-nuevo { stroke-dasharray: 130; stroke-dashoffset: 130; animation: pv-dibujar 3.6s ease-in-out infinite; }
+.pv-estrella-nueva { fill: #B8683E; transform-box: fill-box; transform-origin: center; animation: pv-nacer 3.6s ease-in-out infinite; }
+.pv-onda-nueva { stroke: #B8683E; stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: pv-onda 3.6s ease-out infinite; }
+.pv-numero { font-family: var(--serif); font-size: 34px; font-weight: 600; fill: var(--tinta); }
+@keyframes pv-mirar { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-9px); } 60% { transform: translateX(8px); } }
+@keyframes pv-titilar { 0%, 100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.25); } }
+@keyframes pv-dibujar { 0% { stroke-dashoffset: 130; } 45%, 85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes pv-nacer { 0%, 40% { transform: scale(0); } 55% { transform: scale(1.5); } 70%, 90% { transform: scale(1); } 100% { transform: scale(0); } }
+@keyframes pv-onda { 0%, 45% { transform: scale(1); opacity: 0; } 50% { opacity: .9; } 100% { transform: scale(4); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .pasos-vivos .pv-paso { opacity: 1; transform: none; transition: none; }
+  .pv-orbita-lenta, .pv-iris, .pv-pupila, .pv-titila, .pv-trazo-nuevo, .pv-estrella-nueva, .pv-onda-nueva { animation: none; }
+  .pv-trazo-nuevo { stroke-dashoffset: 0; }
+}
+@media (max-width: 760px) { .pv-ilus { max-width: 180px; } }

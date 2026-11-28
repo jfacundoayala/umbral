@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { OBRA_CON_SELLO, obras, urlFoto, urlTarjeta, type Huella } from "./base";
 import { ir } from "./comun";
 import { SelloVivo } from "./SelloVivo";
+import { PasosVivos } from "./PasosVivos";
 
 const PASOS = [
   ["Mirá gratis", "Recorré el cielo y abrí cualquier obra. No hace falta cuenta."],
@@ -57,15 +58,7 @@ export function PortadaMas() {
       <section className="pmas-bloque" aria-labelledby="pmas-como">
         <p className="rotulo">Cómo funciona</p>
         <h2 id="pmas-como">Lo que la obra despierta, la obra lo cobra.</h2>
-        <ol className="pmas-pasos">
-          {PASOS.map(([t, d], i) => (
-            <li key={t}>
-              <span className="pmas-n" aria-hidden="true">{i + 1}</span>
-              <h3>{t}</h3>
-              <p>{d}</p>
-            </li>
-          ))}
-        </ol>
+        <PasosVivos pasos={PASOS} />
       </section>
 
       <section className="pmas-bloque" aria-labelledby="pmas-cielo">
