@@ -117,10 +117,10 @@ Los precios son una hipótesis: no están validados con gente real.
 
 ## 8. Identidad
 
-- La identidad es la de `docs/identidad/identidad.jpg`. Está decidida.
-- Colores: Marfil #F2EFE6, Tinta #191919, Cobalto #2445C7, Niebla #A1ACCB, Mineral #C9C6BE. Letras: Bodoni Moda e Inter.
-- Nombre: gustan "UMBRAL" en mayúsculas y la cursiva azul. Falta que Lucía lo vea y confirme; nada de nombre ni logo está cerrado sin ella.
-- Logo: lo define Lucía. Sugerencias nuestras: el arco con estrella (A) y la estrella en su órbita con otra forma de estrella (B), para que no se parezca a otros logos con estrella de cuatro puntas.
+- La identidad la cerró Lucía el 27 y 28/11 (reemplaza la anterior con cobalto, Bodoni Moda e Inter).
+- Colores: Marfil #F2EDE3, Tinta #1E1B18, Petróleo #314B49 (acción y logo), Musgo #5E6654, Gris mineral #626B6A, Niebla #D5D9D3, Grafito #243330, Noche #0B1613.
+- Letras: Manrope para todo lo funcional; Cormorant Garamond solo en títulos, nombres de obras y frases destacadas (en prueba).
+- Logo: "resonancia orgánica", tres trazos curvos y un punto en el centro (app/src/Isotipo.tsx). El nombre va en mayúsculas espaciadas.
 - Constelación: se puede arrastrar y girar, y muestra el nombre o la frase de cada huella al tocarla.
 
 ## 9. Reglas del contrato

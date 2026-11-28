@@ -1,8 +1,9 @@
 // Lo que sigue a la portada: cómo funciona, obras del cielo con números en vivo, para quién es y los encuentros.
 // Solo lee la base con fetch: no baja billetera ni stellar-sdk.
 import { useEffect, useState } from "react";
-import { obras, urlFoto, urlTarjeta, type Huella } from "./base";
+import { OBRA_CON_SELLO, obras, urlFoto, urlTarjeta, type Huella } from "./base";
 import { ir } from "./comun";
+import { Isotipo } from "./Isotipo";
 
 const PASOS = [
   ["Mirá gratis", "Recorré el cielo y abrí cualquier obra. No hace falta cuenta."],
@@ -21,7 +22,7 @@ const PARA = [
     quien: "Salas y museos",
     texto: "Abrí tu sala, armá muestras con fecha y organizá encuentros: quien va en persona deja su huella gratis, la paga tu fondo y se lleva el sello \"Estuve ahí\".",
     accion: "Ver una obra con sello",
-    destino: "/cielo",
+    destino: `/obra/${OBRA_CON_SELLO}`,
   },
   {
     quien: "Público",
@@ -134,12 +135,18 @@ export function PortadaMas() {
       </section>
 
       <section className="pmas-bloque pmas-encuentro" aria-labelledby="pmas-enc">
-        <svg className="pmas-sello" viewBox="-40 -40 80 80" aria-hidden="true">
-          <circle r="34" fill="none" stroke="#2445C7" strokeWidth="1.2" strokeDasharray="1.5 4" strokeLinecap="round" />
-          <circle r="22" fill="none" stroke="#2445C7" strokeWidth="1.2" strokeDasharray="1.5 4" strokeLinecap="round" />
-          <circle r="11" fill="none" stroke="#2445C7" strokeWidth="1.6" />
-          <circle r="5" fill="#2445C7" />
-        </svg>
+        <div className="pmas-sello" role="img" aria-label="Sello Estuve ahí, presencial, de UMBRAL ABIERTO">
+          <svg className="pmas-sello-arcos" viewBox="0 0 320 320" aria-hidden="true">
+            <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M31 132 C15 75 66 27 127 19 M200 25 C267 37 308 83 300 144 M298 215 C279 273 221 302 164 300 M97 292 C48 273 21 240 21 207" />
+              <path opacity=".65" d="M22 95 C49 44 85 36 112 33 M221 42 C260 55 283 91 287 115 M284 243 C252 284 210 289 185 289 M84 279 C51 260 35 234 32 225" />
+            </g>
+          </svg>
+          <span className="pmas-sello-arriba">UMBRAL ABIERTO</span>
+          <Isotipo className="pmas-sello-iso" grosor={1.3} />
+          <span className="pmas-sello-texto">Estuve ahí</span>
+          <span className="pmas-sello-modo">Presencial</span>
+        </div>
         <div>
           <p className="rotulo">Encuentros</p>
           <h2 id="pmas-enc">Estuve ahí</h2>

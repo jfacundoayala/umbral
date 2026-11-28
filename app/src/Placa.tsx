@@ -7,6 +7,7 @@ import { firmarMensaje } from "./billetera";
 import { corta, ir, mensajeError } from "./comun";
 import type { Sesion } from "./Pantallas";
 import { codigoCorto, firmaEnHex, mensajePlaca } from "./placa-firma";
+import { Isotipo } from "./Isotipo";
 import "./Placa.css";
 
 const enlacePlaca = (id: string, firma: string) => `${location.origin}/#/obra/${id}?desde=placa&f=${firma}`;
@@ -32,7 +33,7 @@ export function Placa({ id, sesion }: { id: string; sesion: Sesion }) {
   useEffect(() => {
     if (!firma) return;
     let vivo = true;
-    QRCode.toString(enlacePlaca(id, firma), { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark: "#191919", light: "#0000" } })
+    QRCode.toString(enlacePlaca(id, firma), { type: "svg", margin: 4, errorCorrectionLevel: "M", color: { dark: "#1E1B18", light: "#ffffff" } })
       .then((s) => vivo && setQr(s))
       .catch(() => undefined);
     return () => {
@@ -96,22 +97,24 @@ export function Placa({ id, sesion }: { id: string; sesion: Sesion }) {
         <button className="btn lleno" onClick={() => window.print()}>Imprimir la placa</button>
       </div>
 
+      <div className="placa-marco">
       <article className="placa" aria-label={`Placa de ${obra.titulo}`}>
-        <div className="placa-marca">
-          <span>UMBRAL</span>
-          <span>Museo vivo</span>
-        </div>
+        <Isotipo className="placa-iso" grosor={1.6} />
+        <p className="placa-marca">UMBRAL</p>
+        <p className="placa-lema">Más allá de lo tangible</p>
+        <hr className="placa-raya" />
         <h1 className="placa-titulo">{obra.titulo}</h1>
         {obra.nombre && <p className="placa-autor">{obra.nombre}</p>}
-        <div className="placa-qr" role="img" aria-label="Código QR para dejar tu huella en esta obra" dangerouslySetInnerHTML={{ __html: qr }} />
-        <p className="placa-llamado">Escaneá y contá qué te despierta esta obra.</p>
-        <p className="placa-letra">Tu huella queda firmada en Stellar y el 70% de lo que pagás va a quien la hizo.</p>
+        <div className="placa-qr" role="img" aria-label="Código QR para ver la obra y sus huellas" dangerouslySetInnerHTML={{ __html: qr }} />
+        <p className="placa-llamado">Descubrí lo que no se ve</p>
+        <p className="placa-letra">Escaneá y explorá sus huellas</p>
+        <hr className="placa-raya corta" />
+        <p className="placa-libre">Mirar es libre. No necesitás una cuenta.</p>
         <p className="placa-pie">
-          Código {codigoCorto(id)} · firmada por {corta(obra.autor)}
-          <br />
-          {location.host}
+          Código {codigoCorto(id)} · firmada por {corta(obra.autor)} · {location.host}
         </p>
       </article>
+      </div>
     </section>
   );
 }

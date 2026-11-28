@@ -588,9 +588,9 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
     >
       <defs>
         <radialGradient id={`${uid}-brillo`}>
-          <stop offset="0" stopColor="#2445C7" stopOpacity="0.2" />
-          <stop offset="0.45" stopColor="#A1ACCB" stopOpacity="0.16" />
-          <stop offset="1" stopColor="#A1ACCB" stopOpacity="0" />
+          <stop offset="0" stopColor="#314B49" stopOpacity="0.2" />
+          <stop offset="0.45" stopColor="#9AA3A0" stopOpacity="0.16" />
+          <stop offset="1" stopColor="#9AA3A0" stopOpacity="0" />
         </radialGradient>
       </defs>
       <g className="fondo" aria-hidden="true">

@@ -5,6 +5,7 @@ import Fondos from "./Fondos";
 import Portada from "./Portada";
 import { XLM_ID } from "./config";
 import "./App.css";
+import { Isotipo } from "./Isotipo";
 
 const CLAVE_MONEDA = "umbral-moneda";
 
@@ -72,7 +73,10 @@ export default function App() {
     <>
       <div className="aviso">Red de pruebas de Stellar: los fondos son de prueba y no tienen valor real.</div>
       <header>
-        <a className="marca" href="#/">UMBRAL</a>
+        <a className="marca" href="#/" aria-label="UMBRAL, inicio">
+          <Isotipo className="marca-iso" grosor={1.4} />
+          <span>UMBRAL</span>
+        </a>
         <nav>
           <a href="#/cielo" aria-current={activa("cielo")}>El cielo</a>
           <a href="#/abrir" aria-current={activa("abrir")}>Exponer una obra</a>

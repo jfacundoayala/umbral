@@ -19,7 +19,7 @@ function useQr(texto: string | null) {
     if (!texto) return;
     let vivo = true;
     import("qrcode")
-      .then((q) => q.default.toString(texto, { type: "svg", margin: 1, errorCorrectionLevel: "M", color: { dark: "#191919", light: "#f2efe6" } }))
+      .then((q) => q.default.toString(texto, { type: "svg", margin: 1, errorCorrectionLevel: "M", color: { dark: "#1E1B18", light: "#F2EDE3" } }))
       .then((s) => vivo && setSvg(s))
       .catch(() => undefined);
     return () => {

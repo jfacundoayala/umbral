@@ -11,6 +11,7 @@ import Reproductor from "./Reproductor";
 import "./Formularios.css";
 import { nuevaSal, PagoSinConfirmar } from "./sin-red";
 import type { Derechos, Documento, Firmar } from "./umbral";
+import { Isotipo } from "./Isotipo";
 
 // Lo que habla con la red (stellar-sdk y la billetera) se baja recién cuando hace falta:
 // el cielo y la ficha se dibujan sin esperarlo.
@@ -301,14 +302,12 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
       </div>
       {museo && (
         <div className="sello" title="La sala la invitó y su fondo pagó la obra. Se puede ver en el comprobante.">
-          <svg className="sello-marca" viewBox="-19 -19 38 38" aria-hidden="true">
-            <circle className="punteado" r={17} />
-            <circle className="punteado" r={11.5} />
-            <circle r={6.5} />
-            <circle className="centro" r={2.4} />
-          </svg>
+          <Isotipo className="sello-marca" grosor={1.3} />
+          <span className="sello-raya" aria-hidden="true" />
           <p>
+            <span className="sello-cero">UMBRAL ABIERTO</span>
             <span className="sello-uno">Estuve ahí</span>
+            <span className="sello-modo">Presencial</span>
             <span className="sello-dos">
               invitada por la sala de{" "}
               <a href={`${RED.explorador}/account/${museo}`} target="_blank" rel="noopener noreferrer">

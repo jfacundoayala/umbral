@@ -89,38 +89,38 @@ function Verbos() {
   return (
     <ul className="verbos">
       <li>
-        <svg viewBox="0 0 62 62" fill="none" stroke="#191919" strokeWidth="1.1" strokeLinecap="round" aria-hidden="true">
+        <svg viewBox="0 0 62 62" fill="none" stroke="#1E1B18" strokeWidth="1.1" strokeLinecap="round" aria-hidden="true">
           <path d="M5 33c8-10 17-15 26-15s18 5 26 15c-8 10-17 15-26 15S13 43 5 33z" />
-          <circle cx="31" cy="33" r="7.5" fill="#2445C7" stroke="none" />
+          <circle cx="31" cy="33" r="7.5" fill="#314B49" stroke="none" />
           <path d="M31 8v6M20 10l2.5 5.5M42 10l-2.5 5.5M11 15l4 4.5M51 15l-4 4.5" />
         </svg>
         Explorá
       </li>
       <li>
         <svg viewBox="0 0 62 62" fill="none" strokeWidth="1.1" strokeLinejoin="round" aria-hidden="true">
-          <path d="M31 14L8 25l23 11 23-11z" fill="#2445C7" stroke="#2445C7" />
-          <path d="M8 33l23 11 23-11" stroke="#191919" />
-          <path d="M8 41l23 11 23-11" stroke="#191919" />
+          <path d="M31 14L8 25l23 11 23-11z" fill="#314B49" stroke="#314B49" />
+          <path d="M8 33l23 11 23-11" stroke="#1E1B18" />
+          <path d="M8 41l23 11 23-11" stroke="#1E1B18" />
         </svg>
         Creá
       </li>
       <li>
-        <svg viewBox="0 0 62 62" fill="none" stroke="#191919" strokeWidth="1.1" strokeLinejoin="round" aria-hidden="true">
+        <svg viewBox="0 0 62 62" fill="none" stroke="#1E1B18" strokeWidth="1.1" strokeLinejoin="round" aria-hidden="true">
           <path d="M8 22L31 9l23 13zM11 22h40v4H11zM8 50h46v4H8zM11 46h40v4H11z" />
           <path d="M16 26v20M22 26v20M40 26v20M46 26v20" />
-          <path d="M27 46V35a4 4 0 0 1 8 0v11z" fill="#2445C7" stroke="none" />
+          <path d="M27 46V35a4 4 0 0 1 8 0v11z" fill="#314B49" stroke="none" />
         </svg>
         Conservá
       </li>
       <li>
-        <svg viewBox="0 0 62 62" fill="none" stroke="#191919" strokeWidth="1.1" aria-hidden="true">
-          <path d="M31 31L14 16M31 31l19-9M31 31l-6 21M31 31l17 15" stroke="#2445C7" />
-          <circle cx="31" cy="31" r="7" fill="#2445C7" stroke="none" />
-          <circle cx="31" cy="31" r="11.5" stroke="#2445C7" strokeWidth=".9" />
-          <circle cx="14" cy="16" r="3" fill="#F2EFE6" />
-          <circle cx="50" cy="22" r="3" fill="#F2EFE6" />
-          <circle cx="25" cy="52" r="3" fill="#F2EFE6" />
-          <circle cx="48" cy="46" r="3" fill="#F2EFE6" />
+        <svg viewBox="0 0 62 62" fill="none" stroke="#1E1B18" strokeWidth="1.1" aria-hidden="true">
+          <path d="M31 31L14 16M31 31l19-9M31 31l-6 21M31 31l17 15" stroke="#314B49" />
+          <circle cx="31" cy="31" r="7" fill="#314B49" stroke="none" />
+          <circle cx="31" cy="31" r="11.5" stroke="#314B49" strokeWidth=".9" />
+          <circle cx="14" cy="16" r="3" fill="#F2EDE3" />
+          <circle cx="50" cy="22" r="3" fill="#F2EDE3" />
+          <circle cx="25" cy="52" r="3" fill="#F2EDE3" />
+          <circle cx="48" cy="46" r="3" fill="#F2EDE3" />
         </svg>
         Conectá
       </li>
@@ -214,13 +214,13 @@ export default function Portada() {
     <section className="portada" ref={portada}>
       <Iconos />
       <svg className="fondo" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <rect x="1274" y="0" width="182" height="900" fill="#A1ACCB" opacity=".38" />
-        <g fill="none" stroke="#2445C7" strokeWidth=".7" opacity=".55">
+        <rect x="1274" y="0" width="182" height="900" fill="#9AA3A0" opacity=".38" />
+        <g fill="none" stroke="#314B49" strokeWidth=".7" opacity=".55">
           {lineas.map((d, i) => (
             <path key={i} d={d} />
           ))}
         </g>
-        <circle cx="1560" cy="1120" r="410" fill="#2445C7" />
+        <circle cx="1560" cy="1120" r="410" fill="#314B49" />
       </svg>
       <canvas className="estela" ref={lienzo} aria-hidden="true" />
 
@@ -244,31 +244,31 @@ export default function Portada() {
 
       <div className="constelacion" title="Tocá la constelación para sumar un punto" onClick={sumar}>
         <svg ref={svg} viewBox="0 0 800 800" role="img" aria-label="Constelación de huellas: museo, pintura, objeto, libro, escultura y video conectados entre sí">
-          <g fill="none" stroke="#2445C7" strokeWidth="1" strokeDasharray="1 7" strokeLinecap="round" opacity=".8">
+          <g fill="none" stroke="#314B49" strokeWidth="1" strokeDasharray="1 7" strokeLinecap="round" opacity=".8">
             <circle cx="420" cy="360" r="62" />
             <circle cx="420" cy="360" r="112" />
             <circle cx="420" cy="360" r="290" />
           </g>
-          <g stroke="#2445C7" strokeWidth="1" opacity=".75">
+          <g stroke="#314B49" strokeWidth="1" opacity=".75">
             {ARISTAS.map(([a, b], n) => {
               const p = pos(a);
               const q = pos(b);
               return <line key={n} className="aparece" style={{ animationDelay: `${0.3 + n * 0.07}s` }} x1={p[0]} y1={p[1]} x2={q[0]} y2={q[1]} />;
             })}
           </g>
-          <g fill="#2445C7">
+          <g fill="#314B49">
             {PUNTOS.map(([x, y], n) => (
               <circle key={n} className="aparece" style={{ animationDelay: `${0.2 + n * 0.08}s` }} cx={x} cy={y} r={n % 3 === 0 ? 6.5 : 4} />
             ))}
           </g>
-          <g className="aparece" fill="none" stroke="#2445C7" strokeWidth="1.5">
+          <g className="aparece" fill="none" stroke="#314B49" strokeWidth="1.5">
             <g transform={`translate(${CENTRO[0]} ${CENTRO[1]}) rotate(-18)`}>
               {[2, 3, 4, 5, 6].map((k) => (
                 <path key={k} d={anillo(k, 6, 36)} />
               ))}
             </g>
           </g>
-          <circle className="aparece" cx={CENTRO[0]} cy={CENTRO[1]} r="4.5" fill="#2445C7" />
+          <circle className="aparece" cx={CENTRO[0]} cy={CENTRO[1]} r="4.5" fill="#314B49" />
           <g>
             {NODOS.map((nd, n) => (
               <g key={nd.id} className="nodo aparece" style={{ animationDelay: `${0.5 + n * 0.18}s` }}>
@@ -280,7 +280,7 @@ export default function Portada() {
               </g>
             ))}
           </g>
-          <g stroke="#2445C7" strokeWidth="1" fill="#2445C7">
+          <g stroke="#314B49" strokeWidth="1" fill="#314B49">
             {sumados.map((s, i) => (
               <g key={i} className="aparece">
                 <line x1={s.x} y1={s.y} x2={s.a[0]} y2={s.a[1]} opacity=".75" />
