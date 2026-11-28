@@ -1,0 +1,31 @@
+name: Imagen de compilación del contrato
+
+# Construye la imagen con la que se compila el contrato de forma reproducible (SEP-58).
+# Usa la receta oficial de stellar/stellar-cli-docker, fijada por commit, con los
+# mismos valores que su builds.json declara para stellar-cli 30.0.1.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGEN: ghcr.io/jfacundoayala/umbral-stellar-cli:30.0.1-rust1.99.1-slim-trixie
+  RECETA: https://raw.githubusercontent.com/stellar/stellar-cli-docker/85f5bdf34f1f2584c43d80487b3ace36a3709ae6/Dockerfile
+
+jobs:
+  imagen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bajar la receta oficial
+        run: curl -fsSL "$RECETA" -o Dockerfile
+      - name: Entrar al registro
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Construir
+        run: |
+          docker build             --build-arg RUST_VERSION=1.99.1             --build-arg RUST_BASE_SUFFIX=slim-trixie             --build-arg RUST_IMAGE_DIGEST=sha256:9daf2b244ccc30523e55cafe32edf8465671ba567d0101620e5612ccb76ea1a7             --build-arg STELLAR_CLI_REV=f2a7b74175c34585f3b30a1abf42a2d41cbcc390             --build-arg STELLAR_CLI_VERSION=30.0.1             --build-arg BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"             --build-arg SOURCE_REPO=${{ github.repository }}             -t "$IMAGEN" .
+      - name: Publicar
+        run: |
+          docker push "$IMAGEN"
+          docker inspect --format '{{index .RepoDigests 0}}' "$IMAGEN" | tee -a "$GITHUB_STEP_SUMMARY"
