@@ -11,7 +11,7 @@ permissions:
   packages: write
 
 env:
-  IMAGEN: ghcr.io/jfacundoayala/umbral-stellar-cli:30.0.1-rust1.99.1-slim-trixie
+  IMAGEN: ghcr.io/jfacundoayala/umbral/stellar-cli:30.0.1-rust1.99.1-slim-trixie
   RECETA: https://raw.githubusercontent.com/stellar/stellar-cli-docker/85f5bdf34f1f2584c43d80487b3ace36a3709ae6/Dockerfile
 
 jobs:
