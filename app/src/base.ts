@@ -50,12 +50,13 @@ const REEMPLAZADAS = new Set([
   "de9f1d6046fbb3531c9c8f046cf39fa901157932584c6ae2b63d40ccc179b912", // Lluvia
   "c2718482c1b2a223252a64beacd1968826ae90bc96910c6b55fbf55ac73a7e72", // Costanera
   "9da2e812e6aa6c03814a44efcdd63bcad3b589758dd8fc0ffd52dd793f1e2094", // Pava
+  "12541274d348295d720da7108ba583c63f1fdb4314a415f04b3c487dc9c0e4ac", // Estuve en la puerta (tapa de anillos)
 ]);
 export const enElCielo = (h: Pick<Huella, "id" | "recibido">) =>
   !REEMPLAZADAS.has(h.id) && (h.id === MIRTA || new Date(h.recibido) >= new Date(DESDE_COLECCION));
 
 /** La obra de prueba que muestra el sello "Estuve ahí" (encuentro en persona en la red de pruebas). */
-export const OBRA_CON_SELLO = "12541274d348295d720da7108ba583c63f1fdb4314a415f04b3c487dc9c0e4ac";
+export const OBRA_CON_SELLO = "1b6a7197a9cd3f4d5f0d27d39cdfe37d042f3344650dd562b54939cac02a5bc6";
 
 export async function obras(orden: Orden): Promise<Huella[]> {
   const o = orden === "huellas" ? "respuestas_publicadas.desc,recibido.desc" : "recibido.desc";

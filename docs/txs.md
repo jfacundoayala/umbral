@@ -73,6 +73,17 @@ Pagan en XLM, con dos cuentas de prueba nuevas: una artista y una persona del p�
 | Apoyar la obra | Público | "Gracias: tu apoyo llegó." | [a5323cea…](https://stellar.expert/explorer/testnet/tx/a5323cea9a0206c50a8027f07dfba116991974d7376fe8d6fa3c7dfcc219f2bb) |
 | La artista cobra | Artista | Saldo de 10,5 XLM a 0 | [6c09fa05…](https://stellar.expert/explorer/testnet/tx/6c09fa0516a570510a35f1c941924d55e2d4edeaba6723d8a193237165575a33) |
 
+## Encuentro en la puerta (28/11/2026)
+
+Un museo abre su sala, carga el fondo e invita en la puerta a una visitante, que expone "[Estuve en la puerta](https://umbralmuseo.vercel.app/#/obra/1b6a7197a9cd3f4d5f0d27d39cdfe37d042f3344650dd562b54939cac02a5bc6)" sin pagar: la paga el fondo y la obra lleva el sello "Estuve ahí". Se hizo desde la app con dos cuentas de prueba nuevas, pagando en XLM. Es la obra de "Ver una obra con sello" en la portada.
+
+| Acción | Quién firma | Monto | Detalle | Comprobante |
+|---|---|---:|---|---|
+| El museo abre su sala | Museo | — | Sala creada | [e9352afa…](https://stellar.expert/explorer/testnet/tx/e9352afa7c9e4f939678c2d7067cd4389173ce09a018423c21def0af3743b50e) |
+| El museo carga el fondo | Museo | 20 XLM | Quedan en el fondo de la sala | [2512746a…](https://stellar.expert/explorer/testnet/tx/2512746a7223c514e085c60b06eae1d760ab615ed682df836e7db7f0afcf4063) |
+| El museo invita en la puerta | Museo | — | Escanea el código de la visitante | [e782c0ad…](https://stellar.expert/explorer/testnet/tx/e782c0ad6d3e8c7275d2318af91f37cb987d6c3276500c6b67743271c858b094) |
+| La visitante expone su obra | Visitante | 20 XLM | Los paga el fondo de la sala; la obra lleva el sello | [f81e8396…](https://stellar.expert/explorer/testnet/tx/f81e83968ac728b7e934e885878254428577076e9a663ee7cc3375800a8b1da4) |
+
 ## Colección del 28/11/2026
 
 Dieciocho obras expuestas desde la web, cada una con su foto (y su audio cuando tiene) y 20 XLM. "La sopa paraguaya de Mirta" la expone Lucía P.
@@ -178,6 +189,7 @@ La descripción entra en el código firmado y no se puede editar: para cambiar u
 - Segunda tanda de la Colección 001 (con sus huellas): [e11edfb7…](https://umbralmuseo.vercel.app/#/obra/e11edfb7b8f6b72e5f3f6cd7f48e85229cf3dd5eef60825f999586ffa6d0f607), [a785e3e7…](https://umbralmuseo.vercel.app/#/obra/a785e3e70f00ab0f7670ca1d832455b987078b09798ccf7361d2fbdd905f64a9), [9710b66b…](https://umbralmuseo.vercel.app/#/obra/9710b66b5cd43c637d5ea76c726c13fbfe0ab13abec925fb92cc66f2595bd26a), [7f1d2afb…](https://umbralmuseo.vercel.app/#/obra/7f1d2afb74b440ee4ff3c07ee3af6e7643add9823601455936a5a6c99a5e27d5), [6814681e…](https://umbralmuseo.vercel.app/#/obra/6814681e44916030685330cde2bec8e03354a661130690b888ec9c3d43806095).
 - Tercera tanda: Voces con audio y las seis obras sonoras y escritas: [18774dce…](https://umbralmuseo.vercel.app/#/obra/18774dce94bbdd3701b37ba8490b4befe20f68c2b07c7aea0e72498f20e6350b), [e013d989…](https://umbralmuseo.vercel.app/#/obra/e013d989a30ef9637144aea6e21883c37a39fb4c80af3ffe77f48123df0cef44), [907d8a60…](https://umbralmuseo.vercel.app/#/obra/907d8a6090bb14313690f49b2f66b30989387a6c9761d89393046db4a6be2424), [d89a5ac5…](https://umbralmuseo.vercel.app/#/obra/d89a5ac5d501fbe5293b20b82d6f73fee2acdfff49809ce0c38e69116b1499a1), [34886974…](https://umbralmuseo.vercel.app/#/obra/3488697455c610e91b9b48d3e16fa52173bb3891696b4243530e3cc95f444e21), [7650c56e…](https://umbralmuseo.vercel.app/#/obra/7650c56e4291f0ab9da34f0417aab259ab161cb137c88872f2cb07af98588d9b), [33656a1b…](https://umbralmuseo.vercel.app/#/obra/33656a1ba6684df7d5d7e8218917d3b1660d9a007f30c8c4e4e6bbd4301d869c).
 - Cuarta tanda: Lluvia, Costanera y Pava con tapa nueva (con sus huellas): [de9f1d60…](https://umbralmuseo.vercel.app/#/obra/de9f1d6046fbb3531c9c8f046cf39fa901157932584c6ae2b63d40ccc179b912), [c2718482…](https://umbralmuseo.vercel.app/#/obra/c2718482c1b2a223252a64beacd1968826ae90bc96910c6b55fbf55ac73a7e72), [9da2e812…](https://umbralmuseo.vercel.app/#/obra/9da2e812e6aa6c03814a44efcdd63bcad3b589758dd8fc0ffd52dd793f1e2094).
+- La obra con sello anterior, con la tapa de anillos: [12541274…](https://umbralmuseo.vercel.app/#/obra/12541274d348295d720da7108ba583c63f1fdb4314a415f04b3c487dc9c0e4ac).
 
 ## Lo que no está en esta lista
 
