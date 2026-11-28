@@ -36,7 +36,7 @@ UMBRAL sirve para cualquier artista o museo. Para mostrarlo elegimos un caso que
 - Lo que los vecinos y visitantes sienten frente a cada escultura no queda en ningún lado.
 - El catálogo ya existe: la Fundación Urunday tiene la plataforma Museo a Cielo Abierto, con fichas y mapa. UMBRAL no lo reemplaza: suma las voces de la gente y un pago que vuelve al escultor.
 
-La primera colección del museo es **Una ciudad que resuena · Colección 001**, curada por Lucía: seis obras de seis disciplinas (escultura, textil, memoria familiar, arte sonoro, objeto y cestería). Cinco son obras de muestra y una es una historia real: *La sopa paraguaya de Mirta*, la receta de su abuela, que llegó desde Paraguay a los diez años. Muestra que el valor de lo que se comparte no depende de tener una trayectoria.
+La primera colección del museo es **Una ciudad que resuena · Colección 001**, curada por Lucía: seis obras de seis disciplinas (escultura, textil, memoria familiar, arte sonoro, objeto y cestería). A su lado hay memorias que suenan, como la lluvia en un techo de chapa o la pava de la mañana, y cartas. Una de las obras es la historia de Lucía: *La sopa paraguaya de Mirta*, la receta de su abuela, que llegó desde Paraguay a los diez años. Muestra que el valor de lo que se comparte no depende de tener una trayectoria.
 
 ## Cómo funciona
 
@@ -246,7 +246,7 @@ Es una hoja de ruta, no un acuerdo: no consultamos todavía a ninguna instituci�
 
 | Etapa | Objetivo |
 |---|---|
-| Hackathon | Mostrar la plataforma y la visión, con la Colección 001 rotulada como muestra. |
+| Hackathon | Mostrar la plataforma y la visión, con la Colección 001. |
 | Piloto propio | Un UMBRAL ABIERTO chico, con personas reales y obras autorizadas. |
 | Primera colaboración | Proponer una colección a un museo de Resistencia. Nos gustaría trabajar con el Museo de Medios de Comunicación y el Museo del Hombre Chaqueño, que conservan la autoridad sobre sus piezas. |
 | Bienal | Pedir un espacio en una futura Bienal Internacional de Escultura del Chaco (la de 2026 fue en julio). |
