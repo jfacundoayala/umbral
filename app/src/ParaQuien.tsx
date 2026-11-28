@@ -34,10 +34,10 @@ export const PARA = [
     accion: "Ver las obras",
     destino: "/cielo",
     obra: "",
-    rotulo: "Mirar y guardar",
+    rotulo: "Un día de lluvia",
     foto: "/para-quien/publico.webp",
-    encuadre: "50% 78%",
-    credito: { autor: "RG72", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Domo-muzeo_de_Polo_Monta%C3%B1ez_04.jpg" },
+    encuadre: "50% 60%",
+    credito: { autor: "Kgbo", licencia: "CC BY-SA 4.0", fuente: "https://commons.wikimedia.org/wiki/File:Three_girls_with_umbrellas_after_rain_in_Brisbane_02.jpg" },
   },
 ] as const;
 
