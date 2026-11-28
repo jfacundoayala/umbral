@@ -4,6 +4,9 @@ import { Movible } from "./Movible";
 import { ir } from "./comun";
 import { PortadaMas } from "./PortadaMas";
 
+/** La idea en tres pasos, sin hablar de dinero: eso se cuenta más abajo, en "Cómo funciona". */
+const PASOS = ["Exponé lo que querés que quede", "Quien lo ve deja su huella", "Crece como una constelación"];
+
 /** "Entre raíces", primera obra de la Colección 001. */
 const OBRA_PORTADA = "84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5";
 
@@ -35,6 +38,8 @@ export default function Portada() {
       <section className="portada portada-centrada">
         <p className="rotulo portada-rotulo">Museo vivo · Resistencia, Chaco</p>
         <h1>Más allá de lo tangible.</h1>
+        <p className="idea">UMBRAL guarda lo que no querés perder.</p>
+        <p className="bajada">Una obra, un objeto, un recuerdo. Lo exponés, queda sellado en la red y quienes lo ven le dejan su huella.</p>
         <div className="portada-escena">
           <Orbitas />
           <button className="portada-obra" onClick={() => ir(`/obra/${OBRA_PORTADA}`)} aria-label="Ver la obra Entre raíces y sus huellas">
@@ -43,11 +48,19 @@ export default function Portada() {
             </Movible>
           </button>
         </div>
-        <p className="bajada">Un museo vivo donde las obras siguen creciendo con las personas.</p>
+        <ol className="portada-pasos">
+          {PASOS.map((p, i) => (
+            <li key={p}>
+              <span aria-hidden="true">{i + 1}</span>
+              {p}
+            </li>
+          ))}
+        </ol>
         <button className="entrar" onClick={() => ir("/cielo")}>
           Explorá el museo <span aria-hidden="true">→</span>
         </button>
         <p className="libre">Mirar es libre. No necesitás una cuenta.</p>
+        <p className="donde">En museos, galerías y encuentros, en persona o virtuales.</p>
       </section>
       <PortadaMas />
     </>

@@ -429,3 +429,13 @@ main { min-height: calc(100svh - 160px); }
   .sv-arcos-a, .sv-arcos-b, .sv-giro-texto, .sv-trazo, .sv-punto, .sv-onda, .sv-latido { animation: none; }
   .sv-onda { opacity: .25; transform: scale(1.6); }
 }
+
+/* Portada: la idea en una frase y tres pasos */
+.portada-centrada .idea { font-family: var(--serif); font-size: clamp(24px, 2.6vw, 36px); line-height: 1.15; margin: 10px 0 6px; color: var(--petroleo); }
+.portada-centrada .bajada { margin: 0; }
+.portada-pasos { margin-top: 8px !important; }
+.portada-pasos { list-style: none; padding: 0; margin: 0 0 24px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 28px; font-size: 14px; }
+.portada-pasos li { display: flex; align-items: center; gap: 10px; }
+.portada-pasos span { width: 26px; height: 26px; border: 1px solid var(--petroleo); border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-size: 15px; color: var(--petroleo); }
+.donde { margin: 6px 0 0; font-size: 13px; letter-spacing: .04em; color: var(--tenue); }
+@media (max-width: 560px) { .portada-pasos { flex-direction: column; align-items: flex-start; text-align: left; } }
