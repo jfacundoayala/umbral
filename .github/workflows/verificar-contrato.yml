@@ -20,10 +20,15 @@ jobs:
       - name: Instalar el plugin de verificación
         run: cargo install --locked --git https://github.com/stellar-experimental/stellar-contract-verify-plugin
       - name: Verificar
+        shell: bash
         run: |
+          # El contenedor compila con otro usuario: las carpetas que arma el plugin tienen que dejarlo escribir.
+          umask 000
           stellar plugin ls
           if [ -n "${{ inputs.contrato }}" ]; then
-            stellar contract verify --id "${{ inputs.contrato }}" --network testnet --trust | tee -a "$GITHUB_STEP_SUMMARY"
+            stellar contract verify --id "${{ inputs.contrato }}" --network testnet --trust --verbose 2>&1 | tee salida.txt
           else
-            stellar contract verify --wasm-hash "${{ inputs.wasm_hash }}" --network testnet --trust | tee -a "$GITHUB_STEP_SUMMARY"
+            stellar contract verify --wasm-hash "${{ inputs.wasm_hash }}" --network testnet --trust --verbose 2>&1 | tee salida.txt
           fi
+          grep -E "Verified|Source SHA-256|Build image" salida.txt >> "$GITHUB_STEP_SUMMARY"
+          grep -q "Verified" salida.txt
