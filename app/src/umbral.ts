@@ -189,7 +189,7 @@ export async function continuar(cuenta: string, firmar: Firmar, padreHex: string
   return { ...recibo, id: id.toString("hex"), digest: digest.toString("hex") };
 }
 
-/** Apoyo voluntario, en unidades enteras de la moneda (por ejemplo 2 = 2 USDC). El 70% va al artista de la obra. */
+/** Apoyo voluntario, en unidades enteras de la moneda (por ejemplo 2 = 2 USDC). El 80% va al artista de la obra. */
 export async function apoyar(cuenta: string, firmar: Firmar, idHex: string, monto: number, moneda: string = MONEDA_ID) {
   const c = cliente(cuenta, firmar);
   const enMinimas = BigInt(Math.round(monto * 100)) * (UNIDAD / 100n);

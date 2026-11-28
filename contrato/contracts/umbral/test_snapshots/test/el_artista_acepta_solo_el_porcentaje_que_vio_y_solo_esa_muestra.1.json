@@ -141,7 +141,7 @@
               "function_name": "fijar_parte_autor",
               "args": [
                 {
-                  "u32": 7000
+                  "u32": 8000
                 }
               ]
             }
@@ -425,7 +425,7 @@
                       "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARQG5"
                     },
                     {
-                      "i128": "7000000"
+                      "i128": "8000000"
                     }
                   ]
                 }
@@ -445,7 +445,7 @@
                       "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                     },
                     {
-                      "i128": "3000000"
+                      "i128": "2000000"
                     }
                   ]
                 }
@@ -1120,7 +1120,7 @@
               },
               "durability": "persistent",
               "val": {
-                "i128": "7000000"
+                "i128": "8000000"
               }
             }
           },
@@ -1164,7 +1164,7 @@
                         ]
                       },
                       "val": {
-                        "u32": 7000
+                        "u32": 8000
                       }
                     },
                     {
@@ -1265,7 +1265,7 @@
                       "symbol": "amount"
                     },
                     "val": {
-                      "i128": "23000000"
+                      "i128": "22000000"
                     }
                   },
                   {
@@ -1473,7 +1473,7 @@
                       "symbol": "amount"
                     },
                     "val": {
-                      "i128": "7000000"
+                      "i128": "8000000"
                     }
                   },
                   {

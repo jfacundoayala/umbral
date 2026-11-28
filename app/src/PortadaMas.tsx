@@ -5,11 +5,12 @@ import { OBRA_CON_SELLO, obras, urlFoto, urlTarjeta, type Huella } from "./base"
 import { ir } from "./comun";
 import { SelloVivo } from "./SelloVivo";
 import { PasosVivos } from "./PasosVivos";
+import { CierreCielo, ParaVivos } from "./ParaVivos";
 
 const PASOS = [
   ["Mirá gratis", "Recorré el cielo y abrí cualquier obra. No hace falta cuenta."],
   ["Dejá tu huella", "Escribí lo que la obra te despertó. Tu huella se suma a su constelación."],
-  ["El 70% es para quien la hizo", "Cada huella le deja al artista el 70%, al momento. Solo baja si firma una muestra con una sala, y nunca de 30%."],
+  ["El 80% es para quien la hizo", "Cada huella le deja al artista el 80%, al momento. Solo cambia si firma una muestra con una sala, y nunca le queda menos del 30%."],
 ] as const;
 
 const PARA = [
@@ -49,7 +50,7 @@ function useCielo() {
 
 export function PortadaMas() {
   const lista = useCielo();
-  const destacadas = (lista ?? []).filter((o) => o.foto_ruta).slice(0, 3);
+  const destacadas = (lista ?? []).filter((o) => o.foto_ruta).slice(0, 6);
   const nObras = lista?.length ?? 0;
   const nHuellas = (lista ?? []).reduce((s, o) => s + o.respuestas_publicadas, 0);
 
@@ -114,17 +115,7 @@ export function PortadaMas() {
       <section className="pmas-bloque" aria-labelledby="pmas-para">
         <p className="rotulo">Para quién es</p>
         <h2 id="pmas-para">Un museo que se arma entre todos</h2>
-        <ul className="pmas-para">
-          {PARA.map((p) => (
-            <li key={p.quien}>
-              <h3>{p.quien}</h3>
-              <p>{p.texto}</p>
-              <a className="pmas-enlace" href={`#${p.destino}`}>
-                {p.accion} <span aria-hidden="true">→</span>
-              </a>
-            </li>
-          ))}
-        </ul>
+        <ParaVivos items={PARA} />
       </section>
 
       <section className="pmas-bloque pmas-encuentro" aria-labelledby="pmas-enc">
@@ -139,6 +130,7 @@ export function PortadaMas() {
       </section>
 
       <section className="pmas-cierre">
+        <CierreCielo />
         <h2>Cada obra es una estrella. Cada huella, una línea.</h2>
         <button className="entrar" onClick={() => ir("/cielo")}>
           Atravesar el umbral <span aria-hidden="true">→</span>

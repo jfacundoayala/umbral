@@ -48,20 +48,20 @@ function Huella() {
   );
 }
 
-/** Paso 3: el reparto. Un anillo que se llena hasta el 70%, con el número que cuenta. */
+/** Paso 3: el reparto. Un anillo que se llena hasta el 80%, con el número que cuenta. */
 function Reparto({ visible }: { visible: boolean }) {
   const [n, setN] = useState(0);
   useEffect(() => {
     if (!visible) return;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setN(70);
+      setN(80);
       return;
     }
     let cuadro = 0;
     const inicio = performance.now();
     const paso = (t: number) => {
       const k = Math.min(1, (t - inicio) / 1400);
-      setN(Math.round(70 * (1 - Math.pow(1 - k, 3))));
+      setN(Math.round(80 * (1 - Math.pow(1 - k, 3))));
       if (k < 1) cuadro = requestAnimationFrame(paso);
     };
     cuadro = requestAnimationFrame(paso);

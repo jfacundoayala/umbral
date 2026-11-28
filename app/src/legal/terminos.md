@@ -17,7 +17,7 @@ Solo mayores de 18 años.
 ## 4. Pagos y repartos
 
 - Exponer una obra, continuarla y apoyarla se paga en USDC o XLM. Antes de firmar se muestra el precio y cómo se reparte.
-- El contrato reparte en el momento del pago: el 70% de cada continuación y de cada apoyo queda a nombre del artista que expuso la obra, y el 30% para umbral. Durante una muestra, la sala puede llevarse una parte de lo del artista, solo si el artista lo aceptó con su firma; el artista nunca recibe menos del 30%.
+- El contrato reparte en el momento del pago: el 80% de cada continuación y de cada apoyo queda a nombre del artista que expuso la obra, y el 20% para umbral. Durante una muestra, umbral recibe el 30%, la sala la parte fijada en la muestra y el artista el resto, solo si el artista lo aceptó con su firma; el artista nunca recibe menos del 30%.
 - Quien continúa una obra paga por participar y no cobra.
 - Los pagos en la red no se pueden deshacer. umbral no guarda el dinero de nadie: el artista retira su parte cuando quiere.
 

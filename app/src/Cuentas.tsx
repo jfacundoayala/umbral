@@ -43,7 +43,7 @@ export function Cuentas() {
         <div><b>{autor}</b><span>para quien hizo la obra</span></div>
         <div><b>{umbral}</b><span>para sostener UMBRAL</span></div>
       </div>
-      <p>Así se reparte cada huella y cada apoyo. Mirar es gratis. Si la obra entra en una muestra con fecha, la sala toma su parte, que queda publicada, y solo si el artista la acepta con su firma. Nunca baja del 30% para el artista.</p>
+      <p>Así se reparte cada huella y cada apoyo. Mirar es gratis. Si la obra entra en una muestra con fecha, cambia: UMBRAL se queda con el 30%, la sala con la parte que se publicó (hasta 40%) y el artista con el resto. Pasa solo si el artista lo acepta con su firma, y nunca le queda menos del 30%.</p>
 
       {precios.length > 0 && (
         <ul className="cuentas-lista">

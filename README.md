@@ -2,7 +2,7 @@
 
 **Más allá de lo tangible.**
 
-Un museo vivo en internet. Artistas y museos exponen una obra, la gente deja lo que esa obra le despertó, y otros lo continúan. Alrededor de cada obra crece una constelación de huellas. Cada huella se paga en Stellar y el 70% va al artista.
+Un museo vivo en internet. Artistas y museos exponen una obra, la gente deja lo que esa obra le despertó, y otros lo continúan. Alrededor de cada obra crece una constelación de huellas. Cada huella se paga en Stellar y el 80% va al artista.
 
 Proyecto para el Hackathon Sin Coordenada — FLAT 2026 (BAF × Stellar).
 
@@ -52,8 +52,8 @@ Así se ve en la red de pruebas, con una obra de prueba:
 
 | | |
 |---|---|
-| ![Exponer una obra: quien la sube elige de quién son los derechos y ve a la derecha cómo va a quedar la obra y cuánto cuesta](docs/capturas/01-exponer.png) | ![Continuar una obra: el formulario dice que cuesta 10 XLM y que el 70% va a quien hizo la obra](docs/capturas/02-continuar.png) |
-| **1. Exponer.** Antes de firmar, quien sube la obra elige de quién son los derechos y ve cómo va a quedar y cuánto cuesta. | **2. Continuar.** Antes de firmar dice cuánto cuesta y que el 70% va a quien hizo la obra. Quien continúa no cobra. |
+| ![Exponer una obra: quien la sube elige de quién son los derechos y ve a la derecha cómo va a quedar la obra y cuánto cuesta](docs/capturas/01-exponer.png) | ![Continuar una obra: el formulario dice que cuesta 10 XLM y cuánto va a quien hizo la obra](docs/capturas/02-continuar.png) |
+| **1. Exponer.** Antes de firmar, quien sube la obra elige de quién son los derechos y ve cómo va a quedar y cuánto cuesta. | **2. Continuar.** Antes de firmar dice cuánto cuesta y que el 80% va a quien hizo la obra. Quien continúa no cobra. |
 | ![La constelación en 3D: la obra en el centro, sus huellas unidas con líneas y el rótulo de la huella elegida](docs/capturas/03-constelacion.png) | ![Ficha de una obra expuesta por invitación de una sala, con el sello Estuve ahí y su audio](docs/capturas/04-sello.png) |
 | **3. La constelación.** Gira en 3D: la obra queda en el centro y cada huella sale de la que continúa. Al tocar una, se lee su texto. | **4. Estuve ahí.** Una sala invitó a la artista y pagó su obra con su fondo. El sello sale del comprobante en la red: no se puede inventar. |
 
@@ -65,10 +65,10 @@ UMBRAL no es un marketplace ni un museo virtual para mirar. **No vende obras: ve
 |---|---|---|---|---|
 | Qué se paga | La obra, una vez | Nada, o una entrada | Apoyo a la persona | Continuar una obra concreta |
 | Sirve para arte que no se vende (escultura en la calle, mural) | No | Solo para mirarlo | No queda ligado a la obra | **Sí: es el caso central** |
-| Qué recibe el artista | Una venta | Nada | Propinas | **Al menos 70% de cada huella y cada apoyo, al momento** (menos solo si acepta una muestra, nunca bajo 30%) |
+| Qué recibe el artista | Una venta | Nada | Propinas | **80% de cada huella y cada apoyo, al momento** (menos solo si acepta una muestra, nunca bajo 30%) |
 | Qué queda de quien participa | Un dueño | Una visita | Un pago | **Su palabra, firmada y unida a la obra** |
 
-1. **El arte de la calle empieza a cobrar.** Una escultura en una plaza no tiene comprador. Con la **placa con QR** pegada al lado, quien la tiene enfrente escanea, deja su huella desde el celular y el 70% va a quien la hizo.
+1. **El arte de la calle empieza a cobrar.** Una escultura en una plaza no tiene comprador. Con la **placa con QR** pegada al lado, quien la tiene enfrente escanea, deja su huella desde el celular y el 80% va a quien la hizo.
 2. **La placa no se puede falsificar.** La crea y la firma con su billetera quien expuso la obra. Al escanearla, UMBRAL comprueba la firma y muestra un código que tiene que coincidir con el de la placa. Si alguien pega una placa trucha, la ficha avisa que no está firmada. Y aunque copien el código, el contrato le paga siempre a la cuenta registrada de la obra.
 3. **La obra muestra lo que despierta.** Cada huella sale de la que continúa y la obra se vuelve una constelación en 3D que se puede girar. El artista ve qué generó su obra, no un número de "me gusta".
 4. **Presencia real.** La sala escanea en la puerta el código de quien está ahí: quien llega abre "Mi código para el encuentro" (un QR con su cuenta) y la sala, desde "Invitar en la puerta", lo escanea y firma la invitación. El fondo de la sala le paga la obra que deja y esa obra lleva el sello "Estuve ahí", comprobable en la red. Como la invitación se hace cara a cara, el sello no se consigue desde la casa.
@@ -83,16 +83,16 @@ UMBRAL no cobra suscripción ni vende publicidad. Vive de una parte de cada part
 |---|---|---|---|---|
 | Mirar y guardar favoritos | Gratis | — | — | — |
 | Exponer una obra | 2 USDC o 20 XLM | — | 100% | — |
-| Continuar una obra o una respuesta | 1 USDC o 10 XLM | 70% | 30% | — |
-| Apoyar | Libre | 70% | 30% | — |
+| Continuar una obra o una respuesta | 1 USDC o 10 XLM | 80% | 20% | — |
+| Apoyar | Libre | 80% | 20% | — |
 | Continuar durante la muestra de una sala | 1 USDC o 10 XLM | de 30% a 70% | 30% | de 0% a 40%, según la muestra |
 
 - **Quien recibe al público pone el fondo.** Como un museo que cubre la conservación de una pieza a cambio de exponerla, la sala o un padrino ponen el fondo de los encuentros: quien va en persona deja su obra sin pagar y se lleva el sello "Estuve ahí". El arte no paga por mostrarse; paga quien quiere estar cerca de él.
 - **El público paga por ser parte y no cobra.** En toda la cadena de respuestas, cobra el artista que expuso la obra.
-- **Muestras de salas y museos:** UMBRAL abre la muestra a pedido de la sala, por hasta 90 días. La parte de la sala sale de la del artista y se fija por muestra, según lo que aporta (difusión, lugar, público). El artista firma viendo el porcentaje; sin su firma, su obra no entra en la muestra. El contrato nunca lo deja por debajo del 30%.
+- **Muestras de salas y museos:** UMBRAL abre la muestra a pedido de la sala, por hasta 90 días. Durante la muestra UMBRAL se queda con el 30%, la sala con su parte, que se fija por muestra según lo que aporta (difusión, lugar, público), y el artista con el resto. El artista firma viendo el porcentaje; sin su firma, su obra no entra en la muestra. El contrato nunca lo deja por debajo del 30%.
 - Los precios son una hipótesis de prueba, no un modelo validado.
 
-**Una cuenta de ejemplo.** Una sala con 30 obras que juntan 300 continuaciones en un mes: sus artistas reciben 210 USDC y UMBRAL 90 USDC, más 60 USDC por exponer las 30 obras. Hoy los costos fijos son casi cero (base de datos y web en planes gratuitos, y cada operación en Stellar cuesta una fracción de centavo). El primer cliente a buscar es una sala o un museo de Resistencia: el público pone el volumen, la sala sostiene el proyecto.
+**Una cuenta de ejemplo.** Una sala con 30 obras que juntan 300 continuaciones en un mes: sus artistas reciben 240 USDC y UMBRAL 60 USDC, más 60 USDC por exponer las 30 obras. Hoy los costos fijos son casi cero (base de datos y web en planes gratuitos, y cada operación en Stellar cuesta una fracción de centavo). El primer cliente a buscar es una sala o un museo de Resistencia: el público pone el volumen, la sala sostiene el proyecto.
 
 **Riesgos que conocemos.**
 - Pagar 1 USD por dejar unas palabras puede frenar a la gente. Es una hipótesis que todavía no validamos.

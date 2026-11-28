@@ -125,21 +125,21 @@ fn repetir_un_identificador_falla_y_no_cobra_dos_veces() {
 }
 
 #[test]
-fn apoyar_es_voluntario_y_reparte_70_al_artista_y_30_a_umbral() {
+fn apoyar_es_voluntario_y_reparte_80_al_artista_y_20_a_umbral() {
     let m = mundo();
     m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &None);
     m.c.apoyar(&m.caro, &m.c.id_de(&m.ana, &h(&m.env, 101)), &m.moneda, &APOYO);
 
     assert_eq!(m.c.obtener(&m.c.id_de(&m.ana, &h(&m.env, 101))).apoyos, 1);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), APOYO * 70 / 100);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), APOYO * 80 / 100);
     assert_eq!(m.tk.balance(&m.caro), 1_000 * XLM - APOYO);
-    // Umbral se queda con el 30% del apoyo.
-    assert_eq!(m.tk.balance(&m.tesoro), P_HUELLA + APOYO * 30 / 100);
+    // Umbral se queda con el 20% del apoyo.
+    assert_eq!(m.tk.balance(&m.tesoro), P_HUELLA + APOYO * 20 / 100);
 
     // Se puede apoyar más de una vez.
     m.c.apoyar(&m.caro, &m.c.id_de(&m.ana, &h(&m.env, 101)), &m.moneda, &XLM);
     assert_eq!(m.c.obtener(&m.c.id_de(&m.ana, &h(&m.env, 101))).apoyos, 2);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), (APOYO + XLM) * 70 / 100);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), (APOYO + XLM) * 80 / 100);
 }
 
 #[test]
@@ -167,7 +167,7 @@ fn el_autor_cobra_lo_que_junto() {
     m.c.comentar(&m.beto, &h(&m.env, 102), &m.c.id_de(&m.ana, &h(&m.env, 101)), &true, &m.moneda, &MAX);
     m.c.apoyar(&m.caro, &m.c.id_de(&m.ana, &h(&m.env, 101)), &m.moneda, &APOYO);
 
-    let juntado = P_COMENTARIO * 30 / 100 + APOYO * 70 / 100;
+    let juntado = P_COMENTARIO * 30 / 100 + APOYO * 80 / 100;
     let antes = m.tk.balance(&m.ana);
     assert_eq!(m.c.cobrar(&m.ana, &m.moneda), juntado);
     assert_eq!(m.tk.balance(&m.ana), antes + juntado);
@@ -460,10 +460,10 @@ fn el_identificador_depende_del_autor_y_del_contenido() {
 
 const USDC: i128 = 10_000_000; // 1 USDC con 7 decimales
 
-/// Un mundo con los números del SPEC: 2 USDC la huella, 1 USDC continuar, 70% al artista.
+/// Un mundo con los números del SPEC: 2 USDC la huella, 1 USDC continuar, 80% al artista.
 fn mundo_spec() -> Mundo {
     let m = mundo();
-    m.c.fijar_parte_autor(&7_000);
+    m.c.fijar_parte_autor(&8_000);
     m.c.fijar_precios(&m.moneda, &Precios { huella: 2 * USDC, comentario: USDC });
     m
 }
@@ -479,20 +479,20 @@ fn los_numeros_del_spec_cierran() {
     assert_eq!(m.tk.balance(&m.tesoro), 2 * USDC);
     assert_eq!(m.c.saldo(&m.ana, &m.moneda), 0);
 
-    // Continuar la obra: 1 USDC, 0,70 al artista y 0,30 a Umbral.
+    // Continuar la obra: 1 USDC, 0,80 al artista y 0,20 a Umbral.
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
-    assert_eq!(m.tk.balance(&m.tesoro), 2 * USDC + USDC * 3 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
+    assert_eq!(m.tk.balance(&m.tesoro), 2 * USDC + USDC * 2 / 10);
 
-    // Continuar una respuesta: igual. 0,70 al artista, nada para quien respondió.
+    // Continuar una respuesta: igual. 0,80 al artista, nada para quien respondió.
     m.c.comentar(&m.caro, &h(&m.env, 103), &respuesta, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 7 / 10));
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 8 / 10));
     assert_eq!(m.c.saldo(&m.beto, &m.moneda), 0);
-    assert_eq!(m.tk.balance(&m.tesoro), 2 * USDC + 2 * (USDC * 3 / 10));
+    assert_eq!(m.tk.balance(&m.tesoro), 2 * USDC + 2 * (USDC * 2 / 10));
 
-    // Apoyar la respuesta de Beto con 1 USDC: 0,70 al artista, 0,30 a Umbral.
+    // Apoyar la respuesta de Beto con 1 USDC: 0,80 al artista, 0,20 a Umbral.
     m.c.apoyar(&m.caro, &respuesta, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 3 * (USDC * 7 / 10));
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 3 * (USDC * 8 / 10));
     assert_eq!(m.c.saldo(&m.beto, &m.moneda), 0);
 
     // Lo que guarda el contrato es exactamente lo que le debe al artista.
@@ -572,9 +572,9 @@ fn un_saldo_ya_anotado_no_cambia_si_cambia_el_porcentaje() {
     m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &None);
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &MAX);
     m.c.fijar_parte_autor(&3_000);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
     m.c.comentar(&m.caro, &h(&m.env, 103), &obra, &true, &m.moneda, &MAX);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10 + USDC * 3 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10 + USDC * 3 / 10);
 }
 
 #[test]
@@ -600,7 +600,7 @@ fn nadie_cobra_ni_invita_con_la_firma_de_otro() {
         }])
         .try_cobrar(&m.ana, &m.moneda);
     assert!(r.is_err());
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
 
     // Beto firma una invitación en la sala del museo: no vale.
     let r = m
@@ -737,13 +737,13 @@ fn antes_y_despues_de_la_muestra_el_reparto_es_el_de_siempre() {
 
     // Todavía no empezó.
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 
     // Ya terminó.
     m.env.ledger().with_mut(|l| l.timestamp = 1_000 + 3 * DIA_S);
     m.c.comentar(&m.caro, &h(&m.env, 103), &obra, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 7 / 10));
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 8 / 10));
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 }
 
@@ -755,30 +755,43 @@ fn la_muestra_no_cambia_las_obras_de_afuera_ni_el_apoyo() {
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &2_000);
     m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &2_000);
 
-    // Una obra que no es de la sala: 70 y 30, como siempre.
+    // Una obra que no es de la sala: 80 y 20, como siempre.
     m.c.dejar_huella(&m.caro, &h(&m.env, 110), &true, &m.moneda, &MAX, &None);
     let afuera = m.c.id_de(&m.caro, &h(&m.env, 110));
     m.c.comentar(&m.beto, &h(&m.env, 111), &afuera, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.caro, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&m.caro, &m.moneda), USDC * 8 / 10);
 
-    // El apoyo a una obra de la sala sigue siendo 70 para el artista.
+    // El apoyo a una obra de la sala sigue siendo 80 para el artista.
     m.c.apoyar(&m.beto, &obra, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 }
 
 #[test]
-fn en_una_muestra_el_artista_nunca_baja_del_piso() {
+fn en_una_muestra_umbral_se_queda_30_sin_importar_la_parte_del_autor() {
     use soroban_sdk::testutils::Ledger as _;
     let (m, museo, sala, obra) = sala_con_obra();
-    m.c.fijar_parte_autor(&4_000);
+    m.c.fijar_parte_autor(&8_000);
     m.env.ledger().with_mut(|l| l.timestamp = 1_000);
-    m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &2_000);
-    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &2_000);
+    m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &4_000);
+    m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &4_000);
+    let tesoro_antes = m.tk.balance(&m.tesoro);
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
-    // 40% menos 20% daría 20%: se queda en el piso de 30%.
+    // Con la sala en su tope (40%), el artista queda justo en el piso (30%).
     assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 3 / 10);
-    assert_eq!(m.c.saldo(&museo, &m.moneda), USDC * 2 / 10);
+    assert_eq!(m.c.saldo(&museo, &m.moneda), USDC * 4 / 10);
+    assert_eq!(m.tk.balance(&m.tesoro) - tesoro_antes, USDC * 3 / 10);
+}
+
+#[test]
+fn sin_muestra_el_artista_se_queda_80_y_umbral_20() {
+    let m = mundo();
+    m.c.fijar_parte_autor(&8_000);
+    m.c.dejar_huella(&m.ana, &h(&m.env, 101), &true, &m.moneda, &MAX, &None);
+    let tesoro_antes = m.tk.balance(&m.tesoro);
+    m.c.comentar(&m.beto, &h(&m.env, 102), &m.c.id_de(&m.ana, &h(&m.env, 101)), &true, &m.moneda, &MAX);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), P_COMENTARIO * 80 / 100);
+    assert_eq!(m.tk.balance(&m.tesoro) - tesoro_antes, P_COMENTARIO * 20 / 100);
 }
 
 #[test]
@@ -852,22 +865,22 @@ fn sin_la_firma_del_artista_la_muestra_no_le_cambia_el_reparto() {
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &4_000);
     assert!(!m.c.acepto_muestra(&sala, &m.ana));
 
-    // Ana no aceptó: cobra su 70% y la sala nada.
+    // Ana no aceptó: cobra su 80% y la sala nada.
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 
     // Que acepte otro artista no cambia nada para Ana.
     m.c.aceptar_muestra(&m.caro, &sala, &1_000, &(1_000 + DIA_S), &4_000);
     m.c.comentar(&m.beto, &h(&m.env, 103), &obra, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 7 / 10));
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 8 / 10));
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 
     // Cuando Ana acepta, vale desde ahí en adelante.
     m.c.aceptar_muestra(&m.ana, &sala, &1_000, &(1_000 + DIA_S), &4_000);
     assert!(m.c.acepto_muestra(&sala, &m.ana));
     m.c.comentar(&m.beto, &h(&m.env, 104), &obra, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 7 / 10) + USDC * 3 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), 2 * (USDC * 8 / 10) + USDC * 3 / 10);
     assert_eq!(m.c.saldo(&museo, &m.moneda), USDC * 4 / 10);
 }
 
@@ -891,7 +904,7 @@ fn el_artista_acepta_solo_el_porcentaje_que_vio_y_solo_esa_muestra() {
     m.c.abrir_muestra(&sala, &(1_000 + 2 * DIA_S), &(1_000 + 3 * DIA_S), &4_000);
     assert!(!m.c.acepto_muestra(&sala, &m.ana));
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 }
 
@@ -919,7 +932,7 @@ fn una_muestra_nueva_con_la_misma_fecha_de_inicio_pide_otra_firma() {
     m.c.abrir_muestra(&sala, &1_000, &(1_000 + DIA_S), &4_000);
     assert!(!m.c.acepto_muestra(&sala, &m.ana));
     m.c.comentar(&m.beto, &h(&m.env, 102), &obra, &true, &m.moneda, &USDC);
-    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 7 / 10);
+    assert_eq!(m.c.saldo(&m.ana, &m.moneda), USDC * 8 / 10);
     assert_eq!(m.c.saldo(&museo, &m.moneda), 0);
 }
 

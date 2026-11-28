@@ -7,6 +7,13 @@ Contrato: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`
 
 Es el segundo contrato. El primero, `CCFQDRBGXVE4EIXZMBKA4GXXJV3BV6IZNSNXLPJHTDKEGN3SYYIW4N66`, sigue en la red con sus comprobantes, pero la app ya no lo usa. El segundo suma los arreglos de la auditoría: la firma del artista vale solo para la muestra exacta que vio, el museo puede retirar lo que no se usó del fondo y el administrador puede actualizar el código.
 
+**28/11/2026: reparto nuevo.** El mismo contrato se actualizó con `actualizar`, que conserva todas las obras, huellas y saldos. Ahora quien hizo la obra recibe el 80% y UMBRAL el 20%, también en los apoyos. En una muestra con una sala, UMBRAL se queda con el 30%, la sala con su parte (hasta 40%) y el artista con el resto, nunca menos del 30%. Las transacciones de abajo son anteriores y muestran el reparto 70/30 de ese momento.
+
+| Acción | Quién firma | Detalle | Comprobante |
+|---|---|---|---|
+| Instalar el código nuevo y actualizar el contrato | UMBRAL | Código `54c8d2b3…a105` | [8ce25766…](https://stellar.expert/explorer/testnet/tx/8ce25766157fef6702d69d5ef1a4c00bf132d75c2a452fb29f5f8fe7d74cd3d7) |
+| Fijar la parte del artista en 80% | UMBRAL | `parte_autor` = 8000 | [b45ff446…](https://stellar.expert/explorer/testnet/tx/b45ff446aa3fd4473f80c7564dbca120621055e493bffad29fc415f8574abc89) |
+
 Monedas aceptadas:
 
 - USDC de prueba: emisor `GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5`, contrato del activo `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA`.

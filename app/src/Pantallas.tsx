@@ -511,7 +511,7 @@ function Continuar({ obra, padre, sesion, alPublicar }: { obra: Huella; padre: H
         <span>Doy permiso para publicar este texto. Sé que cualquiera lo puede leer y que no incluye datos sensibles míos ni de otras personas.</span>
       </label>
       <p className="precio">
-        Cuesta <b>{precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>. El 70% va a quien hizo la obra y el 30% a UMBRAL. Solo baja si el artista firma una muestra con una sala, y nunca de 30%. Vos no cobrás por continuar.
+        Cuesta <b>{precio !== undefined ? plata(precio, sesion.moneda.codigo) : sinPrecio ? "(no se pudo leer el precio)" : "(leyendo el precio)"}</b>. El 80% va a quien hizo la obra y el 20% a UMBRAL. Solo cambia si el artista firma una muestra con una sala, y nunca le queda menos del 30%. Vos no cobrás por continuar.
       </p>
       {sesion.cuenta ? (
         <button className="btn lleno" disabled={!listo}>
@@ -547,7 +547,7 @@ function Apoyar({ obra, sesion }: { obra: Huella; sesion: Sesion }) {
       }}
     >
       <p className="rotulo">Apoyar la obra</p>
-      <p className="sub">Monto libre, sin escribir nada. El 70% va a quien la hizo.</p>
+      <p className="sub">Monto libre, sin escribir nada. El 80% va a quien la hizo.</p>
       <div className="fila">
         <label className="monto">
           <input inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value)} aria-label={`Monto en ${sesion.moneda.codigo}`} />
@@ -781,7 +781,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
       <div className="form-cabeza">
         <p className="rotulo">Exponer una obra</p>
         <h2>Tu obra, en el cielo</h2>
-        <p className="sub">La obra queda firmada a tu nombre en la red. Cada vez que alguien la continúe o la apoye, te llega el 70%.</p>
+        <p className="sub">La obra queda firmada a tu nombre en la red. Cada vez que alguien la continúe o la apoye, te llega el 80%.</p>
       </div>
       {sala && (
         <p className="invitacion">
@@ -933,7 +933,7 @@ export function Abrir({ sesion, sala }: { sesion: Sesion; sala?: string }) {
               </dl>
             </div>
           </article>
-          <p className="previa-nota">Después, cada continuación y cada apoyo te deja el 70%.</p>
+          <p className="previa-nota">Después, cada continuación y cada apoyo te deja el 80%.</p>
         </aside>
       </div>
     </section>
@@ -956,8 +956,8 @@ const PASOS_COBRO: { titulo: string; texto: string; dibujo: ReactNode }[] = [
     ),
   },
   {
-    titulo: "El 70% queda a tu nombre",
-    texto: "El otro 30% va a UMBRAL. Ves tu saldo acá, por moneda.",
+    titulo: "El 80% queda a tu nombre",
+    texto: "El otro 20% va a UMBRAL. Ves tu saldo acá, por moneda.",
     dibujo: (
       <svg viewBox="0 0 64 64" aria-hidden="true">
         <circle cx="32" cy="32" r="20" className="suave" />
@@ -1014,7 +1014,7 @@ export function Cobrar({ sesion }: { sesion: Sesion }) {
       <div className="form-cabeza">
         <p className="rotulo">Cobrar</p>
         <h2>Lo que juntaron tus obras</h2>
-        <p className="sub">Solo cobran quienes exponen obras: el 70% de cada continuación y de cada apoyo. Lo retirás cuando quieras.</p>
+        <p className="sub">Solo cobran quienes exponen obras: el 80% de cada continuación y de cada apoyo. Lo retirás cuando quieras.</p>
       </div>
       {!cuenta ? (
         <>

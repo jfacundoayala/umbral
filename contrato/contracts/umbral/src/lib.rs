@@ -21,14 +21,17 @@ const VIDA: u32 = 120 * DIA;
 const UMBRAL_VIDA: u32 = VIDA - DIA;
 /// 100% en puntos básicos.
 const TOTAL_BPS: u32 = 10_000;
-/// Parte de cada apoyo voluntario que queda para Umbral (30%).
-const APOYO_UMBRAL_BPS: u32 = 3_000;
+/// Parte de cada apoyo voluntario que queda para Umbral (20%).
+const APOYO_UMBRAL_BPS: u32 = 2_000;
+/// Parte fija de Umbral durante una muestra con una sala (30%): ahí Umbral
+/// participa armando la muestra. La sala cobra la suya y el artista, el resto.
+const MUESTRA_UMBRAL_BPS: u32 = 3_000;
 /// Piso de la parte del artista en una continuación (30%). Ningún
 /// administrador puede bajarla de acá.
 const PISO_AUTOR_BPS: u32 = 3_000;
 /// Tope de la parte que puede recibir una sala durante su muestra (40%).
-/// La parte de la sala se elige al abrir cada muestra y sale de la parte
-/// del artista, que igual nunca baja del piso.
+/// La parte de la sala se elige al abrir cada muestra; con el 30% de Umbral,
+/// el artista se queda con el resto, que nunca baja del piso.
 const MUESTRA_SALA_MAX_BPS: u32 = 4_000;
 /// Duración máxima de una muestra, en segundos (90 días).
 const MUESTRA_MAX: u64 = 90 * 86_400;
@@ -910,20 +913,23 @@ impl Umbral {
             return Err(Error::PrecioInvalido);
         }
         let cliente = token::TokenClient::new(env, moneda);
-        // Sin muestra: el artista recibe su parte entera. Con muestra en
-        // curso: la sala recibe la parte acordada, que sale de la del artista, y el
-        // artista nunca baja del piso.
+        // Sin muestra: el artista recibe su parte (80%). Con muestra en curso:
+        // Umbral se queda con el 30%, la sala con la parte acordada y el artista
+        // con el resto, que nunca baja del piso.
         let (parte, parte_sala) = match (artista, museo) {
-            (Some(_), sala) => {
-                let bps: u32 = env.storage().instance().get(&Clave::ParteAutor).unwrap();
-                match sala {
-                    Some((_, bps_sala)) => {
-                        let bps_artista = bps.saturating_sub(bps_sala).max(PISO_AUTOR_BPS);
+            (Some(_), sala) => match sala {
+                Some((_, bps_sala)) => {
+                        let bps_artista = TOTAL_BPS
+                            .saturating_sub(MUESTRA_UMBRAL_BPS)
+                            .saturating_sub(bps_sala)
+                            .max(PISO_AUTOR_BPS);
                         (Self::parte_de(monto, bps_artista)?, Self::parte_de(monto, bps_sala)?)
-                    }
-                    None => (Self::parte_de(monto, bps)?, 0),
                 }
-            }
+                None => {
+                    let bps: u32 = env.storage().instance().get(&Clave::ParteAutor).unwrap();
+                    (Self::parte_de(monto, bps)?, 0)
+                }
+            },
             (None, _) => (0, 0),
         };
         let al_contrato = parte + parte_sala;

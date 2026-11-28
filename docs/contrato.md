@@ -7,8 +7,8 @@ Contrato en Soroban (soroban-sdk 30), en `contrato/contracts/umbral/src/lib.rs`.
 | Función | Quién firma | Qué hace |
 |---|---|---|
 | `dejar_huella` | Quien expone la obra | Expone una obra. El precio va entero a umbral. Si es una visita invitada por una sala, paga el fondo de la sala. |
-| `comentar` | Quien continúa | Continúa una huella. El 70% queda a nombre del artista que expuso la obra y el 30% va a umbral. Durante una muestra aceptada por el artista, la sala recibe su parte de lo del artista. |
-| `apoyar` | Quien apoya | Apoyo de monto libre: 70% para el artista, 30% para umbral. |
+| `comentar` | Quien continúa | Continúa una huella. El 80% queda a nombre del artista que expuso la obra y el 20% va a umbral. Durante una muestra aceptada por el artista, umbral recibe el 30%, la sala su parte y el artista el resto, nunca menos del 30%. |
+| `apoyar` | Quien apoya | Apoyo de monto libre: 80% para el artista, 20% para umbral. |
 | `cobrar` | El artista | Retira todo su saldo en una moneda. |
 | `retirar` | Quien escribió la huella | La marca como retirada. |
 | `renovar` | Cualquiera | Extiende la vigencia de una huella. |
@@ -46,4 +46,4 @@ El servidor usa `HuellaDejada` para confirmar que un comprobante es el de esa hu
 
 ## Compilar igual que lo desplegado
 
-`contrato/rust-toolchain.toml` fija Rust 1.100.0. Con esa versión, `stellar contract build` da el mismo código que está en la red: `276f4d85…0fc7` (26.205 bytes). El contrato anterior, `CCFQDRBG…W4N66`, daba `ccc8f647…c8773` con esa misma versión.
+`contrato/rust-toolchain.toml` fija Rust 1.100.0. Con esa versión, `stellar contract build` da el mismo código que está en la red desde el 28/11: `54c8d2b3…a105` (26.204 bytes). Antes del reparto 80/20 era `276f4d85…0fc7`. El contrato anterior, `CCFQDRBG…W4N66`, daba `ccc8f647…c8773` con esa misma versión.

@@ -29,7 +29,7 @@ PRECIO_USDC_COMENTARIO="${PRECIO_USDC_COMENTARIO:-200000}" # 0,02 USDC
 # El mismo código que está en testnet (CBPXN2SA…V3TP), compilado con Rust 1.100.0. No se recompila acá.
 CARPETA="$(cd "$(dirname "$0")" && pwd)"
 WASM="${WASM:-$CARPETA/target/wasm32v1-none/release/umbral.wasm}"
-WASM_ESPERADO="276f4d855f2e3da46b967db434abeacdb68b7d0990853e3fdc24722a33960fc7"
+WASM_ESPERADO="54c8d2b3d1288b105831c4725d80018458b09cfe02c7b6f3fa59da9a0768a105"
 
 case "$RED" in
   mainnet)

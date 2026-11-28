@@ -5,7 +5,7 @@ Guía para desplegar el contrato en la red principal de Stellar, donde los fondo
 ## Qué hace `contrato/mainnet.sh`
 
 1. Comprueba que el wasm sea el mismo que corre en testnet (`276f4d85…0fc7`, 26.205 bytes). No recompila: si el archivo cambió, no sigue.
-2. Sube el código y despliega el contrato, con administrador, tesoro y parte del artista (70%).
+2. Sube el código y despliega el contrato, con administrador, tesoro y parte del artista (80%).
 3. Fija precios en XLM y en USDC.
 4. Hace una prueba chica en XLM, con centavos: expone una obra, la continúa y el artista cobra.
 
