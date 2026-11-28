@@ -28,7 +28,7 @@
 /* Fondo: anillos punteados finos y una esfera apenas sugerida. */
 .mapa-3d .fondo .orbita { fill: none; stroke: var(--petroleo); stroke-width: .7; stroke-dasharray: 1 5; }
 .mapa-3d .fondo .meridiano { fill: none; stroke: var(--niebla); stroke-width: .6; stroke-dasharray: 1 7; opacity: .45; }
-.mapa-3d .fondo .onda { opacity: .2; }
+.mapa-3d .fondo .onda { opacity: .38; }
 .mapa-3d .linea { stroke: var(--niebla); stroke-width: 1; stroke-linecap: round; }
 .mapa-3d .brillo { pointer-events: none; }
 
@@ -47,10 +47,3 @@
 
 /* Celular: los nombres en tinta plena (contraste AA sobre marfil); la distancia aclara solo el círculo. */
 .mapa-3d.angosta .punto > :not(text) { opacity: var(--velo, 1); }
-
-/* Profundidad: un piso tenue, la sombra de cada punto y un tallo que la une, y la luz sobre la obra. */
-.mapa-3d .fondo .suelo-borde { fill: none; stroke: var(--petroleo); stroke-width: .7; opacity: .22; }
-.mapa-3d .fondo .tallo { stroke: var(--petroleo); stroke-width: .8; stroke-dasharray: 2 4; }
-.mapa-3d .fondo .sombra { fill: var(--tinta); }
-.mapa-3d .punto .reflejo { pointer-events: none; }
-.mapa-3d .linea { stroke: #7F8C87; }

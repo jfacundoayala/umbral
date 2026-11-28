@@ -130,12 +130,12 @@ function useAstros(radio: number, id: string) {
   }, [radio, id]);
 }
 
-/** Anillo de radio `r` (en el plano horizontal a la altura `y`, o vertical si `meridiano`) ya girado y proyectado. */
-function anillo(r: number, g: Giro, distancia: number, meridiano = false, y = 0) {
+/** Anillo de radio `r` (en el plano horizontal, o vertical si `meridiano`) ya girado y proyectado. */
+function anillo(r: number, g: Giro, distancia: number, meridiano = false) {
   let d = "";
   for (let i = 0; i <= 96; i++) {
     const a = (i / 96) * Math.PI * 2;
-    const p = meridiano ? { x: Math.cos(a) * r, y: Math.sin(a) * r, z: 0 } : { x: Math.cos(a) * r, y, z: Math.sin(a) * r };
+    const p = meridiano ? { x: Math.cos(a) * r, y: Math.sin(a) * r, z: 0 } : { x: Math.cos(a) * r, y: 0, z: Math.sin(a) * r };
     const q = proyectar(p, g, distancia);
     d += `${i ? "L" : "M"}${q.sx.toFixed(1)} ${q.sy.toFixed(1)} `;
   }
@@ -208,13 +208,8 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
   const reducida = useConsulta("(prefers-reduced-motion: reduce)");
   const base = angosta ? 190 : 300;
   const rMax = Math.max(0, ...puntos.map((p) => radioDe(p.nivel)));
-  // Cámara más cerca: lo que está adelante crece y lo de atrás se achica, y el volumen se nota.
-  const distancia = Math.max(rMax, base) * (angosta ? 3.1 : 2.8);
-  /** Un piso debajo de la constelación: cada punto deja su sombra y un tallo hasta ella, como una maqueta. */
-  const suelo = -Math.max(rMax, base * 0.5) * 0.78;
-  const rSuelo = Math.max(rMax, base * 0.5) * 0.98;
-  // En celular deja más margen a los costados: la perspectiva acerca los nombres al borde.
-  const alcance = Math.max(base * 0.9, rMax * (angosta ? 1.1 : 0.98) + 46);
+  const distancia = Math.max(rMax, base) * 3.4;
+  const alcance = Math.max(base * 0.9, rMax * 0.98 + 46);
   // Si la constelación crece, el dibujo se achica: los puntos y los nombres crecen (hasta el doble) para que se lean y se puedan tocar.
   const k = Math.min(2, alcance / base);
   const ondas = useOndas(alcance);
@@ -449,12 +444,6 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
   const astrosVista = astros.map((a) => ({ a, ...proyectar(a, giro, distancia) })).sort((a, b) => a.z - b.z);
 
   const marcada = mirando ?? (elegida !== obra.id ? elegida : null);
-  const aplaste = Math.max(0.16, Math.abs(Math.sin(giro.pitch)));
-  const sombras = vista.map(({ p, sx, sy, z }) => {
-    const q = proyectar({ x: p.x, y: suelo, z: p.z }, giro, distancia);
-    const r = (p.nivel ? 11 + Math.min(8, p.desc * 2.5) : 31) * k * q.f * 0.9;
-    return { id: p.id, sx, sy, qx: q.sx, qy: q.sy, rx: r, ry: r * aplaste, o: 0.08 + 0.16 * cercania(z) };
-  });
 
   const nombreDe = (h: Huella) => (h.estado === "retirada" ? "Retirada" : (h.nombre ?? "").split(" ")[0]);
   // Nombres que se muestran: sin pisarse entre sí ni quedar debajo de un círculo que está más adelante.
@@ -516,7 +505,7 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
         {p.nivel ? (
           <>
             {/* Más grande y con centro azul cuanto más la continuaron. */}
-            <circle className="nucleo" r={rNucleo} style={retirada ? undefined : { fill: `url(#${uid}-esfera)` }} />
+            <circle className="nucleo" r={rNucleo} />
             {p.desc > 0 && <circle className="semilla" r={3 + Math.min(4, p.desc)} />}
           </>
         ) : (
@@ -541,7 +530,6 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
             ) : (
               !retirada && <Icono h={h} />
             )}
-            {!retirada && <circle className="reflejo" r={29} fill={`url(#${uid}-reflejo)`} />}
           </>
         )}
         {nombres.has(p.id) && <text y={p.nivel ? 28 + Math.min(8, p.desc * 2.5) : invitada ? 62 : 50} style={{ fontSize: angosta ? NOMBRE_CELULAR_PX / (pxPorUnidad * esc * k) : 10 }}>{p.nivel ? nombre : "Obra"}</text>}
@@ -599,22 +587,6 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
       onKeyDown={alTeclear}
     >
       <defs>
-        <radialGradient id={`${uid}-esfera`} cx="0.5" cy="0.5" r="0.62" fx="0.34" fy="0.3">
-          <stop offset="0" stopColor="#FFFFFF" />
-          <stop offset="0.42" stopColor="#F2EDE3" />
-          <stop offset="1" stopColor="#97A49E" />
-        </radialGradient>
-        <radialGradient id={`${uid}-reflejo`} cx="0.5" cy="0.5" r="0.6" fx="0.32" fy="0.26">
-          <stop offset="0" stopColor="#FFFFFF" stopOpacity="0.55" />
-          <stop offset="0.35" stopColor="#FFFFFF" stopOpacity="0.08" />
-          <stop offset="0.8" stopColor="#1E1B18" stopOpacity="0" />
-          <stop offset="1" stopColor="#1E1B18" stopOpacity="0.28" />
-        </radialGradient>
-        <radialGradient id={`${uid}-suelo`}>
-          <stop offset="0" stopColor="#314B49" stopOpacity="0.13" />
-          <stop offset="0.7" stopColor="#314B49" stopOpacity="0.05" />
-          <stop offset="1" stopColor="#314B49" stopOpacity="0" />
-        </radialGradient>
         <radialGradient id={`${uid}-brillo`}>
           <stop offset="0" stopColor="#314B49" stopOpacity="0.2" />
           <stop offset="0.45" stopColor="#9AA3A0" stopOpacity="0.16" />
@@ -628,21 +600,11 @@ export default function Constelacion({ obra, huellas, elegida, elegir, invitada 
         ))}
         {rMax > 0 && <path className="meridiano" d={anillo(rMax, giro, distancia, true)} />}
         {anillos.map((r, i) => <path key={r} className="orbita" d={anillo(r, giro, distancia)} opacity={0.6 - i * 0.08} />)}
-        <path className="suelo" d={anillo(rSuelo, giro, distancia, false, suelo)} fill={`url(#${uid}-suelo)`} />
-        <path className="suelo-borde" d={anillo(rSuelo, giro, distancia, false, suelo)} />
-        <path className="suelo-borde" d={anillo(rSuelo * 0.55, giro, distancia, false, suelo)} />
-        {sombras.map((t) => (
-          <g key={`s${t.id}`}>
-            <line className="tallo" x1={t.sx} y1={t.sy} x2={t.qx} y2={t.qy} opacity={t.o * 2.2} />
-            <ellipse className="sombra" cx={t.qx} cy={t.qy} rx={t.rx} ry={t.ry} opacity={t.o} />
-          </g>
-        ))}
       </g>
       {vista.map(({ p, sx, sy, z }) => {
         const pa = p.padre ? enVista.get(p.padre) : null;
         if (!pa) return null;
-        const c = cercania((z + pa.z) / 2);
-        return <line key={`l${p.id}`} className="linea" x1={pa.sx} y1={pa.sy} x2={sx} y2={sy} opacity={0.3 + 0.6 * c} style={{ strokeWidth: (0.6 + 1.6 * c) * Math.min(1.4, k) }} />;
+        return <line key={`l${p.id}`} className="linea" x1={pa.sx} y1={pa.sy} x2={sx} y2={sy} opacity={0.3 + 0.6 * cercania((z + pa.z) / 2)} />;
       })}
       {resto.filter((v) => v.z < 0).map((v) => dibujarPunto(v))}
       <circle className="brillo" r={92 * k} fill={`url(#${uid}-brillo)`} aria-hidden="true" />
