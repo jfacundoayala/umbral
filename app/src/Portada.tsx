@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 import { ir } from "./comun";
 import { PortadaMas } from "./PortadaMas";
 
-/** "Entre raíces", primera obra de la Colección 001 (obra de muestra). */
-const OBRA_PORTADA = "e11edfb7b8f6b72e5f3f6cd7f48e85229cf3dd5eef60825f999586ffa6d0f607";
+/** "Entre raíces", primera obra de la Colección 001. */
+const OBRA_PORTADA = "84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5";
 
 /** Órbitas finas alrededor de la obra, con algunas huellas (puntos) sobre ellas. */
 function Orbitas() {

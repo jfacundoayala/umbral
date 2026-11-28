@@ -40,24 +40,12 @@ async function leer<T>(ruta: string): Promise<T> {
 export type Orden = "huellas" | "nuevas";
 
 /** Obras publicadas. "huellas": las más continuadas primero. "nuevas": las últimas primero. */
-/** Obras que siguen en la red y se abren por su enlace, pero ya no se muestran en El cielo:
- *  las primeras obras de muestra (identidad anterior), la obra de prueba del encuentro y la
- *  primera carga de la Colección 001, reemplazada. Sus comprobantes están en docs/txs.md. */
-export const FUERA_DEL_CIELO = new Set([
-  "c11a519bf2b3e15f9fd2a13be031614aadd105800bf7ae17c57e4315f1f150e7",
-  "e0a1f2f25d102a447aea1947aed17ab655a89a43dc1c9e94ae8f72108567e6a3",
-  "d387c0738f34fd75510735cd50a625fd657be543f17183ab7910743c2a4deab6",
-  "cdad0d0288ee60a556ff861ef2b6baa64e9a5292e9e6785c2b156133a856259d",
-  "02f9587e380eb075eabc5f5155f3edd1d850007815c97a48de700d23c4094d79",
-  "ce540f8556ab6c7d48e7174e662e04c58de2937071ff108122dc329503fcc71e",
-  "12541274d348295d720da7108ba583c63f1fdb4314a415f04b3c487dc9c0e4ac",
-  "9ee8bab1aef222423dba5e444dac6711e53710ebc06697f56acf1eb9d28164ab",
-  "457b0aaddfdb36c9c288b760bc240282d74bab68443220467dc5d1c15fa975a4",
-  "fc3d85853f491e1f4aacd69afbf9a590ecfc52c50d86bd1af1b5c3ee5bf65070",
-  "eaf896193daf133b4eab573a41b76d7162b2f5b18cd2030804e82879b6d4bb35",
-  "f64ef3f9c42005a7ead7efbe2c1421ca50bb6572851338da6e5d7daad2a554dd",
-  "6ba5e56940b74c80c20dfde1df1091e0cb25b9d723afede8f28782641eaa269e",
-]);
+/** El cielo muestra lo expuesto desde la colección final (28/11, 05:30 UTC) y la obra de Lucía.
+ *  Lo anterior (versiones reemplazadas y pruebas) sigue en la red y se abre por su enlace;
+ *  sus comprobantes están en docs/txs.md. */
+const DESDE_COLECCION = "2026-11-28T05:30:00Z";
+const MIRTA = "8d78f8c880d97a97b4cc6127719c086707843d79a933e3b1c59ec3e6753d551b";
+export const enElCielo = (h: Pick<Huella, "id" | "recibido">) => h.id === MIRTA || new Date(h.recibido) >= new Date(DESDE_COLECCION);
 
 /** La obra de prueba que muestra el sello "Estuve ahí" (encuentro en persona en la red de pruebas). */
 export const OBRA_CON_SELLO = "12541274d348295d720da7108ba583c63f1fdb4314a415f04b3c487dc9c0e4ac";
@@ -65,7 +53,7 @@ export const OBRA_CON_SELLO = "12541274d348295d720da7108ba583c63f1fdb4314a415f04
 export async function obras(orden: Orden): Promise<Huella[]> {
   const o = orden === "huellas" ? "respuestas_publicadas.desc,recibido.desc" : "recibido.desc";
   const todas = await leer<Huella[]>(`obras_con_conteo?select=${CAMPOS}&order=${o}&limit=200`);
-  return todas.filter((h) => !FUERA_DEL_CIELO.has(h.id));
+  return todas.filter(enElCielo);
 }
 
 /** Una obra y todas las huellas que nacieron de ella (la cadena entera, por `raiz`). */

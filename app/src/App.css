@@ -356,3 +356,17 @@ main { min-height: calc(100svh - 160px); }
   .pmas-obras li:nth-child(3) { display: none; }
   .pmas-encuentro { grid-template-columns: 1fr; }
 }
+
+/* Cuentas claras */
+.cuentas-reparto { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0 14px; }
+.cuentas-reparto div { border: 1px solid var(--niebla); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.cuentas-reparto b { font-family: var(--serif); font-size: 44px; font-weight: 500; color: var(--petroleo); line-height: 1; }
+.cuentas-reparto span { font-size: 14px; color: var(--tenue); }
+.cuentas-lista { padding-left: 18px; }
+.cuentas-enlaces { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.cuentas h3 { font-family: var(--serif); font-size: 24px; font-weight: 500; margin: 28px 0 8px; }
+.cuentas-avisos { list-style: none; padding: 0; }
+.cuentas-avisos li { border-left: 2px solid var(--petroleo); padding: 2px 0 2px 12px; margin-bottom: 10px; }
+.cuentas-avisos span { display: block; font-size: 12.5px; color: var(--tenue); }
+.reparto-ficha { border-top: 1px solid var(--niebla); margin-top: 14px; padding-top: 12px; font-size: 14px; }
+.reparto-ficha p { margin: 0 0 6px; }

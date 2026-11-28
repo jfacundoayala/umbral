@@ -17,6 +17,7 @@ const Ficha = pantalla("Ficha");
 const Abrir = pantalla("Abrir");
 const Cobrar = pantalla("Cobrar");
 const Placa = lazy(() => import("./Placa").then((m) => ({ default: m.Placa })));
+const Cuentas = lazy(() => import("./Cuentas").then((m) => ({ default: m.Cuentas })));
 const Legal = lazy(() => import("./Legal").then((m) => ({ default: m.Legal })));
 const Opinion = lazy(() => import("./Opinion").then((m) => ({ default: m.Opinion })));
 const MiCodigo = lazy(() => import("./Encuentro").then((m) => ({ default: m.MiCodigo })));
@@ -113,6 +114,7 @@ export default function App() {
         {ruta.pantalla === "placa" && <Placa key={ruta.id} id={ruta.id} sesion={sesion} />}
         {ruta.pantalla === "abrir" && <Abrir key={ruta.sala ?? ""} sesion={sesion} sala={ruta.sala} />}
         {ruta.pantalla === "cobrar" && <Cobrar sesion={sesion} />}
+        {ruta.pantalla === "cuentas" && <Cuentas />}
         {(ruta.pantalla === "terminos" || ruta.pantalla === "privacidad") && <Legal cual={ruta.pantalla} />}
         {ruta.pantalla === "opinion" && <Opinion key={ruta.desde} desde={ruta.desde} />}
         {ruta.pantalla === "codigo" && <MiCodigo sesion={sesion} sala={ruta.sala} />}
@@ -121,6 +123,7 @@ export default function App() {
       </main>
       <footer className="pie">
         <span>UMBRAL · red de pruebas de Stellar</span>
+        <a href="#/cuentas">Cuentas claras</a>
         <a href="#/terminos">Términos</a>
         <a href="#/privacidad">Privacidad</a>
         <a href="#/opinion">Contanos qué te pareció</a>

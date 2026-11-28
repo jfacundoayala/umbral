@@ -247,3 +247,10 @@ export async function pagadaPorSala(txHash: string): Promise<boolean> {
     return nombre === "fondo_usado";
   });
 }
+
+/** El reparto que el contrato aplica hoy: parte de quien hizo la obra (en %) y la cuenta de UMBRAL. No pide firma. */
+export async function repartoVigente(): Promise<{ autor: number; tesoro: string }> {
+  const c = cliente();
+  const [parte, tesoro] = await Promise.all([c.parte_autor(), c.tesoro()]);
+  return { autor: Number(parte.result) / 100, tesoro: String(tesoro.result) };
+}

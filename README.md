@@ -65,13 +65,15 @@ UMBRAL no es un marketplace ni un museo virtual para mirar. **No vende obras: ve
 |---|---|---|---|---|
 | Qué se paga | La obra, una vez | Nada, o una entrada | Apoyo a la persona | Continuar una obra concreta |
 | Sirve para arte que no se vende (escultura en la calle, mural) | No | Solo para mirarlo | No queda ligado a la obra | **Sí: es el caso central** |
-| Qué recibe el artista | Una venta | Nada | Propinas | **70% de cada huella y cada apoyo, para siempre** |
+| Qué recibe el artista | Una venta | Nada | Propinas | **Al menos 70% de cada huella y cada apoyo, al momento** (menos solo si acepta una muestra, nunca bajo 30%) |
 | Qué queda de quien participa | Un dueño | Una visita | Un pago | **Su palabra, firmada y unida a la obra** |
 
 1. **El arte de la calle empieza a cobrar.** Una escultura en una plaza no tiene comprador. Con la **placa con QR** pegada al lado, quien la tiene enfrente escanea, deja su huella desde el celular y el 70% va a quien la hizo.
 2. **La placa no se puede falsificar.** La crea y la firma con su billetera quien expuso la obra. Al escanearla, UMBRAL comprueba la firma y muestra un código que tiene que coincidir con el de la placa. Si alguien pega una placa trucha, la ficha avisa que no está firmada. Y aunque copien el código, el contrato le paga siempre a la cuenta registrada de la obra.
 3. **La obra muestra lo que despierta.** Cada huella sale de la que continúa y la obra se vuelve una constelación en 3D que se puede girar. El artista ve qué generó su obra, no un número de "me gusta".
 4. **Presencia real.** La sala escanea en la puerta el código de quien está ahí: quien llega abre "Mi código para el encuentro" (un QR con su cuenta) y la sala, desde "Invitar en la puerta", lo escanea y firma la invitación. El fondo de la sala le paga la obra que deja y esa obra lleva el sello "Estuve ahí", comprobable en la red. Como la invitación se hace cara a cara, el sello no se consigue desde la casa.
+5. **Cuentas claras.** La página "Cuentas claras" y cada ficha muestran el reparto leído en vivo del contrato, no escrito a mano: qué % va a quien hizo la obra, cuánto queda para UMBRAL, los precios, los enlaces al contrato y a la cuenta de UMBRAL, y lo que todavía puede cambiar. Lo contamos antes de que alguien lo encuentre en el código.
+6. **Una pieza al centro.** La portada abre con una sola obra, "Entre raíces", y su constelación: se entiende sin explicar qué es una blockchain.
 
 ## Modelo de negocio
 
@@ -85,6 +87,7 @@ UMBRAL no cobra suscripción ni vende publicidad. Vive de una parte de cada part
 | Apoyar | Libre | 70% | 30% | — |
 | Continuar durante la muestra de una sala | 1 USDC o 10 XLM | de 30% a 70% | 30% | de 0% a 40%, según la muestra |
 
+- **Quien recibe al público pone el fondo.** Como un museo que cubre la conservación de una pieza a cambio de exponerla, la sala o un padrino ponen el fondo de los encuentros: quien va en persona deja su obra sin pagar y se lleva el sello "Estuve ahí". El arte no paga por mostrarse; paga quien quiere estar cerca de él.
 - **El público paga por ser parte y no cobra.** En toda la cadena de respuestas, cobra el artista que expuso la obra.
 - **Muestras de salas y museos:** UMBRAL abre la muestra a pedido de la sala, por hasta 90 días. La parte de la sala sale de la del artista y se fija por muestra, según lo que aporta (difusión, lugar, público). El artista firma viendo el porcentaje; sin su firma, su obra no entra en la muestra. El contrato nunca lo deja por debajo del 30%.
 - Los precios son una hipótesis de prueba, no un modelo validado.

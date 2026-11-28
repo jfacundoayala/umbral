@@ -341,7 +341,26 @@ function Lectura({ h, esObra, sesion, alRetirar, museo }: { h: Huella; esObra: b
           Ver el comprobante en Stellar Expert ↗
         </a>
       )}
+      {esObra && h.estado !== "retirada" && <RepartoFicha nombre={h.nombre} />}
       {h.estado === "publicada" && sesion.cuenta === h.autor && <Retirar h={h} cuenta={sesion.cuenta} alRetirar={alRetirar} />}
+    </div>
+  );
+}
+
+/** A dónde va tu huella: el % que aplica hoy el contrato, leído en vivo. */
+function RepartoFicha({ nombre }: { nombre: string | null }) {
+  const [autor, setAutor] = useState<number | null>(null);
+  useEffect(() => {
+    red().then((m) => m.repartoVigente()).then((r) => setAutor(r.autor)).catch(() => setAutor(null));
+  }, []);
+  if (autor === null) return null;
+  return (
+    <div className="reparto-ficha">
+      <p className="rotulo">A dónde va tu huella</p>
+      <p>
+        <b>{autor.toLocaleString("es-AR")}%</b> para {nombre || "quien hizo la obra"}, al momento. <b>{(100 - autor).toLocaleString("es-AR")}%</b> para sostener UMBRAL. Lo dice el contrato, no nosotros.
+      </p>
+      <a href="#/cuentas">Ver las cuentas claras</a>
     </div>
   );
 }

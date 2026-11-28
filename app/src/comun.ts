@@ -27,6 +27,7 @@ export type Ruta =
   | { pantalla: "placa"; id: string }
   | { pantalla: "abrir"; sala?: string }
   | { pantalla: "cobrar" }
+  | { pantalla: "cuentas" }
   | { pantalla: "terminos" }
   | { pantalla: "privacidad" }
   | { pantalla: "opinion"; desde: "huella" | "pie" }
@@ -51,6 +52,7 @@ function leerRuta(): Ruta {
     return { pantalla: "abrir", sala: sala && /^[0-9a-f]{64}$/.test(sala) ? sala : undefined };
   }
   if (partes[0] === "cobrar") return { pantalla: "cobrar" };
+  if (partes[0] === "cuentas") return { pantalla: "cuentas" };
   if (partes[0] === "codigo") {
     const sala = new URLSearchParams(consulta).get("sala")?.toLowerCase();
     return { pantalla: "codigo", sala: sala && /^[0-9a-f]{64}$/.test(sala) ? sala : undefined };
