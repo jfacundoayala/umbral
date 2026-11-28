@@ -2,7 +2,7 @@
 // Solo lee la base con fetch: no baja billetera ni stellar-sdk.
 import { useEffect, useState } from "react";
 import { OBRA_CON_SELLO, obras, urlFoto, urlTarjeta, type Huella } from "./base";
-import { ir } from "./comun";
+import { ir, OBRA_PORTADA } from "./comun";
 import { SelloVivo } from "./SelloVivo";
 import { PasosVivos } from "./PasosVivos";
 import { CierreCielo, ParaVivos } from "./ParaVivos";
@@ -16,7 +16,8 @@ const PASOS = [
 const PARA = [
   {
     quien: "Artistas",
-    texto: "Exponé tu obra, mirá qué despierta en la gente y cobrá cada vez que alguien la continúa. Con una placa con QR, tu escultura de la calle también recibe huellas.",
+    texto: "Exponé tu obra, mirá qué despierta en la gente y cobrá cada vez que alguien la continúa. Con una placa con QR al lado, tu escultura de la calle también recibe huellas, como",
+    ejemplo: { texto: "la talla Entre raíces", destino: `/obra/${OBRA_PORTADA}` },
     accion: "Exponer una obra",
     destino: "/abrir",
   },

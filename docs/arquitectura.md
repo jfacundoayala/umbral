@@ -5,7 +5,7 @@
 | Pieza | Dónde está | Qué hace | Estado |
 |---|---|---|---|
 | Contrato | `contrato/` | Cobra, reparte y registra cada huella en Stellar | Hecho, 56 pruebas, desplegado en la red de pruebas |
-| App | `app/` | Las pantallas reales: entrar, ver la constelación, abrir, continuar, apoyar, cobrar | Hecha, 78 pruebas y 14 recorridos en el navegador, publicada |
+| App | `app/` | Las pantallas reales: entrar, ver la constelación, abrir, continuar, apoyar, cobrar | Hecha, 103 pruebas y 17 recorridos en el navegador, publicada |
 | Maqueta | `docs/diseno/prototipo/` | Portada y app simulada con la identidad anterior, para decidir pantallas sin gastar nada | Hecha, como registro |
 | Base de datos | `supabase/esquema.sql` | Guarda textos, fotos, audios y favoritos. A la red solo va un código | Hecha y probada |
 | Servidor | `supabase/functions/` | `publicar` comprueba el pago en la red; `retirar` refleja un retiro hecho en la red; `favoritos` comprueba la firma | Hecho y probado |

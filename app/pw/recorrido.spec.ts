@@ -107,6 +107,20 @@ test("Cuentas claras lee el 80/20 del contrato", async ({ page }) => {
   expect(errores).toEqual([]);
 });
 
+test("la placa con QR se ofrece solo en obras que existen en el mundo", async ({ page }) => {
+  const errores = vigilar(page);
+  const placa = page.getByRole("link", { name: "Placa con QR para la obra física" });
+  // Entre raíces es una talla en algarrobo: lleva placa.
+  await page.goto(`/#/obra/${ENTRE_RAICES}`);
+  await expect(page.getByRole("heading", { name: "Entre raíces" }).first()).toBeVisible();
+  await expect(placa.filter({ visible: true })).toHaveAttribute("href", `#/placa/${ENTRE_RAICES}`);
+  // Estuve en la puerta es una foto de un recuerdo: no hay nada al lado de qué pegar la placa.
+  await page.goto(`/#/obra/${CON_SELLO}`);
+  await expect(page.getByRole("heading", { name: "Estuve en la puerta" }).first()).toBeVisible();
+  await expect(placa).toHaveCount(0);
+  expect(errores).toEqual([]);
+});
+
 test("Compartir la obra copia el link de su tarjeta", async ({ page, context }, info) => {
   // En el celular abre el menú del sistema, que una prueba no puede tocar: se prueba en compu.
   test.skip(info.project.name !== "escritorio", "el menú de compartir del celular no se puede probar");

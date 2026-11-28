@@ -88,3 +88,6 @@ export const ir = (destino: string) => {
 
 /** Cuenta palabras como lo hace la base (separadas por espacios). */
 export const palabras = (t: string) => (t.trim() ? t.trim().split(/\s+/).length : 0);
+
+/** "Entre raíces": la obra de la portada y el ejemplo de placa con QR (una talla en algarrobo, existe en el mundo). */
+export const OBRA_PORTADA = "84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5";

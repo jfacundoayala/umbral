@@ -63,7 +63,7 @@ function Publico() {
 
 const ILUS = [Artista, Sala, Publico];
 
-type Para = { readonly quien: string; readonly texto: string; readonly accion: string; readonly destino: string };
+type Para = { readonly quien: string; readonly texto: string; readonly accion: string; readonly destino: string; readonly ejemplo?: { readonly texto: string; readonly destino: string } };
 
 export function ParaVivos({ items }: { items: readonly Para[] }) {
   const lista = useRef<HTMLUListElement>(null);
@@ -98,7 +98,15 @@ export function ParaVivos({ items }: { items: readonly Para[] }) {
               <Ilus />
             </Movible>
             <h3>{p.quien}</h3>
-            <p>{p.texto}</p>
+            <p>
+              {p.texto}
+              {p.ejemplo && (
+                <>
+                  {" "}
+                  <a href={`#${p.ejemplo.destino}`}>{p.ejemplo.texto}</a>.
+                </>
+              )}
+            </p>
             <a className="pmas-enlace" href={`#${p.destino}`}>
               {p.accion} <span aria-hidden="true">→</span>
             </a>

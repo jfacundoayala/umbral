@@ -2,14 +2,13 @@
 // y una sola acción. Mirar es libre y no pide cuenta.
 import { Movible } from "./Movible";
 import { OBRA_CON_SELLO } from "./base";
-import { ir } from "./comun";
+import { ir, OBRA_PORTADA } from "./comun";
 import { PortadaMas } from "./PortadaMas";
 
 /** Qué pasa, en palabras de todos los días. El 80% se explica más abajo, en "Cómo funciona". */
 const PASOS = ["Abrís una obra", "Le dejás tu huella: lo que te hizo sentir", "El artista recibe el 80% al momento"];
 
 /** "Entre raíces", primera obra de la Colección 001. */
-const OBRA_PORTADA = "84dae87eddfb37fb8ec42cd8b82e01ac816e0806f5f44925e2032bb9459e70e5";
 
 /** Órbitas finas alrededor de la obra, con algunas huellas (puntos) sobre ellas. */
 function Orbitas() {

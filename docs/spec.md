@@ -103,7 +103,7 @@ Los precios son una hipótesis: no están validados con gente real.
 |---|---|
 | Contrato (Soroban, soroban-sdk 30) | Hecho. 56 pruebas pasan. Desplegado en la red de pruebas: `CBPXN2SA3RPEUXQIOSWVBSQQ2ENJCZWT2E4ZPUEG3SR34RMANEMFV3TP`. |
 | Maqueta navegable (`docs/diseno/prototipo/`) | Hecha con la identidad anterior y dinero de mentira. Quedó como registro del proceso. |
-| App real (`app/`) | Hecha: portada, cielo de obras, constelación, ficha, exponer, continuar, apoyar, cobrar y favoritos. Probada de punta a punta en la red de pruebas el 27/11/2026 (abrir 20 XLM, continuar 10, apoyar 5, la artista cobró 10,5 y su saldo quedó en 0). Guion en `docs/demo-jurado.md`, guía para quienes prueban en `docs/guia-pruebas.md`. También: audio, sello "Estuve ahí", placa con QR firmada y constelación en 3D. 78 pruebas de la app y 14 recorridos en el navegador. |
+| App real (`app/`) | Hecha: portada, cielo de obras, constelación, ficha, exponer, continuar, apoyar, cobrar y favoritos. Probada de punta a punta en la red de pruebas el 27/11/2026 (abrir 20 XLM, continuar 10, apoyar 5, la artista cobró 10,5 y su saldo quedó en 0). Guion en `docs/demo-jurado.md`, guía para quienes prueban en `docs/guia-pruebas.md`. También: audio, sello "Estuve ahí", placa con QR firmada y constelación en 3D. 103 pruebas de la app y 17 recorridos en el navegador. |
 | Servidor: retirar | Hecho: borra el contenido de una huella solo si en la red figura retirada. Probado. |
 | Base de datos (Supabase, proyecto `umbral`) | Hecha: `supabase/esquema.sql` aplicado. 30 pruebas de reglas de acceso pasan. |
 | Servidor: publicar | Hecho: publica una huella solo si el pago está en la red y el contenido coincide con el código. Probado con un pago real en la red de pruebas. |

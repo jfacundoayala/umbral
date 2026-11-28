@@ -13,6 +13,7 @@ import { nuevaSal, PagoSinConfirmar } from "./sin-red";
 import type { Derechos, Documento, Firmar } from "./umbral";
 import { Movible } from "./Movible";
 import { SelloVivo } from "./SelloVivo";
+import { esObraFisica } from "./fisica";
 
 // Lo que habla con la red (stellar-sdk y la billetera) se baja recién cuando hace falta:
 // el cielo y la ficha se dibujan sin esperarlo.
@@ -244,6 +245,8 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
     );
   }
   const actual = [obra, ...huellas].find((h) => h.id === elegida) ?? obra;
+  // La placa con QR va al lado de una obra que se puede visitar: una escultura, un mural, una pintura.
+  const conPlaca = obra.estado !== "retirada" && esObraFisica(obra);
 
   return (
     <section className="ficha-obra">
@@ -282,11 +285,11 @@ export function Ficha({ id, sesion, desdePlaca }: { id: string; sesion: Sesion; 
         <p className="sub">
           {huellas.length} {huellas.length === 1 ? "huella" : "huellas"}. La obra está en el centro y cada huella sale de la que continúa. Tocá cualquiera para leerla y continuarla.
         </p>
-        {obra.estado !== "retirada" && (
+        {conPlaca && (
           <a className="btn solo-escritorio" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
         )}
         <Constelacion obra={obra} huellas={huellas} elegida={actual.id} elegir={setElegida} invitada={sello?.obra === obra.id} />
-        {obra.estado !== "retirada" && (
+        {conPlaca && (
           <a className="btn solo-celular" href={`#/placa/${obra.id}`}>Placa con QR para la obra física</a>
         )}
       </div>
